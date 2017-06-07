@@ -1,0 +1,11 @@
+<aura:component>
+	<aura:attribute name="GapType" type="String" default="" required="true" description="based on the type is the problem that we will solve" />
+	<aura:attribute name="id" type="String" default="default" required="true" description="based on the id we will add the logic for that id"/>
+	
+	<aura:attribute name="initialized" default="false" type="Boolean"/>
+	
+	<aura:registerEvent name="closeActionEvent" type="c:closeAction"/>
+	<aura:handler event="aura:doneRendering" action="{!c.doneRendering}"/>
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	
+</aura:component>
