@@ -1,0 +1,4 @@
+<design:component >
+    <design:attribute name="childObjectName" label="Related list name" description="The name of required related list to be displayed"/>
+    <design:attribute name="Quantity" label="Records to display"/>
+</design:component>

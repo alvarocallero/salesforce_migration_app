@@ -1,0 +1,42 @@
+<aura:component controller="RelatedListController" implements="force:hasRecordId,force:appHostable,flexipage:availableForAllPageTypes">
+    
+    <aura:attribute name="recordId" type="Id"/>
+    <aura:attribute name="childObjectName" type="String"/>
+    <aura:attribute name="pluralSObjectName" type="String" default="Related List"/>
+    <aura:attribute name="Quantity" type="Integer" default="10"/>
+    
+    <aura:attribute name="listOfObjects" type="SObject[]"/>
+    
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    
+    <span class="slds-text-heading--small slds-truncate slds-m-right--xx-small">{!v.pluralSObjectName}</span>
+    <table class="slds-table slds-table--bordered slds-table--cell-buffer slds-p-top--small slds-p-horizontal--medium slds-table--fixed-layout">
+    	<thead>
+            <tr>
+                <th class="slds-is-sortable bold-text slds-truncate" scope="col">
+                    <span class="slds-truncate" title="Id">Id</span>
+                </th>
+                <th class="slds-is-sortable bold-text slds-truncate" scope="col">
+                    <span class="slds-truncate" title="Name">Name</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        	<aura:iteration items="{!v.listOfObjects}" var="obj">
+        		<tr class="body-row">
+                	<td scope="row" data-label="Id">
+                        <ui:outputText class="slds-truncate" value="{!obj.Id}"/>
+                    </td>
+                    
+                    <td scope="row" data-label="Name">
+                       <a id="{!obj.Id}" onclick="{!c.navigateToObjectPage}">
+                           <ui:outputText class="slds-truncate" value="{!obj.Name}"/>
+                       </a>
+                    </td>
+                </tr>
+    		</aura:iteration>
+        </tbody>
+        
+    </table>
+    
+</aura:component>
