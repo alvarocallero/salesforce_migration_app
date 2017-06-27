@@ -1,15 +1,27 @@
-<aura:component controller="RelatedListController" implements="force:hasRecordId,force:appHostable,flexipage:availableForAllPageTypes">
-    
+<aura:component controller="RelatedListController" implements="force:hasRecordId,force:hasSObjectName,force:appHostable,flexipage:availableForAllPageTypes">
+
     <aura:attribute name="recordId" type="Id"/>
+    <aura:attribute name="sObjectName" type="String" />
     <aura:attribute name="childObjectName" type="String"/>
     <aura:attribute name="pluralSObjectName" type="String" default="Related List"/>
     <aura:attribute name="Quantity" type="Integer" default="10"/>
-    
+
+    <aura:attribute name="listOfChildRelationhips" type="String[]"/>
+
     <aura:attribute name="listOfObjects" type="SObject[]"/>
-    
+    <aura:attribute name="relationships" type="String[]"/>
+
     <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
-    
+
     <span class="slds-text-heading--small slds-truncate slds-m-right--xx-small">{!v.pluralSObjectName}</span>
+
+    <ui:inputSelect class="slds-select" label="Relationships" aura:id="selectedRelation" change="{!c.changeRelationship}">
+    	<ui:inputSelectOption text="" label="Select..."/>
+        <aura:iteration items="{!v.listOfChildRelationhips}" var="item">
+        	<ui:inputSelectOption text="{!item}" label="{!item}"/>
+        </aura:iteration>
+    </ui:inputSelect>
+
     <table class="slds-table slds-table--bordered slds-table--cell-buffer slds-p-top--small slds-p-horizontal--medium slds-table--fixed-layout">
     	<thead>
             <tr>
@@ -27,7 +39,7 @@
                 	<td scope="row" data-label="Id">
                         <ui:outputText class="slds-truncate" value="{!obj.Id}"/>
                     </td>
-                    
+
                     <td scope="row" data-label="Name">
                        <a id="{!obj.Id}" onclick="{!c.navigateToObjectPage}">
                            <ui:outputText class="slds-truncate" value="{!obj.Name}"/>
@@ -36,7 +48,7 @@
                 </tr>
     		</aura:iteration>
         </tbody>
-        
+
     </table>
-    
+
 </aura:component>
