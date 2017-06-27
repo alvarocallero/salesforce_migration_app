@@ -1,54 +1,72 @@
-<aura:component controller="RelatedListController" implements="force:hasRecordId,force:hasSObjectName,force:appHostable,flexipage:availableForAllPageTypes">
-
+<aura:component controller="RelatedListController" implements="force:hasRecordId,force:hasSObjectName,force:appHostable,flexipage:availableForAllPageTypes" access="global">
+        
     <aura:attribute name="recordId" type="Id"/>
     <aura:attribute name="sObjectName" type="String" />
-    <aura:attribute name="childObjectName" type="String"/>
+    <aura:attribute name="childObjectName" type="String" access="global"/>
     <aura:attribute name="pluralSObjectName" type="String" default="Related List"/>
-    <aura:attribute name="Quantity" type="Integer" default="10"/>
-
+    <aura:attribute name="Quantity" type="String" default="10" access="global"/>
+    
     <aura:attribute name="listOfChildRelationhips" type="String[]"/>
-
+    
     <aura:attribute name="listOfObjects" type="SObject[]"/>
     <aura:attribute name="relationships" type="String[]"/>
-
+    
+    <aura:attribute name="ActualPageNumber" type="Integer" default="0"/>
+    <aura:attribute name="PageCount" type="Integer"/>
+    
     <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
-
-    <span class="slds-text-heading--small slds-truncate slds-m-right--xx-small">{!v.pluralSObjectName}</span>
-
-    <ui:inputSelect class="slds-select" label="Relationships" aura:id="selectedRelation" change="{!c.changeRelationship}">
-    	<ui:inputSelectOption text="" label="Select..."/>
-        <aura:iteration items="{!v.listOfChildRelationhips}" var="item">
-        	<ui:inputSelectOption text="{!item}" label="{!item}"/>
-        </aura:iteration>
-    </ui:inputSelect>
-
-    <table class="slds-table slds-table--bordered slds-table--cell-buffer slds-p-top--small slds-p-horizontal--medium slds-table--fixed-layout">
-    	<thead>
-            <tr>
-                <th class="slds-is-sortable bold-text slds-truncate" scope="col">
-                    <span class="slds-truncate" title="Id">Id</span>
-                </th>
-                <th class="slds-is-sortable bold-text slds-truncate" scope="col">
-                    <span class="slds-truncate" title="Name">Name</span>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-        	<aura:iteration items="{!v.listOfObjects}" var="obj">
-        		<tr class="body-row">
-                	<td scope="row" data-label="Id">
-                        <ui:outputText class="slds-truncate" value="{!obj.Id}"/>
-                    </td>
-
-                    <td scope="row" data-label="Name">
-                       <a id="{!obj.Id}" onclick="{!c.navigateToObjectPage}">
-                           <ui:outputText class="slds-truncate" value="{!obj.Name}"/>
-                       </a>
-                    </td>
+    
+    <div class="slds-card">
+        <div class="slds-card__header">
+        	<span class="slds-text-heading--small slds-truncate slds-m-right--xx-small">{!v.pluralSObjectName}</span>
+            <ui:inputSelect class="slds-select" label="Relationships" aura:id="selectedRelation" change="{!c.changeRelationship}">
+                <ui:inputSelectOption text="" label="Change Relationship..."/>
+                <aura:iteration items="{!v.listOfChildRelationhips}" var="item">
+                    <ui:inputSelectOption text="{!item}" label="{!item}"/>
+                </aura:iteration>
+            </ui:inputSelect>
+        </div>
+        <table class="slds-table slds-table--bordered slds-table--cell-buffer slds-p-top--small slds-p-horizontal--medium slds-table--fixed-layout">
+            <thead>
+                <tr>
+                    <th class="slds-is-sortable bold-text slds-truncate" scope="col">
+                        <span class="slds-truncate" title="Id">Id</span>
+                    </th>
+                    <th class="slds-is-sortable bold-text slds-truncate" scope="col">
+                        <span class="slds-truncate" title="Name">Name</span>
+                    </th>
                 </tr>
-    		</aura:iteration>
-        </tbody>
-
-    </table>
-
+            </thead>
+            <tbody>
+                <aura:iteration items="{!v.listOfObjects}" var="obj">
+                    <tr class="body-row">
+                        <td scope="row" data-label="Id">
+                            <a id="{!obj.Id}" onclick="{!c.navigateToObjectPage}">
+                            	<ui:outputText class="slds-truncate" value="{!obj.Id}"/>
+                        	</a>
+                        </td>
+                        
+                        <td scope="row" data-label="Name">
+                            <a id="{!obj.Id}" onclick="{!c.navigateToObjectPage}">
+                                <ui:outputText class="slds-truncate" value="{!obj.Name}"/>
+                            </a>
+                        </td>
+                    </tr>
+                </aura:iteration>
+            </tbody>
+            
+        </table>
+        <aura:if isTrue="{!v.PageCount > 1}">
+        <div class="slds-card__footer">
+            <div class="slds-clearfix">
+                <lightning:buttonGroup class="slds-float--right">
+                    <lightning:buttonIcon iconName="utility:chevronleft" variant="border-filled" alternativeText="Previous" onclick="{!c.onPreviousPage}"/>
+                    <span class="slds-button slds-button--neutral slds-not-selected">{!v.ActualPageNumber + 1} of {!v.PageCount}</span>
+                    <lightning:buttonIcon iconName="utility:chevronright" variant="border-filled" alternativeText="Next" onclick="{!c.onNextPage}"/>
+                </lightning:buttonGroup>
+            </div>
+    	</div>
+    </aura:if>
+	</div>
+   	
 </aura:component>

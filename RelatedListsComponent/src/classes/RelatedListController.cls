@@ -1,5 +1,5 @@
 public with sharing class RelatedListController {
-
+    
     @AuraEnabled
     public static List<String> returnAllRelationships(Id parentObjectId){
         List<String> results = new List<String>();
@@ -15,7 +15,6 @@ public with sharing class RelatedListController {
                 if(!crO.getDescribe().isCustomSetting() && crO.getDescribe().getRecordTypeInfos().size() > 0 && crO.getDescribe().isCreateable() &&
             	   !name.containsignorecase('history') && !name.containsignorecase('tag') &&
                    !name.containsignorecase('share') && !name.containsignorecase('feed')){
-
                        limitedChildRelationships.add(cr);
                 }
         }
@@ -27,43 +26,47 @@ public with sharing class RelatedListController {
 
         return results;
     }
-
+    
     @AuraEnabled
     public static RelatedListWrapper listOfRelatedObjects(Id parentObjectId, String childObjectName, Integer numberOfSObjects){
+		Integer actualPage = 0;
+        return listOfRelatedObjects(parentObjectId, childObjectName, actualPage, numberOfSObjects);
+    }
+    
+    @AuraEnabled
+    public static RelatedListWrapper listOfRelatedObjects(Id parentObjectId, String childObjectName, Integer actualPage, Integer numberOfSObjects){
         String pluralSObjectName = '';
-        List<SObject> relatedSObjects = new List<SObject>();
+        Integer sObjectCount = 0;
+        List<SObject> relatedSObjects = new List<SObject>(); 
         if(parentObjectId != null){
             Schema.SObjectType objectType = parentObjectId.getSobjectType();//get the type of object of the parent
             Schema.DescribeSObjectResult describeResult = objectType.getDescribe();
             List<Schema.ChildRelationship> childRelationships = describeResult.getChildRelationships(); //get the children relationships
-
-
+            
+            
             for(Schema.ChildRelationship thisChild : childRelationships)
             {
                 Schema.SObjectField childFieldName = thisChild.getField();
                 String relatedObjectName = thisChild.getChildSObject().getDescribe().getName();
-
+                
                 Schema.SObjectType childObjectType = thisChild.getChildSObject();
                 List<Schema.SObjectField> fieldList = childObjectType.getDescribe().fields.getMap().values();
-
-
-
+                
                 if(relatedObjectName == childObjectName){
-
                     pluralSObjectName = thisChild.getChildSObject().getDescribe().getLabelPlural();
                     Integer sobjectLimit = Integer.valueOf(numberOfSObjects);
-                    String queryString = 'SELECT Id FROM ' + relatedObjectName + ' WHERE ' + childFieldName + ' = :parentObjectId LIMIT '+ sobjectLimit;
-
+                    Integer offset = Integer.valueOf(actualPage) * sobjectLimit;
+					String countQuery = 'SELECT count() FROM ' + relatedObjectName + ' WHERE ' + childFieldName + ' = :parentObjectId';
+                    sObjectCount = Database.countQuery(countQuery);
+                    
+                    String queryString = 'SELECT Id FROM ' + relatedObjectName + ' WHERE ' + childFieldName + ' = :parentObjectId LIMIT :sobjectLimit OFFSET :offset';
                     for(SObjectField field : fieldList){
                         if(String.valueOf(field) == 'Name'){
-                            queryString = 'SELECT Id, Name FROM ' + relatedObjectName + ' WHERE ' + childFieldName + ' = :parentObjectId LIMIT '+ sobjectLimit;
+                            queryString = 'SELECT Id, Name FROM ' + relatedObjectName + ' WHERE ' + childFieldName + ' = :parentObjectId LIMIT :sobjectLimit OFFSET :offset';
                         }
                     }
-
-
-
+                    
                     List<SObject> tmpList = Database.query(queryString);
-
                     for(SObject o : tmpList){
                         relatedSObjects.add(o);
                     }
@@ -73,13 +76,20 @@ public with sharing class RelatedListController {
         RelatedListWrapper result = new RelatedListWrapper();
         result.relatedPluralName = pluralSObjectName;
         result.relatedSObjects = relatedSObjects;
+        result.numberOfSObjects = sObjectCount;
         return result;
     }
-
+    
     public class RelatedListWrapper{
         @AuraEnabled
         public String relatedPluralName {get; set;}
         @AuraEnabled
         public SObject[] relatedSObjects {get; set;}
+        @AuraEnabled
+        public Integer actualPage {get; set;}
+        @AuraEnabled
+        public Integer pageCount {get; set;}
+        @AuraEnabled
+        public Integer numberOfSObjects {get; set;}
     }
 }

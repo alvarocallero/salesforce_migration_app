@@ -1,4 +1,4 @@
 <design:component >
     <design:attribute name="childObjectName" label="Related list name" description="The name of required related list to be displayed"/>
-    <design:attribute name="Quantity" label="Records to display"/>
+    <design:attribute name="Quantity" label="Records to display" datasource="1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 50, 100" default="10" />
 </design:component>
