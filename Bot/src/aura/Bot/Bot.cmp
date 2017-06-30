@@ -10,7 +10,7 @@
     <aura:attribute name="lastHistoryIndex" type="Integer" default="0"/>
     <aura:attribute name="inputMessageValue" type="String" default="" />
 
-    <div style="{#'height: '+v.height}" class="slds-p-vertical--x-small slds-float--right">
+    <div style="{#'height: '+v.height}" class="slds-p-vertical--x-small">
 		<div aura:id="content" class="content">
 	        <aura:iteration items="{!v.messages}" var="message">
 
