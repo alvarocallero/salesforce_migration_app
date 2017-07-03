@@ -23,4 +23,10 @@
         <sf:deploy username="${sf.username}" password="${sf.password}" sessionId="${sf.sessionId}" serverurl="${sf.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="../src" rollbackOnError="true"/>
 
     </target>
+    <target name="deployToolkitBot">
+        <!-- Upload the contents of the "Bot" package -->
+        <sf:deploy username="${sf.username}" password="${sf.password}" sessionId="${sf.sessionId}" serverurl="${sf.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="../Bot/src" rollbackOnError="true"/>
+
+    </target>
+
 </project>

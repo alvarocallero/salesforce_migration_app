@@ -86,10 +86,6 @@ public with sharing class RelatedListController {
         @AuraEnabled
         public SObject[] relatedSObjects {get; set;}
         @AuraEnabled
-        public Integer actualPage {get; set;}
-        @AuraEnabled
-        public Integer pageCount {get; set;}
-        @AuraEnabled
         public Integer numberOfSObjects {get; set;}
     }
 }
