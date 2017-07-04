@@ -7,6 +7,7 @@
     <aura:attribute name="Quantity" type="String" default="10" access="global"/>
     <aura:attribute name="hasNameField" type="Boolean" default="true" access="global"/>
     <aura:attribute name="listOfChildRelationhips" type="String[]"/>
+    <aura:attribute name="showPickList" type="Boolean" access="global"/>
 
     <aura:attribute name="listOfObjects" type="SObject[]"/>
     <aura:attribute name="relationships" type="String[]"/>
@@ -19,13 +20,17 @@
     <div class="slds-card">
         <div class="slds-card__header">
         	<span class="slds-text-heading--small slds-truncate slds-m-right--xx-small">{!v.pluralSObjectName}</span>
+          <br/>
+          <aura:if isTrue="{!v.showPickList}">
             <ui:inputSelect class="slds-select" label="Relationships" aura:id="selectedRelation" change="{!c.changeRelationship}">
                 <ui:inputSelectOption text="" label="Change Relationship..."/>
                 <aura:iteration items="{!v.listOfChildRelationhips}" var="item">
                     <ui:inputSelectOption text="{!item}" label="{!item}"/>
                 </aura:iteration>
             </ui:inputSelect>
+          </aura:if>
         </div>
+        <br/>
         <table class="slds-table slds-table--bordered slds-table--cell-buffer slds-p-top--small slds-p-horizontal--medium slds-table--fixed-layout">
             <thead>
                 <tr>
