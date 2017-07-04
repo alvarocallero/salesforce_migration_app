@@ -1,21 +1,21 @@
 <aura:component controller="RelatedListController" implements="force:hasRecordId,force:hasSObjectName,force:appHostable,flexipage:availableForAllPageTypes" access="global">
-        
+
     <aura:attribute name="recordId" type="Id"/>
     <aura:attribute name="sObjectName" type="String" />
     <aura:attribute name="childObjectName" type="String" access="global"/>
     <aura:attribute name="pluralSObjectName" type="String" default="Related List"/>
     <aura:attribute name="Quantity" type="String" default="10" access="global"/>
-    
+    <aura:attribute name="hasNameField" type="Boolean" default="true" access="global"/>
     <aura:attribute name="listOfChildRelationhips" type="String[]"/>
-    
+
     <aura:attribute name="listOfObjects" type="SObject[]"/>
     <aura:attribute name="relationships" type="String[]"/>
-    
+
     <aura:attribute name="ActualPageNumber" type="Integer" default="0"/>
     <aura:attribute name="PageCount" type="Integer"/>
-    
+
     <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
-    
+
     <div class="slds-card">
         <div class="slds-card__header">
         	<span class="slds-text-heading--small slds-truncate slds-m-right--xx-small">{!v.pluralSObjectName}</span>
@@ -32,9 +32,12 @@
                     <th class="slds-is-sortable bold-text slds-truncate" scope="col">
                         <span class="slds-truncate" title="Id">Id</span>
                     </th>
+                    <aura:if isTrue="{!v.hasNameField}">
                     <th class="slds-is-sortable bold-text slds-truncate" scope="col">
                         <span class="slds-truncate" title="Name">Name</span>
                     </th>
+                    </aura:if>
+
                 </tr>
             </thead>
             <tbody>
@@ -45,16 +48,17 @@
                             	<ui:outputText class="slds-truncate" value="{!obj.Id}"/>
                         	</a>
                         </td>
-                        
-                        <td scope="row" data-label="Name">
+                        <aura:if isTrue="{!v.hasNameField}">
+                          <td scope="row" data-label="Name">
                             <a id="{!obj.Id}" onclick="{!c.navigateToObjectPage}">
                                 <ui:outputText class="slds-truncate" value="{!obj.Name}"/>
                             </a>
-                        </td>
+                          </td>
+                        </aura:if>
                     </tr>
                 </aura:iteration>
             </tbody>
-            
+
         </table>
         <aura:if isTrue="{!v.PageCount > 1}">
         <div class="slds-card__footer">
@@ -68,5 +72,5 @@
     	</div>
     </aura:if>
 	</div>
-   	
+
 </aura:component>
