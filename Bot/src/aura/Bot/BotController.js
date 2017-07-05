@@ -1,4 +1,15 @@
 ({
+	doInit : function(component, event, helper){
+    	var action = component.get("c.userPhotoUrl");
+        action.setCallback(this, function(response){
+            var state = response.getState();
+            if(component.isValid() && state === "SUCCESS"){
+                component.set("v.photoUrl", response.getReturnValue());
+            }
+        });
+        $A.enqueueAction(action);
+    },
+		
 	utteranceHandler : function(component, event, helper) {
         console.log("Key presed: ", event.keyCode);
         if (event.keyCode == 13) {
@@ -16,7 +27,7 @@
                 }
             });
         }
-        
+
 	},
     keyDownHandler : function(component, event, helper){
         var keyUpCode = 38;
@@ -45,7 +56,7 @@
             }
         });
     },
-    
+
 	uploadFile: function(component, event, helper) {
         var files = component.get("v.files");
         if (files && files.length > 0) {
@@ -71,6 +82,6 @@
             };
             reader.readAsDataURL(file);
         }
-        
-	}    
+
+	}
 })
