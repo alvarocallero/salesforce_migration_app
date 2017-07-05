@@ -1,7 +1,7 @@
 public with sharing class BotController {
 
     class HandlerMapping {
-        
+
         public String handlerClassName;
         public Pattern utterancePattern;
 
@@ -13,7 +13,7 @@ public with sharing class BotController {
     }
 
     static List<HandlerMapping> handlerMappings;
-    
+
     static {
         List<Bot_Command__c> commands = [SELECT apex_class__c, pattern__c FROM Bot_Command__c WHERE Active__c = True ORDER BY Name];
         System.debug(commands);
@@ -23,7 +23,7 @@ public with sharing class BotController {
         }
         handlerMappings = mappings;
     }
-    
+
 	@AuraEnabled
     public static BotResponse upload(String fileName, String content) {
         try {
@@ -40,10 +40,10 @@ public with sharing class BotController {
             records.add(new BotRecord(fields));
 	        return new BotResponse(new BotMessage('Bot', 'Your file was uploaded successfully', records));
         } catch (Exception e) {
-			return new BotResponse(new BotMessage('Bot', 'An error occured while uploading the file'));            
+			return new BotResponse(new BotMessage('Bot', 'An error occured while uploading the file'));
         }
-    }    
-    
+    }
+
     @AuraEnabled
     public static BotResponse submit(String utterance, Map<String, String> session, String currentUrl) {
 
@@ -57,7 +57,7 @@ public with sharing class BotController {
                     return h.handle(utterance, null, session);
                 }
             }
-        
+
             for (HandlerMapping mapping : BotController.handlerMappings) {
                 Matcher utteranceMatcher = mapping.utterancePattern.matcher(utterance);
                 if (utteranceMatcher.matches()) {
@@ -70,30 +70,23 @@ public with sharing class BotController {
                     return h.handle(utterance, params, session);
                 }
             }
-            
+
             return new BotResponse(new BotMessage('Bot', 'I don\'t know how to answer that'));
-            
+
         } catch (Exception e) {
-            System.debug(e);                
+            System.debug(e);
             return new BotResponse(new BotMessage('Bot', 'Oops, something went wrong invoking that command\n Your URL is: ' + currentUrl));
         }
-        
+
     }
-    
-    private static void logUserMessage(String utterance, String currentUrl){
-        User currentUser = [Select Id from User where Id=:userinfo.getuserId()];
-        UserBotMessage__c ubm = new UserBotMessage__c();
-        ubm.Message__c = utterance;
-        ubm.SentFrom__c = currentUrl;
-        ubm.Submitter__c = currentUser.id;
-        insert ubm;
-    }
-    
+
     @AuraEnabled
-    public static BotResponse submit(String utterance, Map<String, String> session) {
+    public static BotResponse submitWithAttachment(String utterance, Map<String, String> session, String currentUrl, String fileName, String content) {
 
         try {
-            
+            ContentVersion contentVersion = uploadFile(fileName, content);
+            logUserMessage(utterance, currentUrl);
+            return new BotResponse(new BotMessage('Bot', 'Your feedback was sent to the administrator. Thank you!'));
             if (session != null) {
                 String nextCommand = session.get('nextCommand');
                 if (nextCommand != null) {
@@ -102,7 +95,48 @@ public with sharing class BotController {
                     return h.handle(utterance, null, session);
                 }
             }
-        
+            return new BotResponse(new BotMessage('Bot', 'Your feedback was sent to the administrator. Thank you!'));
+        } catch (Exception e) {
+            System.debug(e);
+            return new BotResponse(new BotMessage('Bot', 'Oops, something went wrong invoking that command'));
+        }
+
+    }
+
+    private static void logUserMessage(String utterance, String currentUrl){
+        User currentUser = [Select Id from User where Id=:userinfo.getuserId()];
+        UserBotMessage__c ubm = new UserBotMessage__c();
+        ubm.Message__c = utterance;
+        ubm.SentFrom__c = currentUrl;
+        ubm.Submitter__c = currentUser.id;
+        insert ubm;
+    }
+
+    private static ContentVersion uploadFile(String fileName, String content){
+      System.debug('File content: ' + content);
+      System.debug('File Name: ' + fileName);
+        ContentVersion contentVersion = new ContentVersion();
+      contentVersion.versionData = EncodingUtil.base64Decode(content);
+      contentVersion.title = fileName;
+      contentVersion.pathOnClient = fileName;
+      insert contentVersion;
+      return contentVersion;
+    }
+
+    @AuraEnabled
+    public static BotResponse submit(String utterance, Map<String, String> session) {
+
+        try {
+
+            if (session != null) {
+                String nextCommand = session.get('nextCommand');
+                if (nextCommand != null) {
+                    Type t = Type.forName('', nextCommand);
+                    BotHandler h = (BotHandler)t.newInstance();
+                    return h.handle(utterance, null, session);
+                }
+            }
+
             for (HandlerMapping mapping : BotController.handlerMappings) {
                 Matcher utteranceMatcher = mapping.utterancePattern.matcher(utterance);
                 if (utteranceMatcher.matches()) {
@@ -115,14 +149,14 @@ public with sharing class BotController {
                     return h.handle(utterance, params, session);
                 }
             }
-            
+
             return new BotResponse(new BotMessage('Bot', 'I don\'t know how to answer that'));
-            
+
         } catch (Exception e) {
-            System.debug(e);                
+            System.debug(e);
             return new BotResponse(new BotMessage('Bot', 'Oops, something went wrong invoking that command'));
         }
-        
+
     }
-    
+
 }

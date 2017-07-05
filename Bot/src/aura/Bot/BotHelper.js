@@ -1,60 +1,44 @@
 ({
-	submit : function(component, utterance, session, callback) {
+    submit : function(component, utterance, session, callback) {
         var action = component.get("c.submit");
-		var currentUrl = decodeURIComponent(window.location.href);
-        console.log("Current Url ->---->",currentUrl);
-        action.setParams({
-      		"utterance": utterance,
-            "session": session,
-            "currentUrl": currentUrl
-    	});
+        var currentUrl = decodeURIComponent(window.location.href);
+
+        var messages = component.get("v.messages");
+        var fileName = component.get("v.fileName");
+        var attachmentURL = component.get("v.attachmentURL");
+        var attachmentContent = component.get("v.attachmentContent");
+
+        if(!$A.util.isEmpty(attachmentContent)){
+          action = component.get("c.submitWithAttachment");
+          messages.push({author: "Me", messageText: utterance, imageURL: attachmentURL});
+          action.setParams({
+                  "utterance": utterance,
+                  "session": session,
+                  "currentUrl": currentUrl,
+                  "content" : attachmentContent,
+                  "fileName" : fileName
+          });
+        }else{
+          action.setParams({
+              "utterance": utterance,
+              "session": session,
+              "currentUrl": currentUrl
+          });
+          messages.push({author: "Me", messageText: utterance});
+        }
+
+        component.set("v.fileName", "");
+        component.set("v.attachmentURL", "");
+        component.set("v.attachmentContent", "");
+        component.set("v.messages", messages);
+
         var sentHistory = component.get("v.sentHistory");
-        
-		sentHistory.push(utterance);
+        sentHistory.push(utterance);
         component.set("v.lastHistoryIndex", sentHistory.length - 1);
-        
-        action.setCallback(this, function(a) {
-            var state = a.getState();
-            if (state === "SUCCESS") {
-                callback(a.getReturnValue());
-            } else if (state === "INCOMPLETE") {
 
-            } else if (state === "ERROR") {
-                var errors = a.getError();
-                console.log(errors);
-            }
-    	});
-    	$A.enqueueAction(action);
-	},
-    
-	upload: function(component, file, base64Data, callback) {
-        var action = component.get("c.upload"); 
-        action.setParams({
-            fileName: file.name,
-            content: base64Data
-        });
-        action.setCallback(this, function(a) {
-            var state = a.getState();
-            if (state === "SUCCESS") {
-	            callback(a.getReturnValue());
-            } else if (state === 'ERROR') {
-	            var errors = a.getError();
-                console.log(errors);
-                if (errors) {
-                    if (errors[0] && errors[0].message) {
-                        alert("Error message: " + errors[0].message);
-                    }
-                } else {
-                    console.log("Unknown error");
-                }
-            } else if (state === "INCOMPLETE") {
-				console.log("Incomplete");
-            }
-
-        });
-        $A.enqueueAction(action); 
+        action.setCallback(this, callback);
+        $A.enqueueAction(action);
     },
-    
     loadPreviousMessage: function(component){
         var sentHistory = component.get("v.sentHistory");
         var lastHistoryIndex = component.get("v.lastHistoryIndex");
@@ -65,13 +49,13 @@
             var messageToLoad = sentHistory[lastHistoryIndex];
             component.set("v.lastHistoryIndex", lastHistoryIndex-1);
             component.set("v.inputMessageValue", messageToLoad);
-        } 
+        }
     },
     loadNextMessage: function(component){
         var sentHistory = component.get("v.sentHistory");
         var lastHistoryIndex = component.get("v.lastHistoryIndex");
         if(lastHistoryIndex < sentHistory.length){
-            var messageToLoad = sentHistory[lastHistoryIndex];	
+            var messageToLoad = sentHistory[lastHistoryIndex];
             component.set("v.lastHistoryIndex", lastHistoryIndex+1);
             component.set("v.inputMessageValue", messageToLoad);
         }
