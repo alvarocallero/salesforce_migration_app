@@ -22,7 +22,9 @@
 								if(!$A.util.isUndefinedOrNull(sObjectItem)){
 									if($A.util.isUndefinedOrNull(sObjectItem.Name)){
 										component.set("v.hasNameField", false);
-									}
+                                    }else{
+                                        component.set("v.hasNameField", true);
+                                    }
 
 								}
 								console.info('SOBJECT ---> ' + sObjectItem);

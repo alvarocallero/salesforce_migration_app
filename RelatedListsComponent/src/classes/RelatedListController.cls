@@ -7,29 +7,31 @@ public with sharing class RelatedListController {
         Schema.DescribeSObjectResult describeResult = objectType.getDescribe();
         List<Schema.ChildRelationship> childRelationships = describeResult.getChildRelationships();
         List<Schema.ChildRelationship> limitedChildRelationships = new List<Schema.ChildRelationship>();
-
+        
         for(Schema.ChildRelationship cr : childRelationships){
-
-                Schema.SObjectType crO = cr.getChildSObject();
+            
+            Schema.SObjectType crO = cr.getChildSObject();
+            if(crO.getDescribe().isAccessible()){
                 String name = crO.getDescribe().getName();
                 if(!crO.getDescribe().isCustomSetting() && crO.getDescribe().getRecordTypeInfos().size() > 0 && crO.getDescribe().isCreateable() &&
-            	   !name.containsignorecase('history') && !name.containsignorecase('tag') &&
+                   !name.containsignorecase('history') && !name.containsignorecase('tag') &&
                    !name.containsignorecase('share') && !name.containsignorecase('feed')){
                        limitedChildRelationships.add(cr);
-                }
+                   }
+            }
         }
-
-
+        
+        
         for(Schema.ChildRelationship thisChild : limitedChildRelationships){
             results.add(string.valueOf(thisChild.getChildSObject()));
         }
-
+        
         return results;
     }
     
     @AuraEnabled
     public static RelatedListWrapper listOfRelatedObjects(Id parentObjectId, String childObjectName, Integer numberOfSObjects){
-		Integer actualPage = 0;
+        Integer actualPage = 0;
         return listOfRelatedObjects(parentObjectId, childObjectName, actualPage, numberOfSObjects);
     }
     
@@ -50,19 +52,23 @@ public with sharing class RelatedListController {
                 String relatedObjectName = thisChild.getChildSObject().getDescribe().getName();
                 
                 Schema.SObjectType childObjectType = thisChild.getChildSObject();
-                List<Schema.SObjectField> fieldList = childObjectType.getDescribe().fields.getMap().values();
+                Map<String, SObjectField> fieldsMap = childObjectType.getDescribe().fields.getMap();
+                List<Schema.SObjectField> fieldList = fieldsMap.values();
                 
-                if(relatedObjectName == childObjectName){
+                if(relatedObjectName == childObjectName && childObjectType.getDescribe().isAccessible()){
                     pluralSObjectName = thisChild.getChildSObject().getDescribe().getLabelPlural();
                     Integer sobjectLimit = Integer.valueOf(numberOfSObjects);
                     Integer offset = Integer.valueOf(actualPage) * sobjectLimit;
-					String countQuery = 'SELECT count() FROM ' + relatedObjectName + ' WHERE ' + childFieldName + ' = :parentObjectId';
+                    String countQuery = 'SELECT count() FROM ' + relatedObjectName + ' WHERE ' + childFieldName + ' = :parentObjectId';
                     sObjectCount = Database.countQuery(countQuery);
                     
                     String queryString = 'SELECT Id FROM ' + relatedObjectName + ' WHERE ' + childFieldName + ' = :parentObjectId LIMIT :sobjectLimit OFFSET :offset';
                     for(SObjectField field : fieldList){
                         if(String.valueOf(field) == 'Name'){
-                            queryString = 'SELECT Id, Name FROM ' + relatedObjectName + ' WHERE ' + childFieldName + ' = :parentObjectId LIMIT :sobjectLimit OFFSET :offset';
+                            Boolean nameIsAccessible = fieldsMap.get('Name').getDescribe().isAccessible();
+                            if(nameIsAccessible){
+                                queryString = 'SELECT Id, Name FROM ' + relatedObjectName + ' WHERE ' + childFieldName + ' = :parentObjectId LIMIT :sobjectLimit OFFSET :offset';
+                            }
                         }
                     }
                     
