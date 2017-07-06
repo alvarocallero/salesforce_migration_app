@@ -13,10 +13,13 @@ public with sharing class BotController {
     }
 
     @AuraEnabled
-    public static String userPhotoUrl(){
+    public static List<String> userInfo(){
         Id userId = UserInfo.getUserId();
-        String smallPhotoUrl = [SELECT SmallPhotoUrl FROM User WHERE Id = :userId].SmallPhotoUrl;
-        return smallPhotoUrl;
+        List<String> infoList = new List<String>();
+        User returnUser = [SELECT Name, SmallPhotoUrl FROM User WHERE Id = :userId];
+        infoList.add(returnUser.SmallPhotoUrl);
+        infoList.add(returnUser.Name);
+        return infoList;
     }
 
     static List<HandlerMapping> handlerMappings;
