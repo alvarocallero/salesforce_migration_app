@@ -1,13 +1,25 @@
 ({
 	doInit : function(component, event, helper){
-    	var action = component.get("c.userPhotoUrl");
+    	var action = component.get("c.userInfo");
         action.setCallback(this, function(response){
             var state = response.getState();
             if(component.isValid() && state === "SUCCESS"){
-                component.set("v.photoUrl", response.getReturnValue());
+
+
+								component.set("v.userInfo",  response.getReturnValue());
+								var information = component.get("v.userInfo");
+
+								var name = information[1];
+								var messages = component.get("v.messages");
+								messages.push({author: "AltiBot v1", messageText: "Welcome " + name +  ", how can I help you?"});
+								component.set("v.messages", messages);
+
             }
         });
         $A.enqueueAction(action);
+
+
+
     },
 
 	utteranceHandler : function(component, event, helper) {

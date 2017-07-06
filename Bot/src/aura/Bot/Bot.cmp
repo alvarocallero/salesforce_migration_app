@@ -13,7 +13,7 @@
     <aura:attribute name="sentHistory" type="String[]"/>
     <aura:attribute name="lastHistoryIndex" type="Integer" default="0"/>
     <aura:attribute name="inputMessageValue" type="String" default="" />
-    <aura:attribute name="photoUrl" type="String"/>
+    <aura:attribute name="userInfo" type="String[]"/>
 
     <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
 
@@ -24,7 +24,7 @@
                 <lightning:layout >
                 <lightning:layoutitem padding="around-small">
                    <aura:if isTrue="{#message.author == 'Me'}">
-                       <img src="{!v.photoUrl}"/>
+                       <img src="{!v.userInfo[0]}"/>
                        <aura:set attribute="else">
                             <img src="{!$Resource.altiLogo}"/>
                        </aura:set>
