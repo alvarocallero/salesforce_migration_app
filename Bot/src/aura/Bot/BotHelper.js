@@ -51,7 +51,6 @@
 
         //action.setCallback(this, callback);
         $A.enqueueAction(action);
-        $A.enqueueAction(action);
     },
     loadPreviousMessage: function(component){
         var sentHistory = component.get("v.sentHistory");
