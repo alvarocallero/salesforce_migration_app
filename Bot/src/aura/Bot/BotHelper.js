@@ -36,7 +36,21 @@
         sentHistory.push(utterance);
         component.set("v.lastHistoryIndex", sentHistory.length - 1);
 
-        action.setCallback(this, callback);
+        //This function is not using the callback specified in the controller
+        action.setCallback(this, function(a) {
+            var state = a.getState();
+            if (state === "SUCCESS") {
+                callback(a.getReturnValue());
+            } else if (state === "INCOMPLETE") {
+
+            } else if (state === "ERROR") {
+                var errors = a.getError();
+                console.log(errors);
+            }
+      	});
+
+        //action.setCallback(this, callback);
+        $A.enqueueAction(action);
         $A.enqueueAction(action);
     },
     loadPreviousMessage: function(component){

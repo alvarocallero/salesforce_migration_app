@@ -13,12 +13,12 @@
 	utteranceHandler : function(component, event, helper) {
         if (event.keyCode == 13) {
             var utterance = event.target.value;
+						var messages = component.get("v.messages");
             event.target.value = "";
             helper.submit(component, utterance, component.get('v.session'), function(answer) {
                 if (answer) {
                     console.log(answer);
                     component.set("v.session", answer.session);
-										var messages = component.get("v.messages");
 										Array.prototype.push.apply(messages, answer.messages);
                     component.set("v.messages", messages);
                 }
