@@ -4,7 +4,11 @@
     <aura:attribute name="messages" type="Object[]"/>
     <aura:attribute name="session" type="Array"/>
     <aura:attribute name="height" type="String" default="500px"/>
-	<aura:attribute name="files" type="Object[]"/>
+    <aura:attribute name="files" type="Object[]"/>
+
+    <aura:attribute name="fileName" type="String" default=""/>
+    <aura:attribute name="attachmentURL" type="String" default=""/>
+    <aura:attribute name="attachmentContent" type="String" default="" />
 
     <aura:attribute name="sentHistory" type="String[]"/>
     <aura:attribute name="lastHistoryIndex" type="Integer" default="0"/>
@@ -76,7 +80,7 @@
         <div class="footer slds-form-element slds-p-horizontal--x-small">
             <div class="slds-form-element__control">
                 <input type="text" class="slds-input"
-                       placeholder="Ask Lightning Bot..."
+                       placeholder="Provide feedback..."
                        onkeypress="{!c.utteranceHandler}"
                        onkeydown="{!c.keyDownHandler}"
                        value="{!v.inputMessageValue}"
