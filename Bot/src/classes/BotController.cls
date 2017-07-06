@@ -87,6 +87,29 @@ public with sharing class BotController {
 
     }
 
+    @AuraEnabled
+    public static BotResponse submitWithAttachment(String utterance, Map<String, String> session, String currentUrl, String fileName, String content) {
+
+        try {
+            ContentVersion contentVersion = uploadFile(fileName, content);
+            logUserMessage(utterance, currentUrl);
+            return new BotResponse(new BotMessage('Bot', 'Your feedback was sent to the administrator. Thank you!'));
+            if (session != null) {
+                String nextCommand = session.get('nextCommand');
+                if (nextCommand != null) {
+                    Type t = Type.forName('', nextCommand);
+                    BotHandler h = (BotHandler)t.newInstance();
+                    return h.handle(utterance, null, session);
+                }
+            }
+            return new BotResponse(new BotMessage('Bot', 'Your feedback was sent to the administrator. Thank you!'));
+        } catch (Exception e) {
+            System.debug(e);
+            return new BotResponse(new BotMessage('Bot', 'Oops, something went wrong invoking that command'));
+        }
+
+    }
+
     private static void logUserMessage(String utterance, String currentUrl){
         User currentUser = [Select Id from User where Id=:userinfo.getuserId()];
         UserBotMessage__c ubm = new UserBotMessage__c();
@@ -94,6 +117,17 @@ public with sharing class BotController {
         ubm.SentFrom__c = currentUrl;
         ubm.Submitter__c = currentUser.id;
         insert ubm;
+    }
+
+    private static ContentVersion uploadFile(String fileName, String content){
+        System.debug('File content: ' + content);
+        System.debug('File Name: ' + fileName);
+        ContentVersion contentVersion = new ContentVersion();
+        contentVersion.versionData = EncodingUtil.base64Decode(content);
+        contentVersion.title = fileName;
+        contentVersion.pathOnClient = fileName;
+        insert contentVersion;
+        return contentVersion;
     }
 
     @AuraEnabled

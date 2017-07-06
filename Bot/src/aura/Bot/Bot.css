@@ -45,6 +45,11 @@
     margin-left: 0;
 }
 
+.THIS .message-input {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+}
+
 .THIS .slds-form-element__label {
     display: none;
 }
