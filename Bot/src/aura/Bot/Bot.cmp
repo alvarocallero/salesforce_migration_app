@@ -23,12 +23,14 @@
 
                 <lightning:layout >
                 <lightning:layoutitem padding="around-small">
+                  <span class="slds-avatar">
                    <aura:if isTrue="{#message.author == 'Me'}">
                        <img src="{!v.userInfo[0]}"/>
                        <aura:set attribute="else">
                             <img src="{!$Resource.altiLogo}"/>
                        </aura:set>
                    </aura:if>
+                 </span>
                </lightning:layoutitem>
 
                     <lightning:layoutitem padding="around-small" flexibility="grow">
