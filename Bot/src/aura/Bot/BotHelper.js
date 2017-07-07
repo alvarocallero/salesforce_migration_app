@@ -11,6 +11,7 @@
         if(!$A.util.isEmpty(attachmentContent)){
           action = component.get("c.submitWithAttachment");
           messages.push({author: "Me", messageText: utterance, imageURL: attachmentURL});
+
           action.setParams({
                   "utterance": utterance,
                   "session": session,
@@ -30,6 +31,7 @@
         component.set("v.fileName", "");
         component.set("v.attachmentURL", "");
         component.set("v.attachmentContent", "");
+        component.set("v.files", null);
         component.set("v.messages", messages);
 
         var sentHistory = component.get("v.sentHistory");
