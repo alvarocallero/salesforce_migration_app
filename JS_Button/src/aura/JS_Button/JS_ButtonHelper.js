@@ -3,28 +3,7 @@
 		var gapOf = {};
 
 		// YOUR CUSTOM LOGIC GOES HERE:
-		gapOf.ConditionalRedirect = {
-			default : function(component, event, helper){
-				/* THIS IS THE DEFAULT EXAMPLE SOLUTION FOR THIS TYPE OF GAP, DO NOT REMOVE!
-						        /* ADD THE NEEDED CODE FOR THE DEFINED ID
-						        */
-						        var urlEvent;
-						        /*
-						         * This example redirect to a static url
-						        */
-						        urlEvent = $A.get("e.force:navigateToURL");
-						        var url = '';
-						        if (component.get('v.loadedRecord').Percentage > 50){
-						            url = ;
-						        }else{
-						            url = ;
-						        }
-						         urlEvent.setParams({
-						             "url": url
-						         });
-						         urlEvent.fire();
-			}
-		};
+
 
 		gapOf.CustomUrl =  {
 			default : function(component, event, helper){
@@ -65,46 +44,56 @@
 				console.log("Custom Url Excecuted");
 				var urlEvent = $A.get("e.force:navigateToURL");
 					urlEvent.setParams({
-						"url": 'https://www.google.com'
+						"url": 'https://www.google.com/changed'
 					});
 					urlEvent.fire();
 			}
 
 		};
 
-		gapOf.PrepopulateCreation = {
+		gapOf.ConditionalRedirect = {
 			default : function(component, event, helper){
-				var contactId = component.get("v.recordID");
-				var action = component.get("c.getContactDetails");
-				action.setParams({"contactId":contactId});
-				action.setCallback(this, function(data){
-					var state = data.getState();
-
-					component.set("v.contact", data.getReturnValue());
-					var vContact = component.get("v.contact");
-					var createRecordEvent = $A.get("e.force:createRecord");
-
-					createRecordEvent.setParams({
-						"entityApiName" : "Opportunity",
-						"defaultFieldValues":{
-							"CloseDate":threemonth,
-							"AccountId":vContact.AccountId
-						}
-					})
-				});
+				/* THIS IS THE DEFAULT EXAMPLE SOLUTION FOR THIS TYPE OF GAP, DO NOT REMOVE!
+						        /* ADD THE NEEDED CODE FOR THE DEFINED ID
+						        */
+						        var urlEvent;
+						        /*
+						         * This example redirect to a static url
+						        */
+						        urlEvent = $A.get("e.force:navigateToURL");
+										var url = '';
+										if (component.get('v.loadedRecord').Probability > 50){
+						            url = 'https://www.google.com.uy/search?q=win' + component.get('v.loadedRecord').Id;
+						        }else{
+						            url = 'https://www.google.com.uy/search?q=probability' + component.get('v.loadedRecord').Probability;
+						        }
+						         urlEvent.setParams({
+						             "url": url
+						         });
+						         urlEvent.fire();
+			},
+			Opportunity_ConditionalRedirect : function(component, event, helper){
+						        var urlEvent;
+						        urlEvent = $A.get("e.force:navigateToURL");
+										var url = '';
+										var probability = component.get('v.loadedRecord').Probability;
+										var recordId = component.get('v.loadedRecord').Id;
+						        if (probability > 50){
+						            url = 'https://www.google.com.uy/search?q=win' + recordId;
+						        }else{
+						            url = 'https://www.google.com.uy/search?q=probability' + probability;
+						        }
+						         urlEvent.setParams({
+						             "url": url
+						         });
+						         urlEvent.fire();
 			}
-
-
-		};
-
-		gapOf.PrepopulateUpdate = {
-
 		};
 
 		//DO NOT MODIFY THIS SECTION  ============================
 		//This code executes the logic defined above
 		var logicId = component.get("v.id");
-		if(gapOf[gapType][logicId]){
+		if(gapOf[gapType] && gapOf[gapType][logicId]){
 				return gapOf[gapType][logicId](component, event, helper);
 		}else {
 			console.log('==== TBD JS_Button - CustomUrl id= '+component.get('v.id'));
