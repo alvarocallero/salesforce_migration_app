@@ -13,10 +13,13 @@ public with sharing class BotController {
     }
 
     @AuraEnabled
-    public static String userPhotoUrl(){
+    public static List<String> userInfo(){
         Id userId = UserInfo.getUserId();
-        String smallPhotoUrl = [SELECT SmallPhotoUrl FROM User WHERE Id = :userId].SmallPhotoUrl;
-        return smallPhotoUrl;
+        List<String> infoList = new List<String>();
+        User returnUser = [SELECT Name, SmallPhotoUrl FROM User WHERE Id = :userId];
+        infoList.add(returnUser.SmallPhotoUrl);
+        infoList.add(returnUser.Name);
+        return infoList;
     }
 
     static List<HandlerMapping> handlerMappings;
@@ -45,9 +48,9 @@ public with sharing class BotController {
             fields.add(new BotField('Id', v.Id, '#/sObject/ContentDocument/' + doc.Id));
             fields.add(new BotField('Name', v.title));
             records.add(new BotRecord(fields));
-	        return new BotResponse(new BotMessage('Bot', 'Your file was uploaded successfully', records));
+	        return new BotResponse(new BotMessage('', 'Your file was uploaded successfully', records));
         } catch (Exception e) {
-			return new BotResponse(new BotMessage('Bot', 'An error occured while uploading the file'));
+			return new BotResponse(new BotMessage('', 'An error occured while uploading the file'));
         }
     }
 
@@ -55,34 +58,18 @@ public with sharing class BotController {
     public static BotResponse submit(String utterance, Map<String, String> session, String currentUrl) {
 
         try {
-            logUserMessage(utterance, currentUrl);
-            if (session != null) {
-                String nextCommand = session.get('nextCommand');
-                if (nextCommand != null) {
-                    Type t = Type.forName('', nextCommand);
-                    BotHandler h = (BotHandler)t.newInstance();
-                    return h.handle(utterance, null, session);
-                }
-            }
 
-            for (HandlerMapping mapping : BotController.handlerMappings) {
-                Matcher utteranceMatcher = mapping.utterancePattern.matcher(utterance);
-                if (utteranceMatcher.matches()) {
-                    Type t = Type.forName('', mapping.handlerClassName);
-                    BotHandler h = (BotHandler)t.newInstance();
-                    List<String> params = new List<String>();
-                    for (Integer i=1; i<=utteranceMatcher.groupCount(); i=i+1) {
-                        params.add(utteranceMatcher.group(i).trim());
-                    }
-                    return h.handle(utterance, params, session);
-                }
+            if(utterance.equalsIgnoreCase('help')){
+              return new BotResponse(new BotMessage('', 'Please, provide feedback on your problem.'));
             }
-
-            return new BotResponse(new BotMessage('Bot', 'I don\'t know how to answer that'));
+            else{
+              logUserMessage(utterance, currentUrl, null);
+              return new BotResponse(new BotMessage('', 'Your feedback has been sent to an Administrator. We will contact you as soon as possible.'));
+            }
 
         } catch (Exception e) {
             System.debug(e);
-            return new BotResponse(new BotMessage('Bot', 'Oops, something went wrong invoking that command\n Your URL is: ' + currentUrl));
+            return new BotResponse(new BotMessage('', 'Oops, something went wrong...I could not save your feedback'));
         }
 
     }
@@ -92,8 +79,8 @@ public with sharing class BotController {
 
         try {
             ContentVersion contentVersion = uploadFile(fileName, content);
-            logUserMessage(utterance, currentUrl);
-            return new BotResponse(new BotMessage('Bot', 'Your feedback was sent to the administrator. Thank you!'));
+            logUserMessage(utterance, currentUrl, contentVersion);
+            return new BotResponse(new BotMessage('', 'Your feedback was sent to the administrator. Thank you!'));
             if (session != null) {
                 String nextCommand = session.get('nextCommand');
                 if (nextCommand != null) {
@@ -102,20 +89,26 @@ public with sharing class BotController {
                     return h.handle(utterance, null, session);
                 }
             }
-            return new BotResponse(new BotMessage('Bot', 'Your feedback was sent to the administrator. Thank you!'));
+            return new BotResponse(new BotMessage('', 'Your feedback was sent to the administrator. Thank you!'));
         } catch (Exception e) {
             System.debug(e);
-            return new BotResponse(new BotMessage('Bot', 'Oops, something went wrong invoking that command'));
+            return new BotResponse(new BotMessage('', 'Oops, something went wrong invoking that command'));
         }
 
     }
 
-    private static void logUserMessage(String utterance, String currentUrl){
+    private static void logUserMessage(String utterance, String currentUrl, ContentVersion ctv){
         User currentUser = [Select Id from User where Id=:userinfo.getuserId()];
+
         UserBotMessage__c ubm = new UserBotMessage__c();
         ubm.Message__c = utterance;
         ubm.SentFrom__c = currentUrl;
         ubm.Submitter__c = currentUser.id;
+
+        if(ctv!=null){
+          ContentDocument doc = [SELECT Id FROM ContentDocument where LatestPublishedVersionId = :ctv.Id];
+          ubm.ContentDocumentId__c = doc.Id;
+        }
         insert ubm;
     }
 
@@ -157,11 +150,11 @@ public with sharing class BotController {
                 }
             }
 
-            return new BotResponse(new BotMessage('Bot', 'I don\'t know how to answer that'));
+            return new BotResponse(new BotMessage('', 'I don\'t know how to answer that'));
 
         } catch (Exception e) {
             System.debug(e);
-            return new BotResponse(new BotMessage('Bot', 'Oops, something went wrong invoking that command'));
+            return new BotResponse(new BotMessage('', 'Oops, something went wrong invoking that command'));
         }
 
     }
