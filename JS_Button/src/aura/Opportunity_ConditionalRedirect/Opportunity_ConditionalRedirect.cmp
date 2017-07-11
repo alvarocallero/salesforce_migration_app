@@ -1,0 +1,11 @@
+<aura:component implements="force:lightningQuickAction,force:hasRecordId,force:hasSObjectName">
+
+	<aura:attribute name="recordId" type="Id" />
+	<aura:attribute name="sObjectName" type="String" />
+
+	<aura:handler name="closeActionEvent" event="c:closeAction" action="{!c.handleCloseEvent}"/>
+
+
+	<c:JS_Button id="Opportunity_ConditionalRedirect" GapType="ConditionalRedirect" recordId="{!v.recordId}" ObjectName="{!v.sObjectName}" needsData="true" fieldList="Probability"/>
+
+</aura:component>
