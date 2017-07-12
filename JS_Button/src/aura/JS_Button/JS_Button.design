@@ -1,0 +1,4 @@
+<design:component >
+	<design:attribute name="id" label="Solution id" description="The id of the solution" />
+    <design:attribute name="GapType" label="Solution type" description="The solution type" />
+</design:component>
