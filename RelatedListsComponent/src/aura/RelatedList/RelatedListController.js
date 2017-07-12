@@ -25,7 +25,6 @@
     },
     changeRelationship : function (component, event, helper){
     	var selectValue = component.find("selectedRelation").get("v.value");
-        console.info(selectValue);
         component.set("v.childObjectName", selectValue);
         helper.loadList(component, event, helper);
     },

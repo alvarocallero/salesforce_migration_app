@@ -27,15 +27,12 @@
                                     }
 
 								}
-								console.info('SOBJECT ---> ' + sObjectItem);
                 var sObjectCount = wrapper.numberOfSObjects;
                 var sObjectLimit = component.get("v.Quantity");
                 if(sObjectLimit > 0){
  					var pageCount = Math.ceil(sObjectCount/sObjectLimit);
                     component.set("v.PageCount", pageCount);
                 }
-            }else{
-                console.log('Error retrieving related objects: ', response.getError());
             }
         });
         $A.enqueueAction(action);
