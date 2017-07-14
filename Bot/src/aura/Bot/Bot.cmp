@@ -1,9 +1,9 @@
-<aura:component implements="flexipage:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" controller="BotController" >
+<aura:component implements="flexipage:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" controller="BotController" access="global">
 
     <aura:attribute name="question" type="String" default=""/>
     <aura:attribute name="messages" type="Object[]"/>
     <aura:attribute name="session" type="Array"/>
-    <aura:attribute name="height" type="String" default="500px"/>
+    <aura:attribute name="height" type="String" default="500px" access="global"/>
     <aura:attribute name="files" type="Object[]"/>
 
     <aura:attribute name="fileName" type="String" default=""/>
@@ -22,7 +22,7 @@
 	        <aura:iteration items="{!v.messages}" var="message">
 
                 <lightning:layout >
-                <lightning:layoutitem padding="around-small">
+                <lightning:layoutitem class="message_avatar" padding="around-small">
                   <span class="slds-avatar">
                    <aura:if isTrue="{#message.author == 'Me'}">
                        <img src="{!v.userInfo[0]}"/>

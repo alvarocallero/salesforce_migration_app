@@ -11,7 +11,7 @@
 
                 var name = information[1];
                 var messages = component.get("v.messages");
-                messages.push({author: "AltiBot v1", messageText: "Welcome " + name +  ", how can I help you?"});
+                messages.push({author: "Leah", messageText: "Welcome " + name +  ", how can I help you?"});
                 component.set("v.messages", messages);
 
             }

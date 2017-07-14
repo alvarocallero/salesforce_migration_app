@@ -45,6 +45,10 @@
     margin-left: 0;
 }
 
+.THIS .message_avatar{
+    padding-right: 0px;
+}
+
 .THIS .message-input {
     border-bottom-right-radius: 0;
     border-top-right-radius: 0;
