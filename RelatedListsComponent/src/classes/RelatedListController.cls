@@ -1,8 +1,8 @@
 public with sharing class RelatedListController {
     
     @AuraEnabled
-    public static List<String> returnAllRelationships(Id parentObjectId){
-        List<String> results = new List<String>();
+    public static Map<String, String> returnAllRelationships(Id parentObjectId){
+        Map<String, String> results = new Map<String, String>();
         Schema.SObjectType objectType = parentObjectId.getSobjectType();//get the type of object of the parent
         Schema.DescribeSObjectResult describeResult = objectType.getDescribe();
         List<Schema.ChildRelationship> childRelationships = describeResult.getChildRelationships();
@@ -23,7 +23,9 @@ public with sharing class RelatedListController {
         
         
         for(Schema.ChildRelationship thisChild : limitedChildRelationships){
-            results.add(string.valueOf(thisChild.getChildSObject()));
+            String apiName = string.valueOf(thisChild.getChildSObject());
+            String pluralName = string.valueOf(thisChild.getChildSObject().getDescribe().getLabelPlural());
+            results.put(apiName, pluralName);
         }
         
         return results;
