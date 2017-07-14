@@ -181,8 +181,8 @@ public class RelatedListController_Test {
     static void testGetAllRelationships(){
         Account acc = new Account(Name = 'Account');
         insert acc;
-        List<String> relationships = RelatedListController.returnAllRelationships(acc.id);
+        Map<String, String> relationships = RelatedListController.returnAllRelationships(acc.id);
        	
-        System.assert(relationships.size() > 0);
+        System.assert(relationships.values().size() > 0);
     }
 }

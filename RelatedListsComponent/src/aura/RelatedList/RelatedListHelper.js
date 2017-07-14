@@ -28,6 +28,7 @@
 
 								}
                 var sObjectCount = wrapper.numberOfSObjects;
+                component.set("v.totalNumberOfRecords", sObjectCount);
                 var sObjectLimit = component.get("v.Quantity");
                 if(sObjectLimit > 0){
  					var pageCount = Math.ceil(sObjectCount/sObjectLimit);
