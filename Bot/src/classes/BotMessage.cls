@@ -1,6 +1,6 @@
 public virtual class BotMessage {
 
-    @AuraEnabled public final String author = 'AltiBot v1';
+
     @AuraEnabled public String messageText { get;set; }
     @AuraEnabled public List<BotRecord> records { get;set; }
     @AuraEnabled public List<BotItem> items { get;set; }
