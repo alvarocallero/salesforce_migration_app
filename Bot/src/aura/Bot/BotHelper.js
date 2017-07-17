@@ -47,7 +47,6 @@
 
             } else if (state === "ERROR") {
                 var errors = a.getError();
-                console.log(errors);
             }
       	});
 
@@ -57,7 +56,7 @@
     loadPreviousMessage: function(component){
         var sentHistory = component.get("v.sentHistory");
         var lastHistoryIndex = component.get("v.lastHistoryIndex");
-        if(component.get("v.inputMessageValue") == ""){
+        if(component.get("v.inputMessageValue") === ""){
             lastHistoryIndex = 0;
         }
         if(lastHistoryIndex < sentHistory.length && lastHistoryIndex >= 0){
