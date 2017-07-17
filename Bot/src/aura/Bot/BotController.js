@@ -23,13 +23,12 @@
     },
 
     utteranceHandler : function(component, event, helper) {
-        if (event.keyCode == 13) {
+        if (event.keyCode === 13) {
             var utterance = event.target.value;
             var messages = component.get("v.messages");
             event.target.value = "";
             helper.submit(component, utterance, component.get('v.session'), function(answer) {
                 if (answer) {
-                    console.log(answer);
                     component.set("v.session", answer.session);
                     Array.prototype.push.apply(messages, answer.messages);
                     component.set("v.messages", messages);
@@ -49,6 +48,8 @@
             case keyDownCode:
                 helper.loadNextMessage(component);
                 break;
+            default:
+                break;
         }
     },
     postbackButtonClickHandler : function(component, event, helper) {
@@ -58,7 +59,6 @@
         component.set("v.messages", messages);
         helper.submit(component, utterance, component.get('v.session'), function(answer) {
             if (answer) {
-                console.log(answer);
                 component.set("v.session", answer.session);
                 Array.prototype.push.apply(messages, answer.messages);
                 component.set("v.messages", messages);
@@ -71,10 +71,8 @@
         if (files && files.length > 0) {
             var file = files[0][0];
             if(file){
-
-
                 if (!file.type.match(/(image.*)/)) {
-                    return alert('Image file not supported');
+                    return;
                 }
                 var reader = new FileReader();
                 reader.onloadend = function() {
