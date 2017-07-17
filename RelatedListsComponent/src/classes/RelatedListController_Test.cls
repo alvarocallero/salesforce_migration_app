@@ -185,4 +185,21 @@ public class RelatedListController_Test {
        	
         System.assert(relationships.values().size() > 0);
     }
+    
+    @isTest
+    static void testGetAllRelationshipsIncludesProducts(){
+        Account acc = new Account(Name = 'Account');
+        insert acc;
+        Opportunity opp = new Opportunity(Name = 'Opp', StageName = 'Prospecting', CloseDate = Date.today(), AccountId = acc.id); 
+        insert opp;
+        Map<String, String> relationships = RelatedListController.returnAllRelationships(opp.id);
+        Boolean containsProduct = false;
+        for(String relationship : relationships.values()){
+            if(relationship == 'Opportunity Product'){
+                containsProduct = true;
+            }
+        }
+        System.assert(containsProduct);
+    }
+    
 }

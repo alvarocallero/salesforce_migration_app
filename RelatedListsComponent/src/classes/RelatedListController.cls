@@ -9,19 +9,19 @@ public with sharing class RelatedListController {
         List<Schema.ChildRelationship> limitedChildRelationships = new List<Schema.ChildRelationship>();
         
         for(Schema.ChildRelationship cr : childRelationships){
-            
             Schema.SObjectType crO = cr.getChildSObject();
             if(crO.getDescribe().isAccessible()){
                 String name = crO.getDescribe().getName();
-                if(!crO.getDescribe().isCustomSetting() && crO.getDescribe().getRecordTypeInfos().size() > 0 && crO.getDescribe().isCreateable() &&
-                   !name.containsignorecase('history') && !name.containsignorecase('tag') &&
-                   !name.containsignorecase('share') && !name.containsignorecase('feed')){
+                if(!crO.getDescribe().isCustomSetting() &&
+                   crO.getDescribe().isCreateable() &&
+                   !name.containsignorecase('history') && 
+                   !name.containsignorecase('tag') &&
+                   !name.containsignorecase('share') && 
+                   !name.containsignorecase('feed')){
                        limitedChildRelationships.add(cr);
                    }
             }
         }
-        
-        
         for(Schema.ChildRelationship thisChild : limitedChildRelationships){
             String apiName = string.valueOf(thisChild.getChildSObject());
             String pluralName = string.valueOf(thisChild.getChildSObject().getDescribe().getLabelPlural());
