@@ -1,6 +1,4 @@
 import com.sforce.soap.partner.Connector;
-import com.sforce.soap.partner.DeleteResult;
-import com.sforce.soap.partner.EmptyRecycleBinResult;
 import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.soap.partner.QueryResult;
 import com.sforce.soap.partner.SaveResult;
@@ -38,10 +36,6 @@ public class Main {
 			tokenContainer = inputScan.next();
 		}
 
-		// usernameContainer = "testingground@altimetrik.com";
-		// passwordContainer = "Magic86...";
-		// tokenContainer = "fXi0WZh7HY9dOgXZqkLfj1mqI";
-
 		ConnectorConfig config = new ConnectorConfig();
 		config.setUsername(usernameContainer);
 		config.setPassword(passwordContainer + tokenContainer);
@@ -56,8 +50,6 @@ public class Main {
 			System.out.println("Service EndPoint:" + config.getServiceEndpoint());
 			System.out.println("Username: " + config.getUsername());
 			System.out.println("------------------------------------------------------------------------------------------------");
-			// clear salesforce
-			// cleanLighting();
 
 			// download the documents
 			System.out.println("\n------------------------------------------------------------------------------------------------");
@@ -80,11 +72,7 @@ public class Main {
 					if (folderName != "null" && folderName != null) {
 						String folderId = getFolderId(folder);
 						String contentWorkSpaceId = createContentWorkspace(folderName);
-						// System.out.println("folder id: " + folderId);
-						// System.out.println("folder : " + folderName);
-						// System.out.println("content workspace id: " +
-						// contentWorkSpaceId);
-
+						// mapping folder and contentworkspace
 						folderToContentWorkSpaceMap.put(folderId, contentWorkSpaceId);
 					}
 				}
@@ -93,6 +81,10 @@ public class Main {
 				System.out.println("Uploading Files...");
 				System.out.println("------------------------------------------------------------------------------------------------");
 				uploadFile(documents, folderToContentWorkSpaceMap);
+
+				System.out.println("\n------------------------------------------------------------------------------------------------");
+				System.out.println("Migration Finish ");
+				System.out.println("------------------------------------------------------------------------------------------------");
 
 			}
 
@@ -126,6 +118,7 @@ public class Main {
 				}
 			}
 
+			// return all documents
 			return queryResults.getRecords();
 
 		} catch (Exception e) {
@@ -320,6 +313,20 @@ public class Main {
 		return null;
 	}
 
+	private static Boolean checkIfContentWorkspaceExist(String contentFolderName) {
+		try {
+			QueryResult response = connection.query("select id, name from ContentWorkspace where Name = '" + contentFolderName + "'");
+			// SObject[] rcrd = response.getRecords().length();
+			if (response.getRecords().length > 0) {
+				return false;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.getStackTrace();
+		}
+		return true;
+	}
+
 	private static String getContDocIdFromVerId(String folderId) {
 		try {
 			QueryResult result = connection.query("SELECT Id,LatestPublishedVersionId,Title FROM ContentDocument WHERE LatestPublishedVersionId = '" + folderId + "'");
@@ -352,13 +359,13 @@ public class Main {
 
 			// check the result of the request
 			if (saveResults[0].isSuccess()) {
-				System.out.println("\n---> Successfully create link: " + saveResults[0].getId());
+				System.out.println("---> Successfully create link: " + saveResults[0].getId());
 				// return id of the Content Workspace
 				return saveResults[0].getId();
 
 			} else {
 
-				System.out.println("\n---X The error reported was: " + saveResults[0].getErrors()[0].getMessage() + "\n");
+				System.out.println("---X The error reported was: " + saveResults[0].getErrors()[0].getMessage() + "\n");
 			}
 
 		} catch (Exception e) {
@@ -370,6 +377,13 @@ public class Main {
 	private static String createContentWorkspace(String contentFolderName) {
 
 		try {
+
+			// check if directory exist
+			if (checkIfContentWorkspaceExist(contentFolderName)) {
+				System.out.println("\n---> The library already exist: " + contentFolderName);
+				contentFolderName += "_lex";
+				System.out.println("\n---> The library wil be created as " + contentFolderName);
+			}
 
 			// creation of the ContentVersion SObject
 			SObject contentWorkspace = new SObject();
@@ -387,8 +401,7 @@ public class Main {
 			// check the result of the request
 			if (saveResults[0].isSuccess()) {
 
-				System.out.println("\n---> Successfully create folder: " + contentFolderName);
-				System.out.println("\n---> id: " + saveResults[0].getId());
+				System.out.println("\n---> Successfully create folder: " + contentFolderName + " " + saveResults[0].getId());
 
 				// return id of the Content Workspace
 				return saveResults[0].getId();
@@ -404,77 +417,6 @@ public class Main {
 
 		}
 		return null;
-	}
-
-	private static void deleteRecords(String id) {
-		try {
-			String[] request = new String[1];
-			request[0] = id;
-			DeleteResult[] deleteResults = connection.delete(request);
-			for (int i = 0; i < deleteResults.length; i++) {
-				DeleteResult deleteResult = deleteResults[i];
-				// System.out.println("id ? -->" + id);
-
-				if (deleteResult.isSuccess()) {
-					System.out.println("Deleted Record ID: " + deleteResult.getId());
-				} else {
-					// Handle the errors.
-					// We just print the first error out for sample purposes.
-					com.sforce.soap.partner.Error[] errors = deleteResult.getErrors();
-					if (errors.length > 0) {
-						System.out.println("Error: could not delete " + "Record ID " + deleteResult.getId() + ".");
-						System.out.println("   The error reported was: (" + errors[0].getStatusCode() + ") " + errors[0].getMessage() + "\n");
-					}
-				}
-			}
-		} catch (ConnectionException ce) {
-			ce.printStackTrace();
-		}
-	}
-
-	private static void emptyRecycleBin(String id) {
-		try {
-			String[] request = new String[1];
-			request[0] = id;
-			EmptyRecycleBinResult[] emptyRecycleBinResults = connection.emptyRecycleBin(request);
-			for (int i = 0; i < emptyRecycleBinResults.length; i++) {
-				EmptyRecycleBinResult emptyRecycleBinResult = emptyRecycleBinResults[i];
-				if (emptyRecycleBinResult.isSuccess()) {
-					System.out.println("Recycled ID: " + emptyRecycleBinResult.getId());
-				} else {
-					com.sforce.soap.partner.Error[] errors = emptyRecycleBinResult.getErrors();
-					if (errors.length > 0) {
-						System.out.println("Error code: " + errors[0].getStatusCode());
-						System.out.println("Error message: " + errors[0].getMessage());
-					}
-				}
-			}
-		} catch (ConnectionException ce) {
-			ce.printStackTrace();
-		}
-	}
-
-	private static void cleanLighting() {
-		try {
-
-			// delete all ContentDocument
-			QueryResult result = connection.query("SELECT Id FROM ContentDocument");
-			SObject[] contentDocumentArray = result.getRecords();
-			for (SObject contentDocument : contentDocumentArray) {
-				deleteRecords((String) contentDocument.getField("Id"));
-			}
-
-			// delete all ContentWorkspace
-			result = connection.query("SELECT Id,Name,WorkspaceType FROM ContentWorkspace where WorkSpaceType = 'R'");
-			SObject[] contentWorkspaceArray = result.getRecords();
-			for (SObject contentWorkspace : contentWorkspaceArray) {
-				System.out.println("Error id: " + (String) contentWorkspace.getField("Id"));
-				deleteRecords((String) contentWorkspace.getField("Id"));
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 }
