@@ -21,6 +21,22 @@
 
 
     },
+    
+    
+    
+    handleClickSubmit : function (component, event, helper){
+       var inputMessage = component.get("v.inputMessageValue");
+       component.set("v.inputMessageValue", "");
+       var messages = component.get("v.messages");
+       helper.submit(component, inputMessage, component.get('v.session'), function(answer) {
+                if (answer) {
+                    component.set("v.session", answer.session);
+                    Array.prototype.push.apply(messages, answer.messages);
+                    component.set("v.messages", messages);
+                    
+                }
+            });
+    },
 
     utteranceHandler : function(component, event, helper) {
         if (event.keyCode == 13) {
@@ -51,6 +67,7 @@
                 break;
         }
     },
+    
     postbackButtonClickHandler : function(component, event, helper) {
         var utterance = event.getSource().get("v.label");
         var messages = component.get("v.messages");
@@ -58,23 +75,30 @@
         component.set("v.messages", messages);
         helper.submit(component, utterance, component.get('v.session'), function(answer) {
             if (answer) {
-                console.log(answer);
                 component.set("v.session", answer.session);
                 Array.prototype.push.apply(messages, answer.messages);
                 component.set("v.messages", messages);
             }
         });
     },
+    
+    detachFile : function(component, event, helper){
+      component.set("v.booleanFlag", false);
+      
+      component.set("v.files", [])
+      component.set("v.attachmentURL", "");
+      component.set("v.attachmentContent", null);
+      component.set("v.fileName", "");
+      component.set("v.booleanFlag", true);
+    },
 
     loadFile: function(component, event, helper) {
-        var files = component.get("v.files");
+        var files = event.getSource().get("v.files");
         if (files && files.length > 0) {
             var file = files[0][0];
             if(file){
-
-
                 if (!file.type.match(/(image.*)/)) {
-                    return alert('Image file not supported');
+                    return;
                 }
                 var reader = new FileReader();
                 reader.onloadend = function() {
