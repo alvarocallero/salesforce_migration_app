@@ -29,5 +29,5 @@
         <members>User_Message_Record_Page1</members>
         <name>FlexiPage</name>
     </types>
-    <version>36.0</version>
+    <version>40.0</version>
 </Package>
