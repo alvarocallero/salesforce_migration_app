@@ -9,8 +9,9 @@
     top: 0;
     left: 0;
     right: 0;
-    bottom: 80px;
-    overflow: scroll;
+    bottom: 110px;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 
 .THIS>.footer {
