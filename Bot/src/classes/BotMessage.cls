@@ -2,6 +2,7 @@ public virtual class BotMessage {
 
 
     @AuraEnabled public String messageText { get;set; }
+    @AuraEnabled public final String author = 'Leah';
     @AuraEnabled public List<BotRecord> records { get;set; }
     @AuraEnabled public List<BotItem> items { get;set; }
     @AuraEnabled public List<BotMessageButton> buttons { get;set; }

@@ -4,14 +4,12 @@
         action.setCallback(this, function(response){
             var state = response.getState();
             if(component.isValid() && state === "SUCCESS"){
-
-
-                component.set("v.userInfo",  response.getReturnValue());
-                var information = component.get("v.userInfo");
-
-                var name = information[1];
+                var information = response.getReturnValue();
+                component.set("v.userInfo", information);
+               
                 var messages = component.get("v.messages");
-                messages.push({author: "Leah", messageText: "Welcome " + name +  ", how can I help you?"});
+                messages.push({author: "Leah", messageText: information[2]});
+                messages.push({author: "Leah", messageText: information[3]});
                 component.set("v.messages", messages);
 
             }
@@ -22,7 +20,10 @@
 
     },
     
-    
+    changeStyleValue : function (component, event, helper){
+        component.set("v.slds_Style", "HELLO");
+        console.info("TEST-> ", component.get("v.slds_Style"));
+    },
     
     handleClickSubmit : function (component, event, helper){
        var inputMessage = component.get("v.inputMessageValue");
