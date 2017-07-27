@@ -5,8 +5,6 @@
         
         // YOUR CUSTOM LOGIC GOES HERE:
         gapOf.Opportunity_PopUpRedirect = function(component, event, helper){
-            //se pueden meter cosas en el body
-            //setear la url al compoent
 
             
             var url = "";
@@ -17,7 +15,7 @@
                     'value': "This is the name of the Opportunity: " + nameOfOpp
                 }, 
                 function(newCmp){ 
-                    //Add the field list to the body array 
+
                     if (component.isValid()) { 
                         
                         var body = component.get("v.body"); 

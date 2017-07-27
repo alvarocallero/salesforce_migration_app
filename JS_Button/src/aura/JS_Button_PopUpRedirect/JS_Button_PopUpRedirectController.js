@@ -33,7 +33,7 @@
             //component.getEvent('closeActionEvent').fire();
         }
     },
-    //Crear el handlecancel hace el fire del close
+
     handleCancel : function(component, event, helper){
         var eventclose = $A.get("e.force:closeQuickAction");
         eventclose.fire();
@@ -41,12 +41,10 @@
     handleOk : function(component,event,helper){
         var url = component.get("v.urlToRedirect");
         var eventRedirect = $A.get("e.force:navigateToURL");
-        console.log("this is my url :", url);
         eventRedirect.setParams({
             "url": url
         });
         eventRedirect.fire();
     }
-    //Crear el handleOk que hace el redireccionamiento
-    //	tomar la url del componente 
+
 })
