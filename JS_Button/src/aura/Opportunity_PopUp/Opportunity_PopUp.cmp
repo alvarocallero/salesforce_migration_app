@@ -1,0 +1,8 @@
+<aura:component implements="force:lightningQuickActionWithoutHeader,force:hasRecordId,force:hasSObjectName">  
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="sObjectName" type="String" />
+    <aura:attribute name="GapType" type="String" default="" required="true" description="based on the type is the problem that we will solve" />
+    <aura:attribute name="id" type="String" default="default" required="true" description="based on the id we will add the logic for that id"/>
+    <aura:handler name="closeActionEvent" event="c:closeAction" action="{!c.handleCloseEvent}"/>
+    <c:JS_Button_Popup id="Opportunity_ConditionalPopUp" recordId="{!v.recordId}" ObjectName="{!v.sObjectName}" needsData="true" fieldList="Name"/>
+</aura:component>
