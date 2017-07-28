@@ -1,0 +1,14 @@
+<aura:component implements="force:lightningQuickActionWithoutHeader,force:hasRecordId,force:hasSObjectName" 
+                extends="c:JS_Button_Create">
+    <aura:attribute name="recordId" type="id"/>
+    <aura:attribute name="sObjectName" type="String"/>
+    
+	<aura:method name="changeDefaultValues" action="{!c.changeDefaultValues}" access="PUBLIC"/>
+    <aura:handler event="aura:doneRendering" action="{!c.doneRendering}"/>
+    
+    <aura:set attribute="newRecordApiName" value="Task" />
+    <aura:set attribute="needsData" value="true" />
+    <aura:set attribute="fieldList" value="Probability" />
+    <aura:set attribute="defaultValues" value="{'Description':'Comment here'}" />
+    
+</aura:component>
