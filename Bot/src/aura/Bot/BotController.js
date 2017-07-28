@@ -4,14 +4,12 @@
         action.setCallback(this, function(response){
             var state = response.getState();
             if(component.isValid() && state === "SUCCESS"){
+                var information = response.getReturnValue();
+                component.set("v.userInfo", information);
 
-
-                component.set("v.userInfo",  response.getReturnValue());
-                var information = component.get("v.userInfo");
-
-                var name = information[1];
                 var messages = component.get("v.messages");
-                messages.push({author: "Leah", messageText: "Welcome " + name +  ", how can I help you?"});
+                messages.push({author: "Leah", messageText: information[2]});
+                messages.push({author: "Leah", messageText: information[3]});
                 component.set("v.messages", messages);
 
             }
@@ -21,9 +19,8 @@
 
 
     },
-    
-    
-    
+
+
     handleClickSubmit : function (component, event, helper){
        var inputMessage = component.get("v.inputMessageValue");
        component.set("v.inputMessageValue", "");
@@ -33,7 +30,7 @@
                     component.set("v.session", answer.session);
                     Array.prototype.push.apply(messages, answer.messages);
                     component.set("v.messages", messages);
-                    
+
                 }
             });
     },
@@ -68,7 +65,7 @@
                 break;
         }
     },
-    
+
     postbackButtonClickHandler : function(component, event, helper) {
         var utterance = event.getSource().get("v.label");
         var messages = component.get("v.messages");
@@ -82,10 +79,10 @@
             }
         });
     },
-    
+
     detachFile : function(component, event, helper){
       component.set("v.booleanFlag", false);
-      
+
       component.set("v.files", [])
       component.set("v.attachmentURL", "");
       component.set("v.attachmentContent", null);

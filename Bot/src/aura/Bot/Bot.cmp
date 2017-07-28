@@ -33,11 +33,13 @@
                    </aura:if>
                  </span>
                </lightning:layoutitem>
-
-                    <lightning:layoutitem padding="around-small" flexibility="grow">
+                    
+					<aura:if isTrue="{#message.author == 'Leah'}">
+                        <lightning:layoutitem class="slds-border--bottom slds-theme--info slds-m-around--small" padding="around-small" flexibility="grow">
                         <p><strong>{#message.author}</strong></p>
-                        <p class="slds-text-body">{#message.messageText}</p>
-
+                       
+                            <aura:unescapedHtml value="{#message.messageText}" />
+                            
                         <aura:if isTrue="{!message.imageURL}">
                             <figure class="slds-image slds-image--card slds-m-top--x-small">
                                 <img src='{#message.imageURL}'/>
@@ -74,6 +76,52 @@
                         </aura:iteration>
 
                     </lightning:layoutitem>
+                        
+                        <aura:set attribute="else">
+                            <lightning:layoutitem class="slds-border--bottom slds-border--left slds-border--right slds-border--top slds-theme--shade slds-m-around--small" padding="around-small" flexibility="grow">
+                        	<p><strong>{#message.author}</strong></p>
+                       		<p class="slds-text-body">{#message.messageText}</p>
+                        <aura:if isTrue="{!message.imageURL}">
+                            <figure class="slds-image slds-image--card slds-m-top--x-small">
+                                <img src='{#message.imageURL}'/>
+                            </figure>
+                        </aura:if>
+
+                        <aura:iteration items="{!message.buttons}" var="button">
+                            <lightning:button label="{#button.label}" name="{#button.value}" onclick="{!c.postbackButtonClickHandler}" class="message-button"/>
+                        </aura:iteration>
+
+                        <aura:iteration items="{!message.records}" var="record">
+                            <dl class="slds-list--horizontal slds-wrap">
+                                <aura:iteration items="{!record.fields}" var="field">
+                                    <dt class="slds-item--label slds-text-color--weak slds-truncate">{!field.name}:</dt>
+                                    <dd class="slds-item--detail slds-truncate">
+                                        <aura:if isTrue="{!field.linkURL}">
+                                            <a href="{#field.linkURL}">{#field.value}</a>
+                                            <aura:set attribute="else">
+                                                {#field.value}
+                                            </aura:set>
+                                        </aura:if>
+                                    </dd>
+                                </aura:iteration>
+                            </dl>
+                        </aura:iteration>
+
+                        <aura:iteration items="{!message.items}" var="item">
+                            <aura:if isTrue="{!item.linkURL}">
+                                <div class="list-item"><a href="{#item.linkURL}" target="_blank">{#item.name}</a></div>
+                                <aura:set attribute="else">
+                                    <div class="list-item">{#item.name}</div>
+                                </aura:set>
+                            </aura:if>
+                        </aura:iteration>
+
+                    </lightning:layoutitem>
+                            
+                        </aura:set>
+                        
+                    </aura:if>
+                 	
                 </lightning:layout>
 
             </aura:iteration>
