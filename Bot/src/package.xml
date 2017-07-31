@@ -9,6 +9,10 @@
         <name>AuraDefinitionBundle</name>
     </types>
     <types>
+        <members>*</members>
+        <name>CustomApplication</name>
+    </types>
+    <types>
         <members>Bot_Command__c</members>
         <members>UserBotMessage__c</members>
         <name>CustomObject</name>

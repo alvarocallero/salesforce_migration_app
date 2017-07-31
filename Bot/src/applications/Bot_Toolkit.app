@@ -3,5 +3,5 @@
     <defaultLandingTab>standard-home</defaultLandingTab>
     <description>Manage your Bot Commands</description>
     <label>Bot Toolkit</label>
-    <tab>Bot_Command__c</tab>
+    
 </CustomApplication>
