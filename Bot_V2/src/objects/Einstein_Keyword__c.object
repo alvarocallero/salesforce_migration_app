@@ -48,41 +48,21 @@
     <enableFeeds>false</enableFeeds>
     <enableHistory>false</enableHistory>
     <enableReports>false</enableReports>
-    <enableSearch>false</enableSearch>
+    <enableSearch>true</enableSearch>
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
-    <fields>
-        <fullName>Known_Issue__c</fullName>
-        <externalId>false</externalId>
-        <label>Known Issue</label>
-        <referenceTo>Known_Issue__c</referenceTo>
-        <relationshipLabel>Known Issue Subscribers</relationshipLabel>
-        <relationshipName>Known_Issue_Subscribers</relationshipName>
-        <relationshipOrder>0</relationshipOrder>
-        <reparentableMasterDetail>true</reparentableMasterDetail>
-        <trackTrending>false</trackTrending>
-        <type>MasterDetail</type>
-        <writeRequiresMasterRead>false</writeRequiresMasterRead>
-    </fields>
-    <fields>
-        <fullName>Subscriber__c</fullName>
-        <deleteConstraint>SetNull</deleteConstraint>
-        <externalId>false</externalId>
-        <label>Subscriber</label>
-        <referenceTo>User</referenceTo>
-        <relationshipName>Known_Issue_Subscribers</relationshipName>
-        <required>false</required>
-        <trackTrending>false</trackTrending>
-        <type>Lookup</type>
-    </fields>
     <gender>Feminine</gender>
-    <label>Known Issue Subscriber</label>
+    <label>Einstein Keyword</label>
+    <listViews>
+        <fullName>All</fullName>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
     <nameField>
-        <displayFormat>KIS-{0000}</displayFormat>
-        <label>Known Issue Subscriber Name</label>
-        <type>AutoNumber</type>
+        <label>Einstein Keyword Name</label>
+        <type>Text</type>
     </nameField>
-    <pluralLabel>Known Issue Subscribers</pluralLabel>
+    <pluralLabel>Einstein Keywords</pluralLabel>
     <searchLayouts/>
-    <sharingModel>ControlledByParent</sharingModel>
+    <sharingModel>ReadWrite</sharingModel>
 </CustomObject>
