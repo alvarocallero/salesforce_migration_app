@@ -48,11 +48,11 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Keywords__c</field>
+                <field>Message_Summary__c</field>
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Message_Summary__c</field>
+                <field>Einstein_Keyword__c</field>
             </layoutItems>
         </layoutColumns>
         <style>OneColumn</style>

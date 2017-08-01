@@ -52,37 +52,26 @@
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
     <fields>
-        <fullName>Known_Issue__c</fullName>
+        <fullName>Einstein_Keyword__c</fullName>
         <externalId>false</externalId>
-        <label>Known Issue</label>
-        <referenceTo>Known_Issue__c</referenceTo>
-        <relationshipLabel>Known Issue Subscribers</relationshipLabel>
-        <relationshipName>Known_Issue_Subscribers</relationshipName>
+        <label>Einstein Keyword</label>
+        <referenceTo>Einstein_Keyword__c</referenceTo>
+        <relationshipLabel>Einstein Data Messages</relationshipLabel>
+        <relationshipName>Einstein_Data_Messages</relationshipName>
         <relationshipOrder>0</relationshipOrder>
-        <reparentableMasterDetail>true</reparentableMasterDetail>
+        <reparentableMasterDetail>false</reparentableMasterDetail>
         <trackTrending>false</trackTrending>
         <type>MasterDetail</type>
         <writeRequiresMasterRead>false</writeRequiresMasterRead>
     </fields>
-    <fields>
-        <fullName>Subscriber__c</fullName>
-        <deleteConstraint>SetNull</deleteConstraint>
-        <externalId>false</externalId>
-        <label>Subscriber</label>
-        <referenceTo>User</referenceTo>
-        <relationshipName>Known_Issue_Subscribers</relationshipName>
-        <required>false</required>
-        <trackTrending>false</trackTrending>
-        <type>Lookup</type>
-    </fields>
     <gender>Feminine</gender>
-    <label>Known Issue Subscriber</label>
+    <label>Einstein Data Message</label>
     <nameField>
-        <displayFormat>KIS-{0000}</displayFormat>
-        <label>Known Issue Subscriber Name</label>
+        <displayFormat>EDM-{0000}</displayFormat>
+        <label>Einstein Message Name</label>
         <type>AutoNumber</type>
     </nameField>
-    <pluralLabel>Known Issue Subscribers</pluralLabel>
+    <pluralLabel>Einstein Data Messages</pluralLabel>
     <searchLayouts/>
     <sharingModel>ControlledByParent</sharingModel>
 </CustomObject>

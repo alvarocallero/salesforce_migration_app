@@ -74,6 +74,19 @@
         <unique>false</unique>
     </fields>
     <fields>
+        <fullName>Einstein_Keyword__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Einstein Keyword</label>
+        <referenceTo>Einstein_Keyword__c</referenceTo>
+        <relationshipLabel>Known Issues</relationshipLabel>
+        <relationshipName>Known_Issues</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
         <fullName>Email_Template_Id__c</fullName>
         <externalId>false</externalId>
         <label>Email Template Id</label>
@@ -92,17 +105,6 @@
         <trackHistory>false</trackHistory>
         <trackTrending>false</trackTrending>
         <type>Date</type>
-    </fields>
-    <fields>
-        <fullName>Keywords__c</fullName>
-        <externalId>false</externalId>
-        <label>Keywords</label>
-        <length>255</length>
-        <required>false</required>
-        <trackHistory>false</trackHistory>
-        <trackTrending>false</trackTrending>
-        <type>Text</type>
-        <unique>false</unique>
     </fields>
     <fields>
         <fullName>Message_Summary__c</fullName>
