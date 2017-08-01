@@ -1,7 +1,9 @@
-<project name="Sample usage of Salesforce Ant tasks" default="test" basedir="." xmlns:sf="antlib:com.salesforce">
+<project name="Visualforce Script Parser" default="main" basedir="." xmlns:sf="antlib:com.salesforce">
 
     <property file="build.properties"/>
     <property environment="env"/>
+    <property name="projectName" value="ScriptParser" />
+
 
     <!-- Setting default value for username, password and session id properties to empty string
      so unset values are treated as empty. Without this, ant expressions such as ${sf.username}
@@ -17,10 +19,19 @@
         </classpath>
     </taskdef>
 
-    <target name="retrieveCode">
-     <!-- Retrieve the contents listed in the file codepkg/package.xml into the codepkg directory -->
-          <sf:retrieve username="${sf.username}" password="${sf.password}"
-          serverurl="${sf.serverurl}" retrieveTarget="src" unpackaged="src/package.xml"/>
-    </target>
+		<target name="clean" description="clean up">
+			<delete dir="${build.dir}" />
+			<delete dir="${dist.dir}" />
+		</target>
+
+		<!-- Default, run this -->
+		<target name="main" depends="retrieveCode" />
+
+		<target name="retrieveCode">
+	          <sf:retrieve username="${sf.username}" password="${sf.password}"
+	          serverurl="${sf.serverurl}" retrieveTarget="src/salesforce_downloads" unpackaged="src/package.xml"/>
+	    </target>
+
+
 
 </project>
