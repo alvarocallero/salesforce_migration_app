@@ -28,6 +28,11 @@
         <sf:deploy username="${sf.username}" password="${sf.password}" sessionId="${sf.sessionId}" serverurl="${sf.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="../Bot/src" rollbackOnError="true"/>
 
     </target>
+    <target name="deployToolkitBot_V2">
+        <!-- Upload the contents of the "Bot" package -->
+        <sf:deploy username="${sf.username}" password="${sf.password}" sessionId="${sf.sessionId}" serverurl="${sf.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="../Bot_V2/src" rollbackOnError="true"/>
+
+    </target>
     <target name="deployJSButton">
         <!-- Upload the contents of the "Bot" package -->
         <sf:deploy username="${sf.username}" password="${sf.password}" sessionId="${sf.sessionId}" serverurl="${sf.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="../JS_Button/src" rollbackOnError="true"/>
