@@ -33,5 +33,9 @@
         <sf:deploy username="${sf.username}" password="${sf.password}" sessionId="${sf.sessionId}" serverurl="${sf.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="../JS_Button/src" rollbackOnError="true"/>
 
     </target>
+	<target name="deployPermissionSet">
+        <!-- Upload the contents of the "mypkg" package -->
+        <sf:deploy username="${sf.username}" password="${sf.password}" sessionId="${sf.sessionId}" serverurl="${sf.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="../src" rollbackOnError="true"/>
 
+    </target>
 </project>
