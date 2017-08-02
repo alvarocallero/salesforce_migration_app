@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
-        <members>AltiBot</members>
+        <members>*</members>
         <name>CustomApplication</name>
     </types>
     <types>
@@ -9,37 +9,13 @@
         <name>AuraDefinitionBundle</name>
     </types>
     <types>
-        <members>AttachmentController</members>
-        <members>AttachmentTest</members>
-        <members>BotController</members>
-        <members>BotField</members>
-        <members>BotHandler</members>
-        <members>BotItem</members>
-        <members>BotMessage</members>
-        <members>BotMessageButton</members>
-        <members>BotResponse</members>
-        <members>BotRecord</members>
-        <members>HandlerCostCenter</members>
-        <members>BotTest</members>
-        <members>HandlerAddTwoNumbers</members>
-        <members>HandlerTravelApproval</members>
-        <members>HandlerTopOpportunities</members>
-        <members>HandlerSOQL</members>
-        <members>HandlerQuarter</members>
-        <members>HandlerPipeline</members>
-        <members>HandlerNext</members>
-        <members>HandlerMyOpenCases</members>
-        <members>HandlerHelpTopic</members>
-        <members>HandlerHelp</members>
-        <members>HandlerHello</members>
-        <members>HandlerFindContact</members>
-        <members>HandlerFindAccount</members>
-        <members>HandlerEmployeeId</members>
+        <members>*</members>
+
         <name>ApexClass</name>
     </types>
     <types>
-        <members>AltiBot_UtilityBar</members>
-        <members>User_Message_Record_Page1</members>
+        <members>*</members>
+
         <name>FlexiPage</name>
     </types>
     <types>
@@ -47,9 +23,8 @@
         <name>CustomLabels</name>
     </types>
     <types>
-        <members>UserBotMessage__c</members>
-        <members>Known_Issue__c</members>
-        <members>Known_Issue_Subscriber__c</members>
+        <members>*</members>
+
         <name>CustomObject</name>
     </types>
     <types>
@@ -60,11 +35,12 @@
         <members>*</members>
         <name>CustomTab</name>
     </types>
+
     <types>
-        <members>Known_Issue__c</members>
-        <members>Known_Issue_Subscriber__c</members>
-        <members>UserBotMessage__c</members>
-        <name>Workflow</name>
+        <members>*</members>
+        <name>ContentAsset</name>
     </types>
-    <version>38.0</version>
+
+
+    <version>40.0</version>
 </Package>
