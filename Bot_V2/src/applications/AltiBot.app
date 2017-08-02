@@ -11,7 +11,7 @@
     </actionOverrides>
     <brand>
         <headerColor>#074556</headerColor>
-        <logo>bot</logo>
+        <logo>leahLogo</logo>
         <logoVersion>1</logoVersion>
     </brand>
     <description>A Bot to collect user feedback</description>
