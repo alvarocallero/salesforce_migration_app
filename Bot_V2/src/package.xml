@@ -35,7 +35,10 @@
         <members>*</members>
         <name>CustomTab</name>
     </types>
-
+	<types>
+        <members>*</members>
+        <name>ApexPage</name>
+    </types>
     <types>
         <members>*</members>
         <name>ContentAsset</name>

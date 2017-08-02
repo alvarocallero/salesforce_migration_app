@@ -1,0 +1,100 @@
+<apex:page controller="KnownIssuesSearchController"
+           standardStylesheets="false" >
+    
+    <style>
+		        
+        .div-title {
+            margin: 25px;
+        }
+        
+        .subscribed-icon {
+        	margin-left: 35px;
+        }
+        
+        .notify-button {
+        	white-space: nowrap !important;
+        }
+        
+    </style>
+	
+    <apex:slds />
+	
+    <div class="slds-scope">
+        
+        <!-- PAGE TITLE -->
+        <div class="div-title"
+             style="width: 30rem;" >
+          <article class="slds-tile slds-media" > 
+            <div class="slds-media__figure" > 
+              <img src="/img/icon/service_contracts32.png" title="/img/icon/service_contracts32.png" />
+            </div>
+            <div class="slds-media__body" >
+              <h3 class="slds-truncate">KNOWN ISSUES</h3>
+              <div class="slds-tile__detail slds-text-body_small" >
+                  <p>Please verify if any of this issues is similar to the one you are experiencing.</p>
+              </div>
+            </div>
+          </article>
+        </div>
+        
+        <!-- NO RECORDS MESSAGE -->
+        <apex:outputPanel rendered="{!!IssuesFound}" >
+            <apex:outputText value="No Known Issues were found." />
+        </apex:outputPanel>
+        
+        <!-- RECORDS TABLE -->
+        <apex:outputPanel rendered="{!IssuesFound}">
+            
+            <apex:form >
+            <apex:dataTable value="{!issueRows}"
+                            var="row"
+                            id="issuesTable"
+                            styleClass="slds-table slds-table_bordered slds-table_cell-buffer" >
+                
+                <apex:column >
+                    <apex:facet name="header">ISSUE</apex:facet>
+                    <apex:outputText value="{!row.issue.Name}"/>
+                </apex:column>
+        		
+                <apex:column >
+                    <apex:facet name="header">MESSAGE</apex:facet>
+                    <apex:outputText value="{!row.issue.Message_Summary__c}"/>
+                </apex:column>
+                
+                <apex:column >
+                    <apex:facet name="header">REASON</apex:facet>
+                    <apex:outputText value="{!row.issue.Reason__c}"/>
+                </apex:column>
+                
+                <apex:column >
+                    <apex:facet name="header">SUBSCRIBED</apex:facet>
+                    <apex:outputPanel id="subscribedPanel">
+                        
+                        <!-- SUBSCRIBE BUTTON: shown if the user is not subscribed to the issue -->
+                        <apex:commandButton action="{!subscribeToIssue}"
+                                            value="Notify Me"
+                                            rendered="{!!row.subscribed}"
+                                            reRender="subscribedPanel"
+                                            styleClass="slds-button slds-button_neutral notify-button" >
+                            <apex:param name="issueToSubscribe"
+                                        value="{!row.issue.Id}"
+                                        assignTo="{!issueToSubscribe}" />
+                        </apex:commandButton>
+                        
+                        <!-- SUBSCRIBED IMAGE: shown if the user is already subscribed to the issue -->
+                        <apex:outputPanel rendered="{!row.subscribed}">
+                            <apex:image value="/img/check.gif"
+                                        alt="Yes"
+                                        styleClass="subscribed-icon" />
+                        </apex:outputPanel>
+                        
+                    </apex:outputPanel>
+                </apex:column>
+        		
+            </apex:dataTable>
+            </apex:form>
+            
+        </apex:outputPanel>
+        
+    </div>
+</apex:page>
