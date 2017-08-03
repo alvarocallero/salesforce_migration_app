@@ -92,4 +92,51 @@ public class KnownIssuesUtils {
         }
     }
     
+    
+    public static void reparentSubscribersOfDuplicatedIssues(List<Known_Issue__c> issues) {
+        Map<Id, Set<Id>> subUserIdsByOriginalIssueId = new Map<Id, Set<Id>>();
+        for (Known_Issue__c issue: issues) {
+            if (issue.Related_Issue__c != null)
+        	subUserIdsByOriginalIssueId.put(issue.Related_Issue__c, new Set<Id>());
+        }
+        
+        List<Known_Issue_Subscriber__c> subscribers = [ SELECT Id,
+                                                       		   Known_Issue__c,
+                                                       		   Known_Issue__r.Status__c,
+                                                       		   Known_Issue__r.Related_Issue__c,
+                                                       		   Subscriber__c
+                                                       	FROM Known_Issue_Subscriber__c
+                                                      	WHERE ( Known_Issue__c IN :issues
+                                                      			AND Known_Issue__r.Related_Issue__c != null
+                                                              	AND Known_Issue__r.Status__c = :STATUS_DUPLICATED )
+                                                      	OR Known_Issue__c IN :subUserIdsByOriginalIssueId.keySet() ];
+		
+		for (Known_Issue_Subscriber__c sub: subscribers) {
+            if ( subUserIdsByOriginalIssueId.containsKey(sub.Known_Issue__c) ) {
+            	subUserIdsByOriginalIssueId.get(sub.Known_Issue__c).add(sub.Subscriber__c);
+            }
+        }
+        
+        List<Known_Issue_Subscriber__c> subsToUpdate = new List<Known_Issue_Subscriber__c>();
+        List<Known_Issue_Subscriber__c> subsToDelete = new List<Known_Issue_Subscriber__c>();
+        for (Known_Issue_Subscriber__c sub: subscribers) {
+            if ( sub.Known_Issue__r.Status__c == STATUS_DUPLICATED ) {
+                Set<Id> usersSubscribedToOriginalIssue = subUserIdsByOriginalIssueId.get(sub.Known_Issue__r.Related_Issue__c);
+                if (usersSubscribedToOriginalIssue != null && usersSubscribedToOriginalIssue.contains(sub.Subscriber__c) ) {
+                    subsToDelete.add(sub);
+                } else {
+                    sub.Known_Issue__c = sub.Known_Issue__r.Related_Issue__c;
+                    subsToUpdate.add(sub);
+                }
+            }
+        }
+        
+        if (!subsToUpdate.isEmpty()) {
+            update subsToUpdate;
+        }
+        if (!subsToDelete.isEmpty()) {
+            delete subsToDelete;
+        }
+    }
+    
 }
