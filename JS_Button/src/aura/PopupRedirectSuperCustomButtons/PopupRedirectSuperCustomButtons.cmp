@@ -1,0 +1,27 @@
+<aura:component implements="force:lightningQuickActionWithoutHeader,force:hasRecordId,force:hasSObjectName" 
+                extends="c:Super_JS_Button">
+    <aura:attribute name="recordId" type="id"/>
+    <aura:attribute name="sObjectName" type="String"/>
+
+    <aura:set attribute="needsData" value="true" />
+    <aura:set attribute="fieldList" value="Probability" />
+    
+    <aura:set attribute="gapType" value="PopupRedirect"/>
+    
+    <aura:set attribute="redirectURL" value="http://google.com" />
+    
+    <aura:set attribute="header" value="Custom Header" />
+    <aura:set attribute="body" >
+        The probability is {!v.loadedRecord.Probability}.
+        Do you want to open Google?
+    </aura:set>
+    
+    <aura:set attribute="useDefaultButtons" value="false"/>
+    <aura:set attribute="buttons">
+        <span class="slds-float_right">
+            <button class="slds-button slds-button_neutral" onclick="{!c.handleCancel}">Cancel</button>				
+            <button class="slds-button slds-button_brand" onclick="{!c.handleRedirect}">Go to google</button>
+        </span>
+    </aura:set>
+    
+</aura:component>
