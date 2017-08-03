@@ -1,7 +1,0 @@
-<aura:component implements="force:lightningQuickAction">
-
-	<aura:handler name="closeActionEvent" event="c:closeAction" action="{!c.handleCloseEvent}"/>
-	
-	<c:JS_Button id="Opportunity_CustomUrl" GapType="CustomUrl"/>
-	
-</aura:component>
