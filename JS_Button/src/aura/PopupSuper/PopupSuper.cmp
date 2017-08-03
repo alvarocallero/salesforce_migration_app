@@ -1,0 +1,18 @@
+<aura:component implements="force:lightningQuickAction,force:hasRecordId,force:hasSObjectName" 
+                extends="c:Super_JS_Button">
+    <aura:attribute name="recordId" type="id"/>
+    <aura:attribute name="sObjectName" type="String"/>
+    
+    <aura:set attribute="needsData" value="true" />
+    <aura:set attribute="fieldList" value="Probability" />
+    
+    <aura:set attribute="gapType" value="Popup"/>
+    
+    <aura:set attribute="body" >
+        This is the body of the popup. The Probability is {!v.loadedRecord.Probability}
+    </aura:set>
+    
+    
+    
+    
+</aura:component>

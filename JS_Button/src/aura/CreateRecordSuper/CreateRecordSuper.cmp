@@ -1,0 +1,14 @@
+<aura:component implements="force:lightningQuickActionWithoutHeader,force:hasRecordId,force:hasSObjectName" 
+                extends="c:Super_JS_Button">
+    <aura:attribute name="recordId" type="id"/>
+    <aura:attribute name="sObjectName" type="String"/>
+
+	<aura:method name="changeDefaultValues" action="{!c.changeDefaultValues}" access="PUBLIC"/>
+    
+    <aura:set attribute="gapType" value="CreateRecord" />
+    <aura:set attribute="newRecordApiName" value="Task" />
+    <aura:set attribute="needsData" value="true" />
+    <aura:set attribute="fieldList" value="Probability" />
+    <aura:set attribute="defaultValues" value="{'Description':'Comment here'}" /><!--This set will be overriden if a changeDefaultValues method is defined-->
+    
+</aura:component>

@@ -1,0 +1,7 @@
+<aura:component implements="force:lightningQuickActionWithoutHeader" 
+                extends="c:Super_JS_Button">
+    
+    <aura:set attribute="gapType" value="CustomUrl"/>
+    <aura:set attribute="redirectURL" value="https://google.com" />
+    
+</aura:component>
