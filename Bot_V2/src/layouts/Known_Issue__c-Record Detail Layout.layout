@@ -135,6 +135,7 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Subscriber__c</fields>
         <relatedList>Known_Issue_Subscriber__c.Known_Issue__c</relatedList>
     </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>
