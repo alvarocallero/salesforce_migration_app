@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Bot Notification</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Bot Notifications</value>
+    </caseValues>
+    <fields>
+        <label><!-- Known_Issue_Id --></label>
+        <name>Known_Issue_Id__c</name>
+    </fields>
+    <fields>
+        <label><!-- Known_Issue_Name --></label>
+        <name>Known_Issue_Name__c</name>
+    </fields>
+    <fields>
+        <label><!-- Known_Issue_Subscriber --></label>
+        <name>Known_Issue_Subscriber__c</name>
+    </fields>
+    <fields>
+        <label><!-- Known_Issue_Summary --></label>
+        <name>Known_Issue_Summary__c</name>
+    </fields>
+    <gender>Feminine</gender>
+</CustomObjectTranslation>

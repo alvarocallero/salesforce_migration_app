@@ -90,6 +90,29 @@ public class KnownIssuesUtilsTest {
     }
     
     
+    static testmethod void testNotifyFixedIssuesSubscribers() {
+        
+        String targetId = 'a01f400000AAAAA123';
+        String targetName = 'nameABC';
+        Known_Issue__c issue = getNewKnownIssue('message', 'summary', KnownIssuesUtils.STATUS_NEW, targetName, targetId );
+        insert issue;
+        List<User> users = new List<User>{ getNewStandardUser('usra'),
+            							   getNewStandardUser('usrb'),
+            							   getNewStandardUser('usrc') };
+        insert users;
+        
+        KnownIssuesUtils.subscribeUsersToIssue( issue.Id, new List<Id>{ users[0].Id,
+            															users[1].Id,
+            															users[2].Id } );
+        Test.startTest();
+        
+        issue.Status__c = KnownIssuesUtils.STATUS_FIXED;
+        update issue;
+        
+        Test.stopTest();
+    }
+    
+    
     // TEST DATA
     
     public static Known_Issue__c getNewKnownIssue(String message, String summary, String status, String targetName, String targetId ) {
