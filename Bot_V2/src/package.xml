@@ -57,10 +57,6 @@
         <name>Workflow</name>
     </types>
     <types>
-        <members>Bot_Notification__e-es</members>
-        <name>CustomObjectTranslation</name>
-    </types>
-    <types>
         <members>*</members>
         <name>ContentAsset</name>
     </types>
