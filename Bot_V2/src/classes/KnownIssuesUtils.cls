@@ -139,4 +139,53 @@ public class KnownIssuesUtils {
         }
     }
     
+    
+    public static void notifyFixedIssuesSubscribers(List<Known_Issue__c> issues, Map<Id,Known_Issue__c> oldIssuesById) {
+		
+        Set<Id> fixedIssues = new Set<Id>();
+        for (Known_Issue__c issue : issues) {
+            if ( issue.Status__c == STATUS_FIXED
+                	&& issue.Status__c != oldIssuesById.get(issue.Id).Status__c ) {
+                fixedIssues.add(issue.Id);
+            }
+        }
+    	
+        if (fixedIssues.isEmpty()) {
+            return;
+        }
+        
+        List<Known_Issue_Subscriber__c> subscribers = [ SELECT Id,
+                                                       		   Known_Issue__c,
+                                                       		   Known_Issue__r.Name,
+                                                       		   Known_Issue__r.Message_Summary__c,
+                                                       		   Subscriber__c
+                                                       	FROM Known_Issue_Subscriber__c
+                                                      	WHERE Known_Issue__c IN :fixedIssues ];
+        
+        // prepare Platform Events and Emails
+        List<Bot_Notification__e > botNotifications = new List<Bot_Notification__e >();
+        List<Messaging.SingleEmailMessage> botNotificationEmails = new List<Messaging.SingleEmailMessage>();
+        
+        for (Known_Issue_Subscriber__c sub: subscribers) {
+            
+            // create a bot notification per subscriber
+            botNotifications.add( GeneralUtils.getNewBotNotification( sub.Known_Issue__c,
+																	  sub.Known_Issue__r.Name,
+																	  sub.Known_Issue__r.Message_Summary__c,
+																	  sub.Subscriber__c ) );
+            // create email noification
+            botNotificationEmails.add( GeneralUtils.getNewBotNotificationEmail( sub.Known_Issue__c,
+																				sub.Known_Issue__r.Name,
+																				sub.Known_Issue__r.Message_Summary__c,
+																				sub.Subscriber__c ) );
+        }
+        
+        // publish bot notifications
+        List<Database.SaveResult> results = EventBus.publish(botNotifications);
+     	
+        // send email notifications
+        Messaging.sendEmail(botNotificationEmails);
+        
+    }
+    
 }

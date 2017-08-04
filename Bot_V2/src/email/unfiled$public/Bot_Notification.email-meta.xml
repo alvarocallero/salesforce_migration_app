@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>false</available>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Bot Notification</name>
+    <style>none</style>
+    <subject>Issue {0} was fixed!</subject>
+    <textOnly>This is to let you know that an issue you were subscribed has now been marked as fixed.
+If you still experience any problems please contact an administrator.
+
+Issue: {0}
+Message: {1}</textOnly>
+    <type>custom</type>
+</EmailTemplate>
