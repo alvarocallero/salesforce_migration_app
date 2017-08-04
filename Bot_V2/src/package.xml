@@ -48,7 +48,6 @@
         <name>ApexTrigger</name>
     </types>
 	<types>
-        <members>unfiled$public</members>
         <members>unfiled$public/Bot_Notification</members>
         <name>EmailTemplate</name>
     </types>
