@@ -5,6 +5,13 @@
     <aura:attribute name="session" type="Array"/>
     <aura:attribute name="height" type="String" default="500px" access="global"/>
     <aura:attribute name="files" type="Object[]"/>
+    
+    
+    <ltng:require scripts="{!$Resource.cometd}" afterScriptsLoaded="{!c.onCometdLoaded}"/>
+    <aura:attribute name="cometd" type="Object"/>
+    <aura:attribute name="cometdSubscriptions" type="Object[]"/>
+    <aura:attribute name="isMuted" type="Boolean" default="false"/>
+    <aura:attribute name="sessionId" type="String"/>
 
     <aura:attribute name="fileName" type="String" default=""/>
     <aura:attribute name="attachmentURL" type="String" default=""/>
