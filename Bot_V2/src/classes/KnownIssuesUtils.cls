@@ -80,6 +80,12 @@ public class KnownIssuesUtils {
         return Database.query(soqlQuery);
     }
     
+    public static Boolean verifyUserIsSubscribed(Id issueId, Id userId) {
+        List<Known_Issue_Subscriber__c> subscribers = [ SELECT Id FROM Known_Issue_Subscriber__c
+                                                        WHERE Known_Issue__c = :issueId
+                                                        AND Subscriber__c = :userId ];
+        return !subscribers.isEmpty();
+    }
     
     public static void subscribeUsersToIssue(Id issueId, List<Id> userIds) {
         List<Known_Issue_Subscriber__c> subscribers = new List<Known_Issue_Subscriber__c>();
@@ -89,6 +95,15 @@ public class KnownIssuesUtils {
         }
         if (!subscribers.isEmpty()) {
             insert subscribers;
+        }
+    }
+    
+    public static void removeSubscribers(Id issueId, List<Id> userIds) {
+        List<Known_Issue_Subscriber__c> subscribers = [ SELECT Id FROM Known_Issue_Subscriber__c
+                                                        WHERE Known_Issue__c = :issueId
+                                                        AND Subscriber__c IN :userIds ];
+        if (!subscribers.isEmpty()) {
+           delete subscribers; 
         }
     }
     
