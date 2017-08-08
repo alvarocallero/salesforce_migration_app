@@ -11,6 +11,14 @@
                 <behavior>Required</behavior>
                 <field>Name</field>
             </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>Einstein_Data_Messages_Count__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Edit</behavior>
+                <field>Uploaded_to_Einstein__c</field>
+            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
@@ -51,10 +59,13 @@
     </layoutSections>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Message__c</fields>
+        <fields>Uploaded_to_Einstein__c</fields>
         <relatedList>Einstein_Data_Message__c.Einstein_Keyword__c</relatedList>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Message_Summary__c</fields>
         <relatedList>Known_Issue__c.Einstein_Keyword__c</relatedList>
     </relatedLists>
     <showEmailCheckbox>false</showEmailCheckbox>

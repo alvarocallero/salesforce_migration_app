@@ -188,4 +188,15 @@ public class KnownIssuesUtils {
         
     }
     
+    
+    public static List<Known_Issue__c> setUndefinedKeyword(List<Known_Issue__c> issues) {
+        Id undefinedKeywordId = EinsteinUtils.getUndefinedKeywordId();
+        for (Known_Issue__c issue: issues) {
+            if (issue.Einstein_Keyword__c == null) {
+                issue.Einstein_Keyword__c = undefinedKeywordId;
+            }
+        }
+        return issues;
+    }
+    
 }
