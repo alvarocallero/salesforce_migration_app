@@ -19,7 +19,6 @@
                         helper.execute(component, event, helper);
                     }else{
                         //Handle error
-                        console.log(response);
                         component.set('v.ready', true);
                     }
                 });
