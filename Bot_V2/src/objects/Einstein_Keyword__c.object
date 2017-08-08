@@ -51,6 +51,23 @@
     <enableSearch>true</enableSearch>
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>Einstein_Data_Messages_Count__c</fullName>
+        <externalId>false</externalId>
+        <label>Einstein Data Messages Count</label>
+        <summaryForeignKey>Einstein_Data_Message__c.Einstein_Keyword__c</summaryForeignKey>
+        <summaryOperation>count</summaryOperation>
+        <trackTrending>false</trackTrending>
+        <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>Uploaded_to_Einstein__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Uploaded to Einstein</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
     <gender>Feminine</gender>
     <label>Einstein Keyword</label>
     <listViews>

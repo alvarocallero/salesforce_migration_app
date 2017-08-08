@@ -1,6 +1,21 @@
 public class GeneralUtils {
 	
     public static final EmailTemplate EMAILTEMPLATE_BOTNOTIFICATION = [ SELECT Body, HtmlValue, Subject FROM EmailTemplate WHERE DeveloperName = 'Bot_Notification' ];
+    public static Bot_Settings__c BOT_SETTINGS;
+	
+    public static Bot_Settings__c getBotSettings() {
+        if (BOT_SETTINGS == null) {
+            String settingsName = 'Default';
+            BOT_SETTINGS = Bot_Settings__c.getValues(settingsName);
+            if (BOT_SETTINGS == null) {
+                BOT_SETTINGS = new Bot_Settings__c( Name = settingsName,
+                                                    Einstein_Enabled__c = false,
+                                                    Einstein_Token__c = '' );
+                insert BOT_SETTINGS;
+            }
+        }
+        return BOT_SETTINGS;
+    }
     
     public static Bot_Notification__e getNewBotNotification(Id issueId, String issueName, String issueSummary, String issueSubscriberId) {
         return new Bot_Notification__e( Known_Issue_Id__c = issueId,
