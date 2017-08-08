@@ -22,7 +22,7 @@
 	<!-- USED INTERNALLY -->
 
 	<aura:attribute name="idOfRecordToUpdate" type="Id" access="global" description="The id of the record to edit in the modal"/>
-	<aura:attribute name="createRecordModalLoaded" type="Boolean" access="global" default="false" />
+	<aura:attribute name="createRecordModalLoaded" type="Boolean" access="global" default="false" description="True if the create modal loaded"/>
 
 	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
 	<aura:handler event="aura:doneRendering" action="{!c.doneRendering}" />
