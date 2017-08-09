@@ -1,0 +1,116 @@
+<apex:page standardController="Known_Issue__c"
+           standardStylesheets="false"
+           extensions="KnownIssueDetailController">
+    
+    <style>
+                
+        .div-title {
+            margin: 25px;
+        }
+        
+        .page-content {
+            width: 97%;
+            margin-left: 22px;
+        }
+        
+        .slds-scope .slds-form-element__label {
+            margin-top: .45rem !important;
+        }
+        
+        .subscribe-button {
+        	white-space: nowrap !important;
+        }
+        
+    </style>
+    
+    <apex:slds />
+    
+    <div class="slds-scope">
+        
+        <!-- PAGE TITLE -->
+        <div class="div-title"
+             style="width: 30rem;" >
+          <article class="slds-tile slds-media" >
+            <div class="slds-media__figure" >
+              <apex:image url="{!$Resource.altiLogo}"
+                          width="40"
+                          height="40"/>
+            </div>
+            <div class="slds-media__body" >
+              <h3 class="slds-truncate">KNOWN ISSUE</h3>
+              <div class="slds-tile__detail slds-text-body_small" >
+                  <p>{!Known_Issue__c.Name}</p>
+              </div>
+            </div>
+          	
+          	<apex:form >
+            <apex:outputPanel id="subscribe-section"
+                              layout="block"
+                              styleClass="title-buttons" >
+                          
+                <apex:commandButton action="{!subscribeToIssue}"
+                                    value="Notify Me"
+                                    rendered="{!!userIsSubscribed}"
+                                    reRender="subscribe-section"
+                                    styleClass="slds-button slds-button_neutral subscribe-button" />
+                            
+                <apex:commandButton id="subscribe-button"
+                                    action="{!unsubscribeToIssue}"
+                                    value="Unsubscribe"
+                                    rendered="{!userIsSubscribed}"
+                                    reRender="subscribe-section"
+                                    styleClass="slds-button slds-button_neutral subscribe-button" />
+                
+            </apex:outputPanel>
+            </apex:form>
+          	
+       	  </article>
+      	</div>
+        
+        <!-- RECORD DETAILS -->
+        <apex:outputPanel layout="block"
+                          styleClass="page-content" >
+            
+            <div class="slds-section slds-is-open">
+                <h3 class="slds-section__title slds-theme_shade">
+                  <span class="slds-truncate slds-p-horizontal_small" >DETAILS</span>
+                </h3>
+                <div aria-hidden="false" class="slds-section__content">
+                    
+                    <ul>
+                      <li class="slds-form-element slds-hint-parent slds-border_bottom">
+                        <span class="slds-form-element__label">Issue Name</span>
+                        <div class="slds-form-element__control">
+                          <span class="slds-form-element__static">{!Known_Issue__c.Name}</span>
+                        </div>
+                      </li>
+                      <li class="slds-form-element slds-hint-parent slds-border_bottom">
+                        <span class="slds-form-element__label">Status</span>
+                        <div class="slds-form-element__control">
+                          <span class="slds-form-element__static">{!Known_Issue__c.Status__c}</span>
+                        </div>
+                      </li>
+                      <li class="slds-form-element slds-hint-parent slds-border_bottom">
+                        <span class="slds-form-element__label">Message</span>
+                        <div class="slds-form-element__control">
+                          <span class="slds-form-element__static">{!Known_Issue__c.Message_Summary__c}</span>
+                        </div>
+                      </li>
+                      <apex:outputPanel layout="none"
+                                        rendered="{!Known_Issue__c.Reason__c != null}" >
+                      <li class="slds-form-element slds-hint-parent slds-border_bottom">
+                        <span class="slds-form-element__label">Reason</span>
+                        <div class="slds-form-element__control">
+                          <span class="slds-form-element__static">{!Known_Issue__c.Reason__c}</span>
+                        </div>
+                      </li>
+                      </apex:outputPanel>
+                    </ul>
+                    
+                </div>
+            </div>
+            
+        </apex:outputPanel>
+        
+    </div>
+</apex:page>

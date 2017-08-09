@@ -1,0 +1,12 @@
+<aura:component implements="force:lightningQuickActionWithoutHeader,force:hasRecordId,force:hasSObjectName" 
+                extends="c:Super_JS_Button">
+    <aura:attribute name="recordId" type="id"/>
+    <aura:attribute name="sObjectName" type="String"/>
+    <aura:method name="setRedirectUrl" action="{!c.setRedirectUrl}" />
+    
+    <aura:set attribute="needsData" value="true" />
+    <aura:set attribute="fieldList" value="Probability" />
+    
+    <aura:set attribute="gapType" value="ConditionalRedirect"/>
+    
+</aura:component>

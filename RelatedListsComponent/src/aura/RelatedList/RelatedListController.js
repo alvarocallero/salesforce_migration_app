@@ -8,7 +8,19 @@
         newAction.setCallback(this, function(r){
            var newState = r.getState();
             if(component.isValid() && newState === "SUCCESS"){
-                component.set("v.listOfChildRelationhips", r.getReturnValue());
+                
+                var childRelationshipsMap = r.getReturnValue();
+                var opt = new Array();
+				
+                opt.push({text:"", label: "Change Relationship..."});
+                for(var key in childRelationshipsMap) {
+                    opt.push({label: childRelationshipsMap[key],
+                                                     value: key});
+                }
+
+                if(component.find("selectedRelation")){
+                    component.find("selectedRelation").set("v.options", opt);
+                }
             }
         });
         $A.enqueueAction(newAction);

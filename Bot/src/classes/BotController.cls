@@ -18,7 +18,12 @@ public with sharing class BotController {
         List<String> infoList = new List<String>();
         User returnUser = [SELECT Name, SmallPhotoUrl FROM User WHERE Id = :userId];
         infoList.add(returnUser.SmallPhotoUrl);
-        infoList.add(returnUser.Name);
+        String name = returnUser.Name.split(' ')[0];
+        infoList.add(name);
+        infoList.add('Hi ' + name + ', I\'m Leah! My job is to help you address any problems you might have with Lightning Experience.' + 
+                    ' Just send feedback starting with the word <strong>\"Error\"</strong> and I\'ll try to find out what\'s going on. ' + '<br/>' + 'I may provide some helpful information and tips if you start your sentence with the word '+
+                    '<strong>\"Help\"</strong>.');
+        infoList.add('So, how can I help you today?');
         return infoList;
     }
 

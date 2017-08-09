@@ -4,14 +4,12 @@
         action.setCallback(this, function(response){
             var state = response.getState();
             if(component.isValid() && state === "SUCCESS"){
+                var information = response.getReturnValue();
+                component.set("v.userInfo", information);
 
-
-                component.set("v.userInfo",  response.getReturnValue());
-                var information = component.get("v.userInfo");
-
-                var name = information[1];
                 var messages = component.get("v.messages");
-                messages.push({author: "AltiBot v1", messageText: "Welcome " + name +  ", how can I help you?"});
+                messages.push({author: "Leah", messageText: information[2]});
+                messages.push({author: "Leah", messageText: information[3]});
                 component.set("v.messages", messages);
 
             }
@@ -22,14 +20,28 @@
 
     },
 
+
+    handleClickSubmit : function (component, event, helper){
+       var inputMessage = component.get("v.inputMessageValue");
+       component.set("v.inputMessageValue", "");
+       var messages = component.get("v.messages");
+       helper.submit(component, inputMessage, component.get('v.session'), function(answer) {
+                if (answer) {
+                    component.set("v.session", answer.session);
+                    Array.prototype.push.apply(messages, answer.messages);
+                    component.set("v.messages", messages);
+
+                }
+            });
+    },
+
     utteranceHandler : function(component, event, helper) {
-        if (event.keyCode == 13) {
+        if (event.keyCode === 13) {
             var utterance = event.target.value;
             var messages = component.get("v.messages");
             event.target.value = "";
             helper.submit(component, utterance, component.get('v.session'), function(answer) {
                 if (answer) {
-                    console.log(answer);
                     component.set("v.session", answer.session);
                     Array.prototype.push.apply(messages, answer.messages);
                     component.set("v.messages", messages);
@@ -49,8 +61,11 @@
             case keyDownCode:
                 helper.loadNextMessage(component);
                 break;
+            default:
+                break;
         }
     },
+
     postbackButtonClickHandler : function(component, event, helper) {
         var utterance = event.getSource().get("v.label");
         var messages = component.get("v.messages");
@@ -58,7 +73,6 @@
         component.set("v.messages", messages);
         helper.submit(component, utterance, component.get('v.session'), function(answer) {
             if (answer) {
-                console.log(answer);
                 component.set("v.session", answer.session);
                 Array.prototype.push.apply(messages, answer.messages);
                 component.set("v.messages", messages);
@@ -66,15 +80,23 @@
         });
     },
 
+    detachFile : function(component, event, helper){
+      component.set("v.booleanFlag", false);
+
+      component.set("v.files", [])
+      component.set("v.attachmentURL", "");
+      component.set("v.attachmentContent", null);
+      component.set("v.fileName", "");
+      component.set("v.booleanFlag", true);
+    },
+
     loadFile: function(component, event, helper) {
-        var files = component.get("v.files");
+        var files = event.getSource().get("v.files");
         if (files && files.length > 0) {
             var file = files[0][0];
             if(file){
-
-
                 if (!file.type.match(/(image.*)/)) {
-                    return alert('Image file not supported');
+                    return;
                 }
                 var reader = new FileReader();
                 reader.onloadend = function() {

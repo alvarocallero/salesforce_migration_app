@@ -1,0 +1,64 @@
+<aura:component controller="Js_ButtonController" extensible="true" description="The component to extend from" access="global">
+	<aura:attribute name="needsData" type="Boolean" access="global" default="false" description="if force:recordData does not support the object we will need to get the data if this is set to true"/>
+	<aura:attribute name="fieldList" type="String" access="global" description="list of fields comma separated to query" />
+	<aura:attribute name="newRecordApiName" type="String" default="" access="global" description="The name of the new record to be created" />
+	<aura:attribute name="defaultValues" type="Object" default="{}" access="global" description="The default values for being pre-populated on the new object"/>
+	<aura:attribute name="gapType" type="String" default="" access="global" description="The type of gap the button will fix" />
+
+	<aura:attribute name="redirectURL" type="String" default="" access="global" description="The url to be redirected" />
+	<aura:attribute name="hasBody" type="Boolean" default="false" access="global" description="Set to true if you specified a custom body" />
+	<aura:attribute name="hasButtons" type="Boolean" default="false" access="global" description="Set to true if the modal has buttons on the footer"/>
+	<aura:attribute name="useDefaultButtons" type="Boolean" default="true" access="global" description="Set to false if you need to override the default buttons"/>
+	<aura:attribute name="buttons" type="Aura.Component[]" access="global" description="The buttons to set in the footer"/>
+	<aura:attribute name="header" type="String" default="" access="global" description="The header of the modal"/>
+
+	<!-- USED INTERNALLY -->
+	<aura:attribute name="initialized" default="false" type="Boolean" />
+	<aura:attribute name="simpleRecord" type="Object" />
+	<aura:attribute name="record" type="Object" />
+	<aura:attribute name="recordError" type="String" default="" />
+	<aura:attribute name="ready" type="Boolean" default="false" />
+	<aura:attribute name="loadedRecord" type="Object" access="global" />
+	<!-- USED INTERNALLY -->
+
+	<aura:attribute name="idOfRecordToUpdate" type="Id" access="global" description="The id of the record to edit in the modal"/>
+	<aura:attribute name="createRecordModalLoaded" type="Boolean" access="global" default="false" description="True if the create modal loaded"/>
+
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+	<aura:handler event="aura:doneRendering" action="{!c.doneRendering}" />
+
+	<aura:if isTrue="{!v.needsData}">
+		<force:recordData aura:id="recordLoader" 
+						recordId="{!v.recordId}" 
+						targetRecord="{!v.record}" 
+						layoutType="FULL" 
+						targetFields="{!v.simpleRecord}"
+		    			targetError="{!v.recordError}" />
+	</aura:if>
+
+	<aura:if isTrue="{!v.header != ''}">
+		<h2 class="title slds-text-heading--medium slds-align_absolute-center">{!v.header}</h2>
+		<div class="slds-has-divider--top slds-m-vertical--large slds-grid--pull-padded-medium"></div>
+	</aura:if>
+
+	<aura:if isTrue="{!v.gapType == 'Popup' || v.gapType == 'PopupRedirect'}">
+		{!v.body}
+	</aura:if>
+
+	<aura:if isTrue="{!v.gapType == 'Popup' || v.gapType == 'PopupRedirect'}">
+		<aura:if isTrue="{!v.useDefaultButtons}">
+			<aura:if isTrue="{!v.gapType == 'PopupRedirect'}">
+				<div class="slds-has-divider--top slds-m-vertical--large slds-grid--pull-padded-medium"></div>
+				<span class="slds-float_right">
+					<button class="slds-button slds-button_neutral" onclick="{!c.handleCancel}">Cancel</button>				
+					<button class="slds-button slds-button_brand" onclick="{!c.handleRedirect}">Ok</button>
+				</span>
+			</aura:if>
+			<aura:set attribute="else">
+			    <div class="slds-has-divider--top slds-m-vertical--large slds-grid--pull-padded-medium"></div>
+				{!v.buttons}
+			</aura:set>
+		</aura:if>
+	</aura:if>
+
+</aura:component>
