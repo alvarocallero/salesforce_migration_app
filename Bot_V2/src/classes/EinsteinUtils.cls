@@ -59,4 +59,21 @@ public class EinsteinUtils {
     }
     
     
+    public static void associateMessageWithIssue(Id messageId, Id knownIssueId) {
+        
+        List<Einstein_Keyword__c> keywords = [ SELECT Id
+                                               FROM Einstein_Keyword__c
+                                               WHERE Id IN (SELECT Einstein_Keyword__c FROM Known_Issue__c WHERE Id = :knownIssueId ) ];
+        
+        List<Einstein_Data_Message__c> messages = [ SELECT Id,
+                                                   		   Einstein_Keyword__c
+                                                   	FROM Einstein_Data_Message__c
+                                                    WHERE Id = :messageId ];
+        if (!keywords.isEmpty() && !messages.isEmpty()) {
+            messages[0].Einstein_Keyword__c = keywords[0].Id;
+            update messages[0];
+        }
+    }
+    
+    
 }
