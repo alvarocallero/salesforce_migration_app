@@ -2,13 +2,23 @@ public class GeneralUtils {
 	
     public static final EmailTemplate EMAILTEMPLATE_BOTNOTIFICATION = [ SELECT Body, HtmlValue, Subject FROM EmailTemplate WHERE DeveloperName = 'Bot_Notification' ];
     public static Bot_Settings__c BOT_SETTINGS;
+    
+    private static final String BOT_SETTINGS_DEFAULTNAME = 'Default';
 	
+    // Use this if you need BOT_SETTINGS in a controller to avoid creating it or it will give this error: DML currently not allowed
+    public static Boolean botSettingsExist() {
+        return BOT_SETTINGS != null || getBotSettingsRecord() != null;
+    }
+    
+    private static Bot_Settings__c getBotSettingsRecord() {
+        return Bot_Settings__c.getValues(BOT_SETTINGS_DEFAULTNAME);
+    }
+    
     public static Bot_Settings__c getBotSettings() {
         if (BOT_SETTINGS == null) {
-            String settingsName = 'Default';
-            BOT_SETTINGS = Bot_Settings__c.getValues(settingsName);
+            BOT_SETTINGS = getBotSettingsRecord();
             if (BOT_SETTINGS == null) {
-                BOT_SETTINGS = new Bot_Settings__c( Name = settingsName,
+                BOT_SETTINGS = new Bot_Settings__c( Name = BOT_SETTINGS_DEFAULTNAME,
                                                     Einstein_Enabled__c = false,
                                                     Einstein_Token__c = '' );
                 insert BOT_SETTINGS;
