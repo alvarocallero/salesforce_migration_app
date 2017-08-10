@@ -1,17 +1,17 @@
 public with sharing class BotController {
-    
+
     class HandlerMapping {
-        
+
         public String handlerClassName;
         public Pattern utterancePattern;
-        
+
         public HandlerMapping(String handlerClassName, String patternStr) {
             this.handlerClassName = handlerClassName;
             this.utterancePattern = Pattern.compile(patternStr);
         }
-        
+
     }
-    
+
     @AuraEnabled
     public static List<String> userInfo(){
         Id userId = UserInfo.getUserId();
@@ -20,16 +20,16 @@ public with sharing class BotController {
         infoList.add(returnUser.SmallPhotoUrl);
         String name = returnUser.Name.split(' ')[0];
         infoList.add(name);
-        infoList.add('Hi ' + name + ', I\'m Leah! My job is to help you address any problems you might have with Lightning Experience.' + 
+        infoList.add('Hi ' + name + ', I\'m Leah! My job is to help you address any problems you might have with Lightning Experience.' +
                      ' Just send feedback starting with the word <strong>\"Error\"</strong> and I\'ll try to find out what\'s going on. ' + '<br/>' + 'I may provide some helpful information and tips if you start your sentence with the word '+
                      '<strong>\"Help\"</strong>.');
         infoList.add('So, how can I help you today?');
         infoList.add(userId);
         return infoList;
     }
-    
+
     static List<HandlerMapping> handlerMappings;
-    
+
     static {
         List<Bot_Command__c> commands = [SELECT apex_class__c, pattern__c FROM Bot_Command__c WHERE Active__c = True ORDER BY Name];
         System.debug(commands);
@@ -39,7 +39,7 @@ public with sharing class BotController {
         }
         handlerMappings = mappings;
     }
-    
+
     @AuraEnabled
     public static BotResponse upload(String fileName, String content) {
         try {
@@ -59,30 +59,101 @@ public with sharing class BotController {
             return new BotResponse(new BotMessage('', 'An error occured while uploading the file'));
         }
     }
-    
+
     @AuraEnabled
-    public static BotResponse submit(String utterance, Map<String, String> session, String currentUrl) {
-        
+    public static BotResponse submit(String utterance, Map<String, String> session, String currentUrl, String currentUser) {
+
         try {
-            
-            if(utterance.equalsIgnoreCase('help')){
-                return new BotResponse(new BotMessage('', 'Please, provide feedback on your problem.'));
+
+            utterance.toLowerCase();
+            if(utterance.substringBefore(' ') == 'error'){
+                //Einstein Not Enabled
+                utterance.removeStart('error ');
+                Einstein_Data_Message__c dataMessage = new Einstein_Data_Message__c();
+                dataMessage.Message__c = utterance;
+                dataMessage.Einstein_Keyword__c = 'a03f4000001ciRVAAY';
+                dataMessage.Uploaded_to_Einstein__c = false;
+                insert dataMessage;
+                Id dataMessageId = dataMessage.Id;
+
+                Set<Known_Issue__c> knownIssuesFound = findKnownIssuesByUtterance(utterance);
+
+                if(knownIssuesFound.size()>0){
+                    List<BotItem> botItemsList = new List<BotItem>();
+
+                    for(Known_Issue__c ki : knownIssuesFound){
+                        BotItem botItem = new BotItem(ki.Message_Summary__c, ki.Id);
+                        botItemsList.add(botItem);
+                    }
+                    return new BotResponse(new BotMessage('', 'This is what I found...', botItemsList));
+                }else{
+                    return new BotResponse(new BotMessage('', 'Sorry, I have not found anything related to your problem...'));
+                }
+
             }
             else{
-                logUserMessage(utterance, currentUrl, null);
-                return new BotResponse(new BotMessage('', 'Your feedback has been sent to an Administrator. We will contact you as soon as possible.'));
+                //logUserMessage(utterance, currentUrl, null);
+                return new BotResponse(new BotMessage('', 'Please, start your feedback with the word \"<strong>Error</strong>\". For example: \"<strong>Error</strong> update button not working.\"'));
             }
-            
+
         } catch (Exception e) {
             System.debug(e);
             return new BotResponse(new BotMessage('', 'Oops, something went wrong...I could not save your feedback'));
         }
-        
+
     }
-    
+
+    public static Set<Known_Issue__c> findKnownIssuesByUtterance (String errorMessageFromUser){
+
+        Map<Integer, List<Known_Issue__c>> completeRankingOfMatchings = new Map<Integer,List<Known_Issue__c>>();
+
+        List<Known_Issue__c> foundIssues = new List<Known_Issue__c>();
+
+        List<Integer> orderedList = new List<Integer>();//holds the distance result numbers
+
+        foundIssues = [SELECT Id, Message__c, Message_Summary__c FROM Known_Issue__c];
+        System.debug('ALL ISSUES FROM DATABASE--> ' + foundIssues);
+
+        for(Known_Issue__c ki : foundIssues){
+            Integer distance;
+            if(!String.isEmpty(ki.Message_Summary__c)){
+                distance = ki.Message_Summary__c.getLevenshteinDistance(errorMessageFromUser);
+            }
+
+            if(completeRankingOfMatchings.containsKey(distance)){
+                List<Known_Issue__c> kiList = completeRankingOfMatchings.get(distance);
+                kiList.add(ki);
+                completeRankingOfMatchings.put(distance, kiList);
+            }else{
+                completeRankingOfMatchings.put(distance, new List<Known_Issue__c> {ki});
+            }
+
+
+            orderedList.add(distance);
+        }
+
+        Set<Known_Issue__c> topFiveMatchingIssues = new Set<Known_Issue__c>();
+
+        orderedList.sort();
+        Integer check = 0;
+        for(Integer i : orderedList){
+
+            if(check < 5){
+                for(Known_Issue__c ki : completeRankingOfMatchings.get(i)){
+                     topFiveMatchingIssues.add(ki);
+                }
+            }else{
+                break;
+            }
+            check ++;
+        }
+
+        return topFiveMatchingIssues;
+    }
+
     @AuraEnabled
     public static BotResponse submitWithAttachment(String utterance, Map<String, String> session, String currentUrl, String fileName, String content) {
-        
+
         try {
             ContentVersion contentVersion = uploadFile(fileName, content);
             logUserMessage(utterance, currentUrl, contentVersion);
@@ -100,24 +171,24 @@ public with sharing class BotController {
             System.debug(e);
             return new BotResponse(new BotMessage('', 'Oops, something went wrong invoking that command'));
         }
-        
+
     }
-    
+
     private static void logUserMessage(String utterance, String currentUrl, ContentVersion ctv){
         User currentUser = [Select Id from User where Id=:userinfo.getuserId()];
-        
+
         UserBotMessage__c ubm = new UserBotMessage__c();
         ubm.Message__c = utterance;
         ubm.SentFrom__c = currentUrl;
         ubm.Submitter__c = currentUser.id;
-        
+
         if(ctv!=null){
             ContentDocument doc = [SELECT Id FROM ContentDocument where LatestPublishedVersionId = :ctv.Id];
             ubm.ContentDocumentId__c = doc.Id;
         }
         insert ubm;
     }
-    
+
     private static ContentVersion uploadFile(String fileName, String content){
         System.debug('File content: ' + content);
         System.debug('File Name: ' + fileName);
@@ -128,12 +199,12 @@ public with sharing class BotController {
         insert contentVersion;
         return contentVersion;
     }
-    
+
     @AuraEnabled
     public static BotResponse submit(String utterance, Map<String, String> session) {
-        
+
         try {
-            
+
             if (session != null) {
                 String nextCommand = session.get('nextCommand');
                 if (nextCommand != null) {
@@ -142,7 +213,7 @@ public with sharing class BotController {
                     return h.handle(utterance, null, session);
                 }
             }
-            
+
             for (HandlerMapping mapping : BotController.handlerMappings) {
                 Matcher utteranceMatcher = mapping.utterancePattern.matcher(utterance);
                 if (utteranceMatcher.matches()) {
@@ -155,20 +226,20 @@ public with sharing class BotController {
                     return h.handle(utterance, params, session);
                 }
             }
-            
+
             return new BotResponse(new BotMessage('', 'I don\'t know how to answer that'));
-            
+
         } catch (Exception e) {
             System.debug(e);
             return new BotResponse(new BotMessage('', 'Oops, something went wrong invoking that command'));
         }
-        
+
     }
-    
+
     @AuraEnabled
     public static String getSessionId() {
         return UserInfo.getSessionId();
     }
-    
-      
+
+
 }

@@ -75,7 +75,7 @@
 
                         <aura:iteration items="{!message.items}" var="item">
                             <aura:if isTrue="{!item.linkURL}">
-                                <div class="list-item"><a href="{#item.linkURL}" target="_blank">{#item.name}</a></div>
+                                <div><a href="{!'/one/one.app?#/sObject/' + !item.linkURL + '/view'}">{#item.name}</a></div>
                                 <aura:set attribute="else">
                                     <div class="list-item">{#item.name}</div>
                                 </aura:set>
