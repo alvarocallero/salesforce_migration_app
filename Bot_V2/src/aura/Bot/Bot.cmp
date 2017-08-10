@@ -26,9 +26,6 @@
     <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
 
 
-    <style>
-        .custom-a-color{color: #5d7193; text-decoration: none}
-	</style>
 
     <div style="{#'height: '+v.height}" class="slds-p-vertical--x-small">
 		<div aura:id="content" class="content">
