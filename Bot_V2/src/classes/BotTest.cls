@@ -1,12 +1,14 @@
 @isTest
 public class BotTest {
-    
+
     static testMethod void testBotController() {
 		Bot_Command__c bc = new Bot_Command__c(Sample_Utterance__c='help lightning', apex_class__c='HandlerHelpTopic', pattern__c='help (.*)');
         insert bc;
-        BotResponse response = BotController.submit('help lightning', null);
-        Map<String, String> session = response.session;
-        response = BotController.submit('Developer', session);
+          BotHandler handler = new HandlerAddTwoNumbers();
+        BotResponse responseSession = handler.handle('', null, null);
+        Map<String, String> session = responseSession.session;
+        BotResponse response = BotController.submit('help lightning', session, 'currentUrl');
+
         System.assert(response.messages[0].items.size() > 0);
     }
 
@@ -25,13 +27,13 @@ public class BotTest {
         response = handler.handle('2', null, session);
         System.assert(response.messages[0].messageText == '1 + 2 = 3');
     }
-    
+
     static testMethod void testCostCenter() {
         BotHandler handler = new HandlerCostCenter();
         BotResponse response = handler.handle('', null, null);
         System.assert(response.messages[0].messageText == 'Your cost center is 21852');
     }
-    
+
     static testMethod void testEmployeeId() {
         BotHandler handler = new HandlerEmployeeId();
         BotResponse response = handler.handle('', null, null);
@@ -45,7 +47,7 @@ public class BotTest {
         BotResponse response = handler.handle('', new String[]{'Test'}, null);
         System.assert(response.messages[0].records.size() == 1);
     }
-    
+
     static testMethod void testFindContact() {
 		Contact c = new Contact(LastName='TestContact');
         insert c;
@@ -53,7 +55,7 @@ public class BotTest {
         BotResponse response = handler.handle('', new String[]{'Test'}, null);
         System.assert(response.messages[0].records.size() == 1);
     }
-    
+
 	static testMethod void testHelp() {
 		Bot_Command__c bc = new Bot_Command__c(Sample_Utterance__c='Hello', apex_class__c='HelloHandler', pattern__c='Hello');
         insert bc;
@@ -61,13 +63,13 @@ public class BotTest {
         BotResponse response = handler.handle('', null, null);
         System.assert(response.messages[0].items.size() == 1);
     }
-    
+
 	static testMethod void testHelpTopic() {
         BotHandler handler = new HandlerHelpTopic();
         BotResponse response = handler.handle('', null, null);
         Map<String, String> session = response.session;
 		handler.handle('User', null, session);
-        
+
         response = handler.handle('', null, null);
         session = response.session;
 		response = handler.handle('Admin', null, session);
@@ -78,7 +80,7 @@ public class BotTest {
 
         System.assert(response.messages[0].items.size() > 0);
     }
-    
+
 	static testMethod void testMyOpenCases() {
 		Case c = new Case(Subject='TestCase');
 		insert c;
@@ -140,19 +142,22 @@ public class BotTest {
         BotResponse response = handler.handle('select id from account', null, null);
         System.assert(response.messages[0].records.size() == 1);
     }
-    
+
     static testMethod void testUserInfo(){
         List<String> userInfo = BotController.userInfo();
-        System.assert(userInfo != null);    
+        System.assert(userInfo != null);
     }
-    
+
     static testMethod void testUploadFile(){
         BotResponse response = BotController.submitWithAttachment('Message', null, 'url', 'fileName', 'content');
         System.assert(response.messages[0].messageText == 'Your feedback was sent to the administrator. Thank you!');
     }
-    
+
     static testMethod void testSubmitWithURL(){
-        BotResponse response = BotController.submit('utterance', null, 'currentUrl');
+      BotHandler handler = new HandlerTravelApproval();
+      BotResponse responseSession = handler.handle('', null, null);
+      Map<String, String> session = responseSession.session;
+        BotResponse response = BotController.submit('utterance', session, 'currentUrl');
         System.assert(response.messages[0].messageText == 'Your feedback has been sent to an Administrator. We will contact you as soon as possible.');
     }
 
@@ -163,12 +168,15 @@ public class BotTest {
         BotResponse response = BotController.submit('utterance', session, 'currentUrl');
         System.assert(response.messages[0].messageText == 'Your feedback has been sent to an Administrator. We will contact you as soon as possible.');
     }
-    
+
     static testMethod void testSubmitHelp(){
-        BotResponse response = BotController.submit('help', null, 'currentUrl');
+      BotHandler handler = new HandlerTravelApproval();
+        BotResponse responseSession = handler.handle('', null, null);
+        Map<String, String> session = responseSession.session;
+        BotResponse response = BotController.submit('help', session, 'currentUrl');
         System.assert(response.messages[0].messageText == 'Please, provide feedback on your problem.');
     }
-    
+
     static testMethod void testUpload(){
         BotResponse response = BotController.upload('fileName', 'content');
         System.assert(response.messages[0].messageText == 'Your file was uploaded successfully');

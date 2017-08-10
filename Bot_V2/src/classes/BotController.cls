@@ -82,7 +82,8 @@ public with sharing class BotController {
                     List<BotItem> botItemsList = new List<BotItem>();
 
                     for(Known_Issue__c ki : knownIssuesFound){
-                        BotItem botItem = new BotItem(ki.Message_Summary__c, ki.Id);
+                        String pageUrl = KnownIssueDetailController.getPageURL(ki.Id, dataMessageId);
+                        BotItem botItem = new BotItem(ki.Message_Summary__c, pageUrl);
                         botItemsList.add(botItem);
                     }
                     return new BotResponse(new BotMessage('', 'This is what I found...', botItemsList));
@@ -201,7 +202,7 @@ public with sharing class BotController {
     }
 
     @AuraEnabled
-    public static BotResponse submit(String utterance, Map<String, String> session) {
+    public static BotResponse submit(String utterance, Map<String, String> session, String word) {
 
         try {
 
