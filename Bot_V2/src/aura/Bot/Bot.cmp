@@ -5,8 +5,8 @@
     <aura:attribute name="session" type="Array"/>
     <aura:attribute name="height" type="String" default="500px" access="global"/>
     <aura:attribute name="files" type="Object[]"/>
-    
-    
+
+
     <ltng:require scripts="{!$Resource.cometd}" afterScriptsLoaded="{!c.onCometdLoaded}"/>
     <aura:attribute name="cometd" type="Object"/>
     <aura:attribute name="cometdSubscriptions" type="Object[]"/>
@@ -25,6 +25,8 @@
 
     <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
 
+
+
     <div style="{#'height: '+v.height}" class="slds-p-vertical--x-small">
 		<div aura:id="content" class="content">
 	        <aura:iteration items="{!v.messages}" var="message">
@@ -40,13 +42,13 @@
                    </aura:if>
                  </span>
                </lightning:layoutitem>
-                    
+
 					<aura:if isTrue="{#message.author == 'Leah'}">
-                        <lightning:layoutitem class="slds-border--bottom slds-theme--info slds-m-around--small" padding="around-small" flexibility="grow">
+                        <lightning:layoutitem class="border-custom slds-border--bottom slds-theme--info slds-m-around--small" padding="around-small" flexibility="grow">
                         <p><strong>{#message.author}</strong></p>
-                       
+
                             <aura:unescapedHtml value="{#message.messageText}" />
-                            
+
                         <aura:if isTrue="{!message.imageURL}">
                             <figure class="slds-image slds-image--card slds-m-top--x-small">
                                 <img src='{#message.imageURL}'/>
@@ -72,18 +74,23 @@
                                 </aura:iteration>
                             </dl>
                         </aura:iteration>
-
+					<aura:if isTrue="{!message.items}">
+                      <lightning:layoutitem class="border-custom-layout custom-background slds-m-around--small" padding="around-small" flexibility="grow">
                         <aura:iteration items="{!message.items}" var="item">
                             <aura:if isTrue="{!item.linkURL}">
-                                <div><a href="{!'/one/one.app?#/sObject/' + !item.linkURL + '/view'}">{#item.name}</a></div>
+                                 <div class="slds-border--bottom slds-m-bottom--xx-small">
+                                     <a class="custom-a-color" href="{!item.linkURL}"># {#item.name}</a>
+                                 </div>
+
                                 <aura:set attribute="else">
                                     <div class="list-item">{#item.name}</div>
                                 </aura:set>
                             </aura:if>
                         </aura:iteration>
-
+                      </lightning:layoutitem>
+					</aura:if>
                     </lightning:layoutitem>
-                        
+
                         <aura:set attribute="else">
                             <lightning:layoutitem class="slds-border--bottom slds-border--left slds-border--right slds-border--top slds-theme--shade slds-m-around--small" padding="around-small" flexibility="grow">
                         	<p><strong>{#message.author}</strong></p>
@@ -124,11 +131,11 @@
                         </aura:iteration>
 
                     </lightning:layoutitem>
-                            
+
                         </aura:set>
-                        
+
                     </aura:if>
-                 	
+
                 </lightning:layout>
 
             </aura:iteration>
@@ -145,12 +152,12 @@
                        value="{!v.inputMessageValue}"
                        updateOn="keydown"
                        />
-                
+
             </div>
-                
+
                 <div class="slds-form-element__control">
                     <aura:if isTrue="{!v.booleanFlag}">
-                    
+
                 		<lightning:input aura:id="fileInput"
                                  type="file" name="file"
                                  multiple="false"
@@ -159,13 +166,13 @@
                                  onchange="{!c.loadFile}"
                          		 label="Select a file"
                                  />
-                        
+
                         </aura:if>
-              
+
                 <aura:if isTrue="{!v.fileName != ''}">
                   <div>
-                    <p class="slds-text-body slds-truncate">*Attachment: "<strong>{!v.fileName}</strong>" 
-                    	<lightning:buttonIcon class="slds-button slds-input__icon slds-text-color--default" 
+                    <p class="slds-text-body slds-truncate">*Attachment: "<strong>{!v.fileName}</strong>"
+                    	<lightning:buttonIcon class="slds-button slds-input__icon slds-text-color--default"
     								  iconName="utility:close" variant="bare"
     								  alternativeText="Send Feedback"
                                       onclick="{!c.detachFile}"/>
