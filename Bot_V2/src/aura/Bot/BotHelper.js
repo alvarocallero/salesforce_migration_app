@@ -53,6 +53,53 @@
         //action.setCallback(this, callback);
         $A.enqueueAction(action);
     },
+    
+    createNewIssue : function (component, dataMessageId, callback){
+    	var action = component.get("c.addNewKnownIssue");
+        
+        action.setParams({
+            "dataMessageId" : dataMessageId
+        });
+        
+        action.setCallback(this, function(a) {
+            var state = a.getState();
+            if (state === "SUCCESS") {
+                callback(a.getReturnValue());
+            } else if (state === "INCOMPLETE") {
+
+            } else if (state === "ERROR") {
+                var errors = a.getError();
+            }
+      	});
+
+        //action.setCallback(this, callback);
+        $A.enqueueAction(action);
+        
+    },
+    
+    subscribeUserToIssue : function(component, CurrentKnownIssueId, callback){
+      
+        var action = component.get("c.subscribeUserToIssue");
+        
+        action.setParams({
+            "knownIssueId" : CurrentKnownIssueId,
+            "userId" : component.get("v.userInfo")[4],
+        });
+        
+        action.setCallback(this, function(a) {
+            var state = a.getState();
+            if (state === "SUCCESS") {
+                callback(a.getReturnValue());
+            } else if (state === "INCOMPLETE") {
+
+            } else if (state === "ERROR") {
+                var errors = a.getError();
+            }
+      	});
+        
+        $A.enqueueAction(action);
+    },
+    
     loadPreviousMessage: function(component){
         var sentHistory = component.get("v.sentHistory");
         var lastHistoryIndex = component.get("v.lastHistoryIndex");

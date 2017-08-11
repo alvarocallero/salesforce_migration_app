@@ -59,6 +59,38 @@ public with sharing class BotController {
             return new BotResponse(new BotMessage('', 'An error occured while uploading the file'));
         }
     }
+    
+    @AuraEnabled
+    public static BotResponse addNewKnownIssue(String dataMessageId){
+        
+        Known_Issue__c newKnownIssue = KnownIssuesUtils.createKnownIssue(dataMessageId);
+        
+        List<BotItem> botItemsList = new List<BotItem>();
+        String pageUrl = KnownIssueDetailController.getPageURL(newKnownIssue.Id, dataMessageId);
+        BotItem botItem = new BotItem(newKnownIssue.Message_Summary__c, pageUrl);
+        botItemsList.add(botItem);
+        List<BotMessageButton> buttons = new List<BotMessageButton>();
+                    BotMessageButton btnSubscribe = new BotMessageButton('Subscribe', 'subscribe');
+                    buttons.add(btnSubscribe);
+        
+        return new BotResponse(new BotMessage('', 'Sorry I could not find what you were looking for. I created a new Issue with'+ 
+                                              ' the feedback you provided. You can subscribe to receive notifications once we fix this problem.', 
+                                              botItemsList, buttons), dataMessageId, newKnownIssue.Id);
+    }
+    
+    @AuraEnabled
+    public static BotResponse subscribeUserToIssue(Id knownIssueId, Id userId){
+        try{
+            List<Id> users = new List<Id>();
+            users.add(userId);
+            KnownIssuesUtils.subscribeUsersToIssue(knownIssueId, users);
+            return new BotResponse(new BotMessage('', 'Done! You will recieve a notification once this issue is fixed. Thanks for your help!'));
+            
+        } catch (Exception e) {
+            System.debug(e);
+            return new BotResponse(new BotMessage('', 'Oops, something went wrong...I could not subscribe you to this issue...'));
+        }
+    }
 
     @AuraEnabled
     public static BotResponse submit(String utterance, Map<String, String> session, String currentUrl, String currentUser) {
@@ -68,26 +100,25 @@ public with sharing class BotController {
             utterance.toLowerCase();
             if(utterance.substringBefore(' ') == 'error'){
                 //Einstein Not Enabled
-                utterance.removeStart('error ');
-                Einstein_Data_Message__c dataMessage = new Einstein_Data_Message__c();
-                dataMessage.Message__c = utterance;
-                dataMessage.Einstein_Keyword__c = 'a03f4000001ciRVAAY';
-                dataMessage.Uploaded_to_Einstein__c = false;
-                insert dataMessage;
-                Id dataMessageId = dataMessage.Id;
-
+                utterance = utterance.removeStart('error');
+                Id dataMessageId = EinsteinUtils.createMessage(null, utterance);
                 Set<Known_Issue__c> knownIssuesFound = findKnownIssuesByUtterance(utterance);
 
                 if(knownIssuesFound.size()>0){
                     List<BotItem> botItemsList = new List<BotItem>();
-
                     for(Known_Issue__c ki : knownIssuesFound){
                         String pageUrl = KnownIssueDetailController.getPageURL(ki.Id, dataMessageId);
                         BotItem botItem = new BotItem(ki.Message_Summary__c, pageUrl);
                         botItemsList.add(botItem);
                     }
-                    return new BotResponse(new BotMessage('', 'This is what I found...', botItemsList));
+                    List<BotMessageButton> buttons = new List<BotMessageButton>();
+                    BotMessageButton btnHelpful = new BotMessageButton('This is helpful!', 'helpful');
+                    BotMessageButton btnUseless = new BotMessageButton('I was not looking for this', 'useless');
+                    buttons.add(btnHelpful);
+                    buttons.add(btnUseless);
+                    return new BotResponse(new BotMessage('', 'This is what I found...', botItemsList, buttons), dataMessageId, null);
                 }else{
+                    
                     return new BotResponse(new BotMessage('', 'Sorry, I have not found anything related to your problem...'));
                 }
 
@@ -99,7 +130,7 @@ public with sharing class BotController {
 
         } catch (Exception e) {
             System.debug(e);
-            return new BotResponse(new BotMessage('', 'Oops, something went wrong...I could not save your feedback'));
+            return new BotResponse(new BotMessage('', 'Oops, something went wrong...I could not read your feedback. Please try again.'));
         }
 
     }
@@ -112,9 +143,7 @@ public with sharing class BotController {
 
         List<Integer> orderedList = new List<Integer>();//holds the distance result numbers
 
-        foundIssues = [SELECT Id, Message__c, Message_Summary__c FROM Known_Issue__c];
-        System.debug('ALL ISSUES FROM DATABASE--> ' + foundIssues);
-
+        foundIssues = [SELECT Id, Message__c, Message_Summary__c FROM Known_Issue__c];//see limit
         for(Known_Issue__c ki : foundIssues){
             Integer distance;
             if(!String.isEmpty(ki.Message_Summary__c)){

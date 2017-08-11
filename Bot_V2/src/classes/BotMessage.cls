@@ -7,6 +7,7 @@ public virtual class BotMessage {
     @AuraEnabled public List<BotItem> items { get;set; }
     @AuraEnabled public List<BotMessageButton> buttons { get;set; }
     @AuraEnabled public String imageURL { get;set; }
+    @AuraEnabled public Id dataMessageId {get; set; }
 
     public BotMessage() {
     }
@@ -26,6 +27,14 @@ public virtual class BotMessage {
         //this.author = author;
         this.messageText = messageText;
         this.items = items;
+    }
+    
+    public BotMessage(String author, String messageText, List<BotItem> items, List<BotMessageButton> buttons) {
+        //this.author = author;
+        this.messageText = messageText;
+        this.items = items;
+        this.buttons = buttons;
+      
     }
 
     public BotMessage(String author, String messageText, List<BotMessageButton> buttons) {
