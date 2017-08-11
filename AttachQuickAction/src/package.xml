@@ -8,30 +8,5 @@
         <members>*</members>
         <name>ApexPage</name>
     </types>
-    <types>
-        <members>*</members>
-        <name>AuraDefinitionBundle</name>
-    </types>
-    <types>
-        <members>Account</members>
-        <members>Opportunity</members>
-        <name>CustomObject</name>
-    </types>
-    <types>
-        <members>Account-Account %28Marketing%29 Layout</members>
-        <members>Account-Account %28Sales%29 Layout</members>
-        <members>Account-Account %28Support%29 Layout</members>
-        <members>Account-Account Layout</members>
-        <members>Opportunity-Opportunity %28Marketing%29 Layout</members>
-        <members>Opportunity-Opportunity %28Sales%29 Layout</members>
-        <members>Opportunity-Opportunity %28Support%29 Layout</members>
-        <members>Opportunity-Opportunity Layout</members>
-        <members>OpportunityLineItem-Opportunity Product Layout</members>
-        <name>Layout</name>
-    </types>
-    <types>
-        <members>*</members>
-        <name>QuickAction</name>
-    </types>
     <version>36.0</version>
 </Package>
