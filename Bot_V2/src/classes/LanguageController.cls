@@ -51,12 +51,20 @@ public class LanguageController {
     * @example
     * Map<String, String> params = new Map<String, String>();
     * params.put('name', 'dbSampleName');
-    * String result = createDataset(params, file, Language.Format.csv);
+    * String result = LanguageController.createDataset(params, file, Language.Format.csv);
     */
     public static String createDataset(Map<String, String> params, Blob file, Language.Format fileFormat) {
         String access_token = getAccessToken();
         params.put('type', 'text-intent');
-        return Language.apiCallUploadFile('/datasets/upload',access_token,params,'POST','data',file, fileFormat);
+        String result = Language.apiCallUploadFile('/datasets/upload',access_token,params,'POST','data',file, fileFormat);
+        Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
+        if (jsonResult.containsKey('id')){
+            //System.debug('DatasetId to save is: ' + (Decimal)jsonResult.get('id'));
+            EinsteinUtils.setEinsteinDatasetId((Decimal)jsonResult.get('id'));
+        } else {
+        	throw new Language.LanguageException('Could not save the datasetId. The result json has not got the datasetId.');
+        }
+        return result;
 	}
     
     /*******************************************************************************************************
@@ -88,15 +96,22 @@ public class LanguageController {
     * Map<String, String> params = new Map<String, String>();
     * params.put('name', 'dbSampleName');
     * params.put('path', 'http://example.com/example.csv');
-    * String result = createDatasetURL(params);
+    * String result = LanguageController.createDatasetURL(params);
     */
     public static String createDatasetURL(Map<String, String> params) {
         if(!params.isEmpty()){           
             String access_token = getAccessToken();
             params.put('type', 'text-intent');
-            return Language.apiCall('/datasets/upload',access_token,params,'POST');
-        }
-        else return 'Error';
+            String result = Language.apiCall('/datasets/upload',access_token,params,'POST');
+            Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
+            if (jsonResult.containsKey('id')){
+                EinsteinUtils.setEinsteinDatasetId((Decimal)jsonResult.get('id'));
+            } else { 
+                throw new Language.LanguageException('Could not save the datasetId. The result json has not got the datasetId.');
+            }
+            return result;
+        }        
+        else throw new Language.LanguageException('Could not save the datasetId. The result json has not got the datasetId.');
     }
     
     /*******************************************************************************************************
@@ -128,7 +143,7 @@ public class LanguageController {
           "object": "dataset"
         }
     * @example
-    * String result = getDataset(datasetId);
+    * String result = LanguageController.getDataset(datasetId);
     */
     public static String getDataset(String datasetId) {
         String access_token = getAccessToken();
@@ -140,7 +155,7 @@ public class LanguageController {
     * @param datasetId Dataset's identifier.
 	* @return This call doesn’t return a response body. Instead, it returns an HTTP status code 204 or 400.
     * @example
-    * String result = getDataset(params, datasetId);
+    * String result = LanguageController.deleteDataset('12345667');
     */
     public static String deleteDataset(String datasetId) {
 		String access_token = getAccessToken();
@@ -190,15 +205,23 @@ public class LanguageController {
     * Map<String, String> params = new Map<String, String>();
     * params.put('name', 'modelSampleName');
     * params.put('datasetId', '1234567');
-    * String result = train(params);
+    * String result = LanguageController.train(params);
     */
     public static String train(Map<String, String> params) {
 		String access_token = getAccessToken();
-        if(!params.isEmpty()){ 
-            return Language.apiCall('/train',access_token,params,'POST');
+        if(!params.isEmpty()){
+            String result = Language.apiCall('/train',access_token,params,'POST');
+            Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
+            if (jsonResult.containsKey('modelId')){
+                EinsteinUtils.setEinsteinModelId((String)jsonResult.get('modelId'));
+            } else { 
+                throw new Language.LanguageException('Could not save the datasetId. The result json has not got the datasetId.');
+            }
+            return result;
+            
         }
         else{
-            return 'Error';
+            throw new Language.LanguageException('Could not save the modelId. The result json has not got the modelId.');
         }
     }
     
@@ -254,7 +277,7 @@ public class LanguageController {
     * @example
     * Map<String, String> params = new Map<String, String>();
     * params.put('modelId', '1234567');
-    * String result = retrain(params);
+    * String result = LanguageController.retrain(params);
     */
     public static String retrain(Map<String, String> params) {
 		String access_token = getAccessToken();
@@ -303,7 +326,7 @@ public class LanguageController {
       "modelType": "text-intent"
     }
     * @example
-    * String result = getTrainStatus('1234556');
+    * String result = LanguageController.getTrainStatus('1234556');
     */
     public static String getTrainStatus(String modelId) {
 		String access_token = getAccessToken();
@@ -354,12 +377,12 @@ public class LanguageController {
           "object": "dataset"
         }
     * @example
-    * String result = createDataset('1234566', file, Language.Format.json);
+    * String result = LanguageController.createDataset('1234566', file, Language.Format.json);
     */
-    public static void createExample(String datasetId, Blob file, Language.Format fileFormat) {
+    public static String createExample(String datasetId, Blob file, Language.Format fileFormat) {
         String access_token = getAccessToken();
         Map<String, String> params = new Map<String, String>();
-        System.debug(Language.apiCallUploadFile('/datasets/' + datasetId + '/upload',access_token,params,'POST','data',file,fileFormat));
+        return Language.apiCallUploadFile('/datasets/' + datasetId + '/upload',access_token,params,'PUT','data',file,fileFormat);
 	}
     
     /*******************************************************************************************************
@@ -406,13 +429,13 @@ public class LanguageController {
           "object": "dataset"
         }
     * @example
-    * String result = createDatasetURL('https:www.example.com/sample.csv', '123434565');
+    * String result = LanguageController.createExampleURL('https:www.example.com/sample.csv', '123434565');
     */    
     public static String createExampleURL(String url, String datasetId) {
 		String access_token = getAccessToken();
 		Map<String, String> parameters = new Map<String, String>();
         parameters.put('path', url);
-		return Language.apiCall('/datasets/' + datasetId + '/upload',access_token,parameters,'POST');
+		return Language.apiCall('/datasets/' + datasetId + '/upload',access_token,parameters,'PUT');
     }
     
     /*******************************************************************************************************
@@ -459,7 +482,7 @@ public class LanguageController {
           "object": "dataset"
         }
     * @example
-    * String result = getAllExamples('1234556');
+    * String result = LanguageController.getAllExamples('1234556');
     */    
     public static String getAllExamples(String modelId) {
         String access_token = getAccessToken();
@@ -496,7 +519,7 @@ public class LanguageController {
     * params.put('modelId', '3CMCRC572BD3OZTQSTTUU4733Y');
     * params.put('document', 'Is it snowing in Denver');
     * params.put('expectedLabel', 'current-weather');
-    * String result = createFeedback(params);
+    * String result = LanguageController.createFeedback(params);
     */
     public static String createFeedback(Map<String, String> params) {
         String access_token = getAccessToken();
@@ -547,7 +570,7 @@ public class LanguageController {
             "object": "metrics"
     	}
     * @example
-    * String result = getAllExamples('1234556');
+    * String result = LanguageController.getAllMetrics('1234556');
     */    
     public static String getModelMetrics(String modelId) {
         String access_token = getAccessToken();
@@ -589,7 +612,7 @@ public class LanguageController {
     * Map<String, String> params = new Map<String, String>();
     * params.put('modelId', '3CMCRC572BD3OZTQSTTUU4733Y');
     * params.put('document', 'what is the weather in los angeles');
-    * String result = predict(params);
+    * String result = LanguageController.predict(params);
     */
     public static String predict(Map<String, String> params) {
         String access_token = getAccessToken();
