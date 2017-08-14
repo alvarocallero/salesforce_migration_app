@@ -12,6 +12,8 @@
     <aura:attribute name="cometdSubscriptions" type="Object[]"/>
     <aura:attribute name="isMuted" type="Boolean" default="false"/>
     <aura:attribute name="sessionId" type="String"/>
+    <aura:attribute name="dataMessageId" type="String"/>
+    <aura:attribute name="CurrentKnownIssueId" type="String"/>
 
     <aura:attribute name="fileName" type="String" default=""/>
     <aura:attribute name="attachmentURL" type="String" default=""/>
@@ -54,11 +56,6 @@
                                 <img src='{#message.imageURL}'/>
                             </figure>
                         </aura:if>
-
-                        <aura:iteration items="{!message.buttons}" var="button">
-                            <lightning:button label="{#button.label}" name="{#button.value}" onclick="{!c.postbackButtonClickHandler}" class="message-button"/>
-                        </aura:iteration>
-
                         <aura:iteration items="{!message.records}" var="record">
                             <dl class="slds-list--horizontal slds-wrap">
                                 <aura:iteration items="{!record.fields}" var="field">
@@ -89,8 +86,14 @@
                         </aura:iteration>
                       </lightning:layoutitem>
 					</aura:if>
+                            
+                            <aura:if isTrue="{!message.buttons}">
+                        	<aura:iteration items="{!message.buttons}" var="button">
+                            	<lightning:button label="{#button.label}" name="{#button.value}" onclick="{!c.postbackButtonClickHandler}" class="message-button slds-m-around--small"/>
+                        	</aura:iteration>
+                        </aura:if>
                     </lightning:layoutitem>
-
+                        
                         <aura:set attribute="else">
                             <lightning:layoutitem class="slds-border--bottom slds-border--left slds-border--right slds-border--top slds-theme--shade slds-m-around--small" padding="around-small" flexibility="grow">
                         	<p><strong>{#message.author}</strong></p>

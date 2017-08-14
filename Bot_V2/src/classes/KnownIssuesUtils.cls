@@ -33,6 +33,19 @@ public class KnownIssuesUtils {
         return getKnownIssues(recordTypeId, targetName, targetId).size();
     }
     
+    public static Known_Issue__c createKnownIssue(Id dataMessageId){
+        
+        List<Einstein_Data_Message__c> edm = [SELECT Id, Message__c FROM Einstein_Data_Message__c WHERE Id = :dataMessageId];
+        System.debug('DATA MESSAGE LIST--> ' + edm);
+        Known_Issue__c newKi = new Known_Issue__c();
+        newKi.Message__c = edm.get(0).Message__c;
+        newKi.Message_Summary__c = edm.get(0).Message__c;
+        newKi.Status__c = 'New';
+        newKi.Priority__c = 'Normal (3)';
+        insert newKi;
+        return newKi;
+    }
+    
     
     // Will return a list of Known Issues that were approved by an admin and match the target's Name or Id
     // Also returns the list of Subscribers. List<Known_Issue_Subscriber__c> subscribers = issue.Known_Issue_Subscribers__r;

@@ -3,6 +3,9 @@ public class BotResponse {
     @AuraEnabled public List<BotMessage> messages { get; set; }
     @AuraEnabled public Map<String, String> session { get; set; }
     @AuraEnabled public List<Known_Issue__c> knownIssues {get; set;}
+    @AuraEnabled public Id dataMessageId {get; set; }
+    @AuraEnabled public Id knownIssueId {get; set;}
+    
     
     public BotResponse() {
     }
@@ -21,6 +24,12 @@ public class BotResponse {
      */
     public BotResponse(BotMessage message) {
         this.messages = new BotMessage[]{message};
+    }
+    
+    public BotResponse(BotMessage message, Id dataMessageId, Id knownIssueId) {
+        this.messages = new BotMessage[]{message};
+        this.dataMessageId = dataMessageId; 
+        this.knownIssueId = knownIssueId;
     }
     
     public BotResponse(BotMessage message, List<Known_Issue__c> knownIssues) {

@@ -69,6 +69,7 @@
             event.target.value = "";
             helper.submit(component, utterance, component.get('v.session'), function(answer) {
                 if (answer) {
+                    component.set("v.dataMessageId", answer.dataMessageId);
                     component.set("v.session", answer.session);
                     Array.prototype.push.apply(messages, answer.messages);
                     component.set("v.messages", messages);
@@ -77,6 +78,42 @@
         }
 
     },
+    
+    postbackButtonClickHandler : function(component, event, helper) {
+        var utterance = event.getSource().get("v.name");
+        var messages = component.get("v.messages");
+        
+        switch(utterance){
+            case 'helpful':
+        	messages.push({author: "Leah", messageText: 'Glad you found what you were looking for!'});
+        	component.set("v.messages", messages);
+                break;
+                
+            case 'useless':
+            var dataMessageId = component.get("v.dataMessageId");
+            helper.createNewIssue(component, dataMessageId, function(answer){
+                if(answer){
+                    component.set("v.CurrentKnownIssueId", answer.knownIssueId);
+                    Array.prototype.push.apply(messages, answer.messages);
+                    component.set("v.messages", messages);
+                }
+            });
+                break;
+                
+            default: 
+            var currentKnownIssueId = component.get("v.CurrentKnownIssueId"); 
+                helper.subscribeUserToIssue(component, currentKnownIssueId, function(answer){
+                    if(answer){
+						Array.prototype.push.apply(messages, answer.messages);
+                    	component.set("v.messages", messages);
+                    }
+                });    
+                break;
+        }
+        
+          
+    },
+    
     keyDownHandler : function(component, event, helper){
         var keyUpCode = 38;
         var keyDownCode = 40;
@@ -93,19 +130,6 @@
         }
     },
 
-    postbackButtonClickHandler : function(component, event, helper) {
-        var utterance = event.getSource().get("v.label");
-        var messages = component.get("v.messages");
-        messages.push({author: "Me", messageText: utterance});
-        component.set("v.messages", messages);
-        helper.submit(component, utterance, component.get('v.session'), function(answer) {
-            if (answer) {
-                component.set("v.session", answer.session);
-                Array.prototype.push.apply(messages, answer.messages);
-                component.set("v.messages", messages);
-            }
-        });
-    },
 
     detachFile : function(component, event, helper){
       component.set("v.booleanFlag", false);
