@@ -29,7 +29,7 @@ public class LanguageController {
     * @param params.name OPTIONAL
     * Name of the dataset. Optional. If this parameter is omitted, the dataset name is derived from the file name.
     * @param file
-    * A .csv, .tsv or .json file. The maximum file size from a local drive is 50 MB.
+    * A .csv, .tsv or .json file. You must include the appropriate file extension. The maximum file size from a local drive is 50 MB.
     * @param fileFormat
     * One of the supported formats defined in Language: .csv, .tsv or .json
 	* @return a String with the response: HTTPResponse.getBody()
@@ -50,16 +50,15 @@ public class LanguageController {
         }
     * @example
     * Map<String, String> params = new Map<String, String>();
-    * params.put('name', 'dbSampleName');
-    * String result = LanguageController.createDataset(params, file, Language.Format.csv);
+    * params.put('name', 'dbSampleName.json');
+    * String result = LanguageController.createDataset(params, file);
     */
-    public static String createDataset(Map<String, String> params, Blob file, Language.Format fileFormat) {
+    public static String createDataset(Map<String, String> params, Blob file) {
         String access_token = getAccessToken();
         params.put('type', 'text-intent');
-        String result = Language.apiCallUploadFile('/datasets/upload',access_token,params,'POST','data',file, fileFormat);
+        String result = Language.apiCallUploadFile('/datasets/upload',access_token,params,'POST','data',file);
         Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
         if (jsonResult.containsKey('id')){
-            //System.debug('DatasetId to save is: ' + (Decimal)jsonResult.get('id'));
             EinsteinUtils.setEinsteinDatasetId((Decimal)jsonResult.get('id'));
         } else {
         	throw new Language.LanguageException('Could not save the datasetId. The result json has not got the datasetId.');
@@ -337,7 +336,7 @@ public class LanguageController {
     * @description Adds examples to the specified dataset from a .csv, .tsv, or .json file.
     * This is an ascynchronous call so it is needed to check if it was uploaded with the getDataset()
 	* @param file
-    * A .csv, .tsv or .json file. The maximum file size from a local drive is 50 MB.
+    * A .csv, .tsv or .json file. You must include the appropriate file extension. The maximum file size from a local drive is 50 MB.
     * @param fileFormat
     * One of the supported formats defined in Language: .csv, .tsv or .json    
 	* @return a String with the response: HTTPResponse.getBody()
@@ -377,12 +376,12 @@ public class LanguageController {
           "object": "dataset"
         }
     * @example
-    * String result = LanguageController.createDataset('1234566', file, Language.Format.json);
+    * String result = LanguageController.createExample('1234566', 'file.json');
     */
-    public static String createExample(String datasetId, Blob file, Language.Format fileFormat) {
+    public static String createExample(String datasetId, Blob file) {
         String access_token = getAccessToken();
         Map<String, String> params = new Map<String, String>();
-        return Language.apiCallUploadFile('/datasets/' + datasetId + '/upload',access_token,params,'PUT','data',file,fileFormat);
+        return Language.apiCallUploadFile('/datasets/' + datasetId + '/upload',access_token,params,'PUT','data',file);
 	}
     
     /*******************************************************************************************************
