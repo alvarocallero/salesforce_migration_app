@@ -7,7 +7,7 @@ public class Language {
     
     public static String apiCall(String endpoint, String access_token, Map<String, String> params, String method) {
         string contentType = HttpFormBuilder.GetContentType();//'multipart/form-data';
-        String result = 'Error';
+        String result = '{}';
         Integer paramSize = params.size();
         Integer cont = 0;
         
@@ -56,9 +56,15 @@ public class Language {
             System.Debug(httpRequest.getHeader('Authorization'));
             System.Debug(httpRequest.getBody());
             HTTPResponse res = http.send(httpRequest);
-            System.Debug('statuscode: '+res.getStatusCode());
-            if (res.getStatusCode() == 200) {
-                result = res.getBody();
+            System.Debug('statuscode: '+res.getStatusCode());            
+            result = res.getBody();
+            if (res.getStatusCode() != 200) {
+                Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
+                String message = '.';
+                if (jsonResult.containsKey('message')){
+                    message =  message + ' ' + jsonResult.get('message') + '.';
+                }
+                throw new LanguageException('404 Bad Request' + message);
             }
         } catch(System.CalloutException e) {
             System.debug('ERROR:' + e);
@@ -68,7 +74,7 @@ public class Language {
     }
     
     
-    public static String apiCallUploadFile(String endpoint, String access_token, Map<String, String> params, String method, String fileKey, Blob file, Format fileFormat) {
+    public static String apiCallUploadFile(String endpoint, String access_token, Map<String, String> params, String method, String fileKey, Blob file) {
         string contentType = HttpFormBuilder.GetContentType();//'multipart/form-data';
         String result = 'Error';
         Integer paramSize = params.size();
@@ -76,15 +82,13 @@ public class Language {
         string form64 = '';
         String body = '';
         String value = '';
-        String mimeType = 'text/csv';
-        if (fileFormat == Format.json){
-            mimeType = 'application/json';
-        } else{
-            mimeType = 'text/tab-separated-values';
-        }       
-        
+        String mimeType = 'application/octet-stream';
+        String name = 'data';      
         HttpRequest httpRequest = new HttpRequest();
         if(!params.isEmpty()){
+            if (params.containsKey('name')){
+                name = params.get('name');
+            }
             //  Compose the form
             for (String parameter : params.keySet()) {
                 cont +=1;
@@ -97,14 +101,14 @@ public class Language {
                 form64 += HttpFormBuilder.WriteBodyParameter(parameter,value);
             }
         }
+        
         form64 += HttpFormBuilder.WriteBoundary();
-        form64 += HttpFormBuilder.WriteBlobBodyParameter(fileKey, EncodingUtil.base64Encode(file), 'data', 'text/csv');
+        form64 += HttpFormBuilder.WriteBlobBodyParameter(fileKey, EncodingUtil.base64Encode(file), name, mimeType);
         
         blob formBlob = EncodingUtil.base64Decode(form64);
-        //System.debug(formBlob);
         string contentLength = string.valueOf(formBlob.size());        
         //  Compose the http request        
-        httpRequest.setBodyAsBlob(formBlob);        
+        httpRequest.setBodyAsBlob(formBlob);
         httpRequest.setHeader('Content-Length', contentLength);
         httpRequest.setHeader('Content-Type', contentType);  
         httpRequest.setHeader('Connection', 'keep-alive');
@@ -121,9 +125,15 @@ public class Language {
             System.Debug(httpRequest.getHeader('Authorization'));
             System.Debug(httpRequest.getBody());
             HTTPResponse res = http.send(httpRequest);
-            System.Debug('statuscode: '+res.getStatusCode());
-            if (res.getStatusCode() == 200) {
-                result = res.getBody();
+            System.Debug('statuscode: '+res.getStatusCode());            
+            result = res.getBody();
+            if (res.getStatusCode() != 200) {
+                Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
+                String message = '.';
+                if (jsonResult.containsKey('message')){
+                    message =  message + ' ' + jsonResult.get('message') + '.';
+                }
+                throw new LanguageException('404 Bad Request' + message);
             }
         } catch(System.CalloutException e) {
             System.debug('ERROR:' + e);
@@ -131,10 +141,4 @@ public class Language {
         }        
         return result;
     }
-    
-    public enum Format {
-        csv,
-        json,
-        tsv
-	}
 }
