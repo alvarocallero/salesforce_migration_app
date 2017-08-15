@@ -36,13 +36,17 @@ public class KnownIssuesUtils {
     public static Known_Issue__c createKnownIssue(Id dataMessageId){
         
         List<Einstein_Data_Message__c> edm = [SELECT Id, Message__c FROM Einstein_Data_Message__c WHERE Id = :dataMessageId];
-        System.debug('DATA MESSAGE LIST--> ' + edm);
+        
         Known_Issue__c newKi = new Known_Issue__c();
         newKi.Message__c = edm.get(0).Message__c;
-        newKi.Message_Summary__c = edm.get(0).Message__c;
-        newKi.Status__c = 'New';
+        newKi.Einstein_Keyword__c = EinsteinUtils.getUndefinedKeywordId();
+        newKi.Status__c = 'Pending Approval';
         newKi.Priority__c = 'Normal (3)';
+        
         insert newKi;
+        
+        EinsteinUtils.associateMessageWithIssue(edm.get(0).Id, newKi.Id);
+        
         return newKi;
     }
     

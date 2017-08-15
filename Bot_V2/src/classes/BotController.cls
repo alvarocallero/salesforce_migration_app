@@ -73,7 +73,7 @@ public with sharing class BotController {
                     BotMessageButton btnSubscribe = new BotMessageButton('Subscribe', 'subscribe');
                     buttons.add(btnSubscribe);
         
-        return new BotResponse(new BotMessage('', 'Sorry I could not find what you were looking for. I created a new Issue with'+ 
+        return new BotResponse(new BotMessage('', 'Sorry, I could not find what you were looking for. I created a new Issue with'+ 
                                               ' the feedback you provided. You can subscribe to receive notifications once we fix this problem.', 
                                               botItemsList, buttons), dataMessageId, newKnownIssue.Id);
     }
@@ -84,7 +84,7 @@ public with sharing class BotController {
             List<Id> users = new List<Id>();
             users.add(userId);
             KnownIssuesUtils.subscribeUsersToIssue(knownIssueId, users);
-            return new BotResponse(new BotMessage('', 'Done! You will recieve a notification once this issue is fixed. Thanks for your help!'));
+            return new BotResponse(new BotMessage('', 'Done! You will receive a notification once this issue is fixed. Thanks for your help!'));
             
         } catch (Exception e) {
             System.debug(e);
@@ -94,12 +94,15 @@ public with sharing class BotController {
 
     @AuraEnabled
     public static BotResponse submit(String utterance, Map<String, String> session, String currentUrl, String currentUser) {
-
+		//see flow for first time, when there are not any known issues
         try {
 
             utterance.toLowerCase();
             if(utterance.substringBefore(' ') == 'error'){
                 //Einstein Not Enabled
+                if(EinsteinUtils.getEinsteinEnabled() == false){
+                    
+                }
                 utterance = utterance.removeStart('error');
                 Id dataMessageId = EinsteinUtils.createMessage(null, utterance);
                 Set<Known_Issue__c> knownIssuesFound = findKnownIssuesByUtterance(utterance);
@@ -118,8 +121,8 @@ public with sharing class BotController {
                     buttons.add(btnUseless);
                     return new BotResponse(new BotMessage('', 'This is what I found...', botItemsList, buttons), dataMessageId, null);
                 }else{
-                    
-                    return new BotResponse(new BotMessage('', 'Sorry, I have not found anything related to your problem...'));
+                    return addNewKnownIssue(dataMessageId);
+                    //return new BotResponse(new BotMessage('', 'Sorry, I have not found anything related to your problem...'));
                 }
 
             }
@@ -143,7 +146,7 @@ public with sharing class BotController {
 
         List<Integer> orderedList = new List<Integer>();//holds the distance result numbers
 
-        foundIssues = [SELECT Id, Message__c, Message_Summary__c FROM Known_Issue__c];//see limit
+        foundIssues = [SELECT Id, Message__c, Message_Summary__c FROM Known_Issue__c WHERE Status__c = 'New'];//see limit
         for(Known_Issue__c ki : foundIssues){
             Integer distance;
             if(!String.isEmpty(ki.Message_Summary__c)){
