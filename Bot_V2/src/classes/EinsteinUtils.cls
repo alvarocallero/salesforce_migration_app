@@ -24,7 +24,23 @@ public class EinsteinUtils {
         update GeneralUtils.BOT_SETTINGS;
     }
     
-	
+    public static Decimal getEinsteinDatasetId() {
+        return GeneralUtils.getBotSettings().Einstein_DatasetId__c;
+    }
+    
+    public static void setEinsteinDatasetId(Decimal datasetId) {
+        GeneralUtils.getBotSettings().Einstein_DatasetId__c = datasetId;
+        update GeneralUtils.BOT_SETTINGS;
+    }
+
+    public static String getEinsteinModelId() {
+        return GeneralUtils.getBotSettings().Einstein_ModelId__c;
+    }
+    
+    public static void setEinsteinModelId(String modelId) {
+        GeneralUtils.getBotSettings().Einstein_ModelId__c = modelId;
+        update GeneralUtils.BOT_SETTINGS;
+    }
     // MANAGE KEYWORDS AND MESSAGES
     
     public static Id getUndefinedKeywordId() {
@@ -143,6 +159,9 @@ public class EinsteinUtils {
         try{
             // Upload JSON
             if (!Test.isRunningTest()) {
+            	Decimal datasetId = self.getEinsteinDatasetId();
+            	if(datasetId.)
+            	LanguageController.createDatabase()
             	// ClassFromEmiliano.upload(jsonString); * TODO: replace this line... method should throw exception with message if it fails *
         	}
             

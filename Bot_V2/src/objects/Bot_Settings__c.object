@@ -3,12 +3,35 @@
     <customSettingsType>List</customSettingsType>
     <enableFeeds>false</enableFeeds>
     <fields>
+        <fullName>Einstein_DatasetId__c</fullName>
+        <description>Einstein dataset identifier</description>
+        <externalId>false</externalId>
+        <label>Einstein DatasetId</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
         <fullName>Einstein_Enabled__c</fullName>
         <defaultValue>false</defaultValue>
         <externalId>false</externalId>
         <label>Einstein Enabled</label>
         <trackTrending>false</trackTrending>
         <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Einstein_ModelId__c</fullName>
+        <description>Einstein Model identifier</description>
+        <externalId>false</externalId>
+        <label>Einstein ModelId</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
     </fields>
     <fields>
         <fullName>Einstein_Token__c</fullName>
