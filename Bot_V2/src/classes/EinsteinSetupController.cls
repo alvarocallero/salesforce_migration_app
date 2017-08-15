@@ -22,7 +22,7 @@ public class EinsteinSetupController {
         // get Keyword records without messages
         keywordsById = new Map<Id, Einstein_Keyword__c>([ SELECT Id,
                                                              	 Name,
-                                                             	 Uploaded_to_Einstein__c,
+                                                             	 Einstein_Upload_Status__c,
                                                              	 Einstein_Data_Messages_Count__c
                                                           FROM Einstein_Keyword__c
                                                           WHERE Einstein_Data_Messages_Count__c = 0
@@ -32,14 +32,14 @@ public class EinsteinSetupController {
         List<Einstein_Data_Message__c> messages = [ SELECT Id,
                                                    		   Name,
                                                    		   Message__c,
-                                                   		   Uploaded_to_Einstein__c,
+                                                   		   Einstein_Upload_Status__c,
                                                   		   Einstein_Keyword__r.Id,
                                                    		   Einstein_Keyword__r.Name,
-                                                   		   Einstein_Keyword__r.Uploaded_to_Einstein__c,
+                                                   		   Einstein_Keyword__r.Einstein_Upload_Status__c,
                                                    		   Einstein_Keyword__r.Einstein_Data_Messages_Count__c
                                                   	FROM Einstein_Data_Message__c
-                                                  	WHERE (Uploaded_to_Einstein__c = false
-                                                  			OR Einstein_Keyword__r.Uploaded_to_Einstein__c = false
+                                                  	WHERE (Einstein_Upload_Status__c = 'Not Uploaded'
+                                                  			OR Einstein_Keyword__r.Einstein_Upload_Status__c = 'Not Uploaded'
                                                   			OR Einstein_Keyword__r.Einstein_Data_Messages_Count__c < 5)
                                                   	AND Einstein_Keyword__r.Name != :EinsteinUtils.KEYWORD_UNDEFINED ];
         
@@ -60,7 +60,7 @@ public class EinsteinSetupController {
 		
 		Map<Id, Einstein_Keyword__c> mapAux = new Map<Id, Einstein_Keyword__c>(keywordsMissingMessages);
         for (Einstein_Data_Message__c message: messages) {
-            if (!mapAux.containsKey(message.Einstein_Keyword__r.Id) && message.Uploaded_to_Einstein__c == false) {
+            if (!mapAux.containsKey(message.Einstein_Keyword__r.Id) && message.Einstein_Upload_Status__c == 'Not Uploaded') {
                 messagesToUpload.add(message);
             }
         }

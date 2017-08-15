@@ -36,7 +36,7 @@ public class EinsteinUtils {
                                                   LIMIT 1 ];
             if (keywords.isEmpty()){
                 keywords.add(new Einstein_Keyword__c( Name = KEYWORD_UNDEFINED,
-                                                      Uploaded_to_Einstein__c = false ));
+                                                      Einstein_Upload_Status__c = 'Not Uploaded' ));
                 insert keywords;
             }
             KEYWORD_ID_UNDEFINED = keywords[0].Id;
@@ -52,7 +52,7 @@ public class EinsteinUtils {
         String keywordIdFinal = keywordId != null ? keywordId : getUndefinedKeywordId();
         Einstein_Data_Message__c msg = new Einstein_Data_Message__c( Einstein_Keyword__c = keywordIdFinal,
                                                                      Message__c = message,
-                                                                     Uploaded_to_Einstein__c = false );
+                                                                     Einstein_Upload_Status__c = 'Not Uploaded' ); //CHANGE TO NOT UPLOADED
         
         insert msg;
         return msg.Id;
@@ -60,17 +60,19 @@ public class EinsteinUtils {
     
     
     public static void associateMessageWithIssue(Id messageId, Id knownIssueId) {
-        
-        List<Einstein_Keyword__c> keywords = [ SELECT Id
+        //update this method
+        /*List<Einstein_Keyword__c> keywords = [ SELECT Id
                                                FROM Einstein_Keyword__c
                                                WHERE Id IN (SELECT Einstein_Keyword__c FROM Known_Issue__c WHERE Id = :knownIssueId ) ];
-        
+        */
         List<Einstein_Data_Message__c> messages = [ SELECT Id,
-                                                   		   Einstein_Keyword__c
+                                                    Einstein_Keyword__c,
+                                                 	Known_Issue__c
                                                    	FROM Einstein_Data_Message__c
                                                     WHERE Id = :messageId ];
-        if (!keywords.isEmpty() && !messages.isEmpty()) {
-            messages[0].Einstein_Keyword__c = keywords[0].Id;
+        if (!messages.isEmpty()) {
+            //messages[0].Einstein_Keyword__c = keywords[0].Id;
+            messages[0].Known_Issue__c = knownIssueId;
             update messages[0];
         }
     }
@@ -89,11 +91,11 @@ public class EinsteinUtils {
         // get all Keyword and Message records
         List<Einstein_Keyword__c> keywords = [ SELECT Id,
                                               		  Name,
-                                              		  Uploaded_to_Einstein__c,
+                                              		  Einstein_Upload_Status__c,
                                               		  (SELECT Id,
                                                    			  Name,
                                                    		 	  Message__c,
-                                                   		 	  Uploaded_to_Einstein__c
+                                                   		 	  Einstein_Upload_Status__c
                                                        FROM Einstein_Data_Messages__r)
                                                FROM Einstein_Keyword__c
                                                WHERE Id IN :keywordIds ];
@@ -113,8 +115,8 @@ public class EinsteinUtils {
             
             gen.writeFieldName(keyword.Name);
             
-            if (keyword.Uploaded_to_Einstein__c != true) {
-                keyword.Uploaded_to_Einstein__c = true;
+            if (keyword.Einstein_Upload_Status__c != 'Uploaded') {
+                keyword.Einstein_Upload_Status__c = 'Uploaded';
                 keywordsToUpdate.add(keyword);
             }
             
@@ -122,8 +124,8 @@ public class EinsteinUtils {
             
             // write each Message into JSON if it was never uploaded
             for (Einstein_Data_Message__c message: keyword.Einstein_Data_Messages__r) {
-                if (message.Uploaded_to_Einstein__c != true) {
-                	message.Uploaded_to_Einstein__c = true;
+                if (message.Einstein_Upload_Status__c != 'Uploaded') {
+                	message.Einstein_Upload_Status__c = 'Uploaded';
                 	messagesToUpdate.add(message);
                     gen.writeString(message.Message__c);
 
