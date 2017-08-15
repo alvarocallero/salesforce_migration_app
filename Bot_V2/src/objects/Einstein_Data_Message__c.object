@@ -127,7 +127,7 @@
         <trackTrending>false</trackTrending>
         <type>Checkbox</type>
     </fields>
-    <gender>Feminine</gender>
+    
     <label>Einstein Data Message</label>
     <nameField>
         <displayFormat>EDM-{0000}</displayFormat>

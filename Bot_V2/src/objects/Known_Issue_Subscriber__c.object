@@ -75,7 +75,6 @@
         <trackTrending>false</trackTrending>
         <type>Lookup</type>
     </fields>
-    <gender>Feminine</gender>
     <label>Known Issue Subscriber</label>
     <nameField>
         <displayFormat>KIS-{0000}</displayFormat>

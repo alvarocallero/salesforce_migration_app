@@ -103,7 +103,7 @@
         <trackTrending>false</trackTrending>
         <type>Checkbox</type>
     </fields>
-    <gender>Feminine</gender>
+    
     <label>Einstein Keyword</label>
     <listViews>
         <fullName>All</fullName>
