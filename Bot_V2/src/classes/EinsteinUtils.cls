@@ -159,10 +159,12 @@ public class EinsteinUtils {
         try{
             // Upload JSON
             if (!Test.isRunningTest()) {
-            	Decimal datasetId = self.getEinsteinDatasetId();
-            	if(datasetId.)
-            	LanguageController.createDatabase()
-            	// ClassFromEmiliano.upload(jsonString); * TODO: replace this line... method should throw exception with message if it fails *
+                Decimal datasetId = getEinsteinDatasetId();
+                if(datasetId == null){
+                    Map<String, String> params = new Map<String, String>();
+                    params.put('name', 'EinsteinDataset.json');
+                    String result = LanguageController.createDataset(params, Blob.valueof(jsonString));
+                }            	
         	}
             
             // Update uploaded records
@@ -179,4 +181,31 @@ public class EinsteinUtils {
         
         return null;
     }
+    
+    /********************************************************************************************************************************
+    * @description Set keywords and messages uploadedToEinstein's field to false. 
+    * This is necessary because if an upload fails the dataset remains unavailable and you have to delete it and create another one.
+	* @return void
+    * @example EinsteinUtils.resetEinstein();
+    */
+    public static void resetEinstein() {
+        String status = 'Not Uploaded';
+        List<Einstein_Keyword__c> keywords = [ SELECT Id, Uploaded_to_Einstein__c
+                                              FROM Einstein_Keyword__c ];
+        List<Einstein_Data_Message__c> messages = [ SELECT Id, Uploaded_to_Einstein__c
+                                                   	FROM Einstein_Data_Message__c];
+        if(!keywords.isEmpty()){
+            for (Einstein_Keyword__c keyword: keywords) {
+            	keyword.Einstein_Upload_Status__c = status;
+        	}
+            update keywords;
+        }
+        if(!messages.isEmpty()){
+            for (Einstein_Data_Message__c message: messages) {
+                message.Einstein_Upload_Status__c = status;
+            }
+            update messages;
+        }      
+        setEinsteinEnabled(false);
+    }    
 }
