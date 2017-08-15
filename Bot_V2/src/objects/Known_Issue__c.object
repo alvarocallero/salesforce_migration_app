@@ -263,7 +263,7 @@
         <type>Text</type>
         <unique>false</unique>
     </fields>
-    <gender>Feminine</gender>
+  
     <label>Known Issue</label>
     <listViews>
         <fullName>All</fullName>

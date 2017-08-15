@@ -103,7 +103,6 @@
         <trackTrending>false</trackTrending>
         <type>Lookup</type>
     </fields>
-    <gender>Masculine</gender>
     <label>UserBotMessage</label>
     <listViews>
         <fullName>All</fullName>
