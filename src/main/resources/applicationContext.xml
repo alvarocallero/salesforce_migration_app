@@ -12,7 +12,7 @@
                            http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd">
 
     <context:annotation-config />
-    <context:component-scan base-package="com.example" />
+    <context:component-scan base-package="com.migrator" />
     
     <mvc:annotation-driven/>
     <mvc:resources mapping="/public/**" location="classpath:/public/"/>
@@ -31,7 +31,7 @@
     </fss:oauth>
     
     <security:http use-expressions="true">
-        <security:intercept-url pattern="/people/*" access="isAuthenticated()" />
+        <security:intercept-url pattern="/documents/*" access="isAuthenticated()" />
     </security:http>
 
 </beans>

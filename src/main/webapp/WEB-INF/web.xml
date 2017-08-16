@@ -37,7 +37,7 @@
     
     <servlet-mapping>
         <servlet-name>spring</servlet-name>
-        <url-pattern>/people/*</url-pattern>
+        <url-pattern>/documents/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
