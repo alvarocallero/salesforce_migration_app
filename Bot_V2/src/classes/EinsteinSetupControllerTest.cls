@@ -6,7 +6,10 @@ public class EinsteinSetupControllerTest {
         List<Einstein_Keyword__c> keywords = new List<Einstein_Keyword__c>();
         for(Integer i=0; i<2; i++) {
             keywords.add( new Einstein_Keyword__c( Name = 'TEST KEYWORD ' + String.valueOf(i+1),
-                                                   Uploaded_to_Einstein__c = false ) );
+                                                   Uploaded_to_Einstein__c = false,
+                                                   Einstein_Upload_Status__c = EinsteinUtils.UPLOAD_STATUS_NOT_UPLOADED
+                                                 ) 
+                        );
         }
         insert keywords;
         
@@ -15,7 +18,8 @@ public class EinsteinSetupControllerTest {
             for(Integer i=0; i<2; i++) {
         		messages.add( new Einstein_Data_Message__c( Einstein_Keyword__c = keyword.Id,
                                                  			Message__c = 'TEST MESSAGE ' + String.valueOf(i+1),
-                                                 			Uploaded_to_Einstein__c = false ) );
+                                                 			Uploaded_to_Einstein__c = false,
+                                                   			Einstein_Upload_Status__c = EinsteinUtils.UPLOAD_STATUS_NOT_UPLOADED ) );
             }
         }
         insert messages;
