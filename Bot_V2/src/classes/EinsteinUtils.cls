@@ -131,8 +131,8 @@ public class EinsteinUtils {
             
             gen.writeFieldName(keyword.Name);
             
-            if (keyword.Einstein_Upload_Status__c != 'Uploaded') {
-                keyword.Einstein_Upload_Status__c = 'Uploaded';
+            if (keyword.Einstein_Upload_Status__c == 'Not Uploaded') {
+                keyword.Einstein_Upload_Status__c = 'In Process';
                 keywordsToUpdate.add(keyword);
             }
             
@@ -140,8 +140,8 @@ public class EinsteinUtils {
             
             // write each Message into JSON if it was never uploaded
             for (Einstein_Data_Message__c message: keyword.Einstein_Data_Messages__r) {
-                if (message.Einstein_Upload_Status__c != 'Uploaded') {
-                	message.Einstein_Upload_Status__c = 'Uploaded';
+                if (message.Einstein_Upload_Status__c == 'Not Uploaded') {
+                	message.Einstein_Upload_Status__c = 'In Process';
                 	messagesToUpdate.add(message);
                     gen.writeString(message.Message__c);
 
@@ -207,5 +207,7 @@ public class EinsteinUtils {
             update messages;
         }      
         setEinsteinEnabled(false);
+        setEinsteinDatasetId(null);
+        setEinsteinModelId(null);
     }    
 }
