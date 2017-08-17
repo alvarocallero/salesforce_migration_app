@@ -5,7 +5,7 @@
     <aura:attribute name="session" type="Array"/>
     <aura:attribute name="height" type="String" default="500px" access="global"/>
     <aura:attribute name="files" type="Object[]"/>
-
+    <aura:attribute name="placeholderText" type="String" default="Provide feedback..."/>
 
     <ltng:require scripts="{!$Resource.cometd}" afterScriptsLoaded="{!c.onCometdLoaded}"/>
     <aura:attribute name="cometd" type="Object"/>
@@ -146,15 +146,23 @@
         </div>
 
         <div class="footer slds-form-element slds-p-horizontal--small">
-            <div class="slds-form-element__control">
+            <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_right">
                 <input type="text"
                        class="slds-input"
-                       placeholder="Provide feedback..."
+                       placeholder="{!v.placeholderText}"
                        onkeypress="{!c.utteranceHandler}"
                        onkeydown="{!c.keyDownHandler}"
                        value="{!v.inputMessageValue}"
                        updateOn="keydown"
                        />
+                
+                <div aura:id="spinnerDiv" class="slds-input__icon slds-input__icon-right slds-hidden">
+      				<div role="status" class="slds-spinner slds-spinner_brand slds-spinner_x-small slds-input__spinner">
+        				<span class="slds-assistive-text">Leah thinnking</span>
+        				<div class="slds-spinner__dot-a"></div>
+        				<div class="slds-spinner__dot-b"></div>
+      				</div>
+               </div>
 
             </div>
 
