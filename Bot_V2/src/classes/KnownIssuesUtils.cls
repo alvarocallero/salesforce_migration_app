@@ -33,12 +33,47 @@ public class KnownIssuesUtils {
         return getKnownIssues(recordTypeId, targetName, targetId).size();
     }
     
-    public static Known_Issue__c createKnownIssue(Id dataMessageId){
+    public static Known_Issue__c createKnownIssue(Id dataMessageId, String currentUrl){
         
         List<Einstein_Data_Message__c> edm = [SELECT Id, Message__c FROM Einstein_Data_Message__c WHERE Id = :dataMessageId];
         
+        String sObjectTypeName = ''; 
+        Id sObjectId = null;
+        
+        if(currentUrl.contains('sObject')){
+            String checkId = currentUrl.substringBetween('/sObject/', '/');
+            
+            if((checkId.length()==15 || checkId.length()==18) && Pattern.matches('^[a-zA-Z0-9]*$', checkId)){
+                sObjectId = checkId;
+            }else{
+                sObjectTypeName = checkId;
+            }
+
+        }
+        
+        if(!String.isBlank(sObjectId)){
+            sObjectTypeName = sObjectId.getSobjectType().getDescribe().getName();
+        }
+        
         Known_Issue__c newKi = new Known_Issue__c();
+        
+        if(!String.isBlank(sObjectTypeName)){
+            newKi.Record_Detail_Id__c = sObjectId;
+            newKi.Object_List_ObjectName__c = sObjectTypeName;
+            
+            if(sObjectTypeName == 'Dashboard' || sObjectTypeName == 'Report'){
+                newKi.Dashboard_Report_Id__c = sObjectId;
+            }
+            else if(sObjectTypeName == 'ContentDocument'){
+                newKi.Document_Id__c = sObjectId;
+            }
+            else if(sObjectTypeName == 'EmailTemplate'){
+                newKi.Email_Template_Id__c = sObjectId;
+            }
+        }
+        
         newKi.Message__c = edm.get(0).Message__c;
+        newKi.Message_Summary__c = edm.get(0).Message__c;
         newKi.Einstein_Keyword__c = EinsteinUtils.getUndefinedKeywordId();
         newKi.Status__c = 'Pending Approval';
         newKi.Priority__c = 'Normal (3)';
@@ -107,8 +142,8 @@ public class KnownIssuesUtils {
     public static void subscribeUsersToIssue(Id issueId, List<Id> userIds) {
         List<Known_Issue_Subscriber__c> subscribers = new List<Known_Issue_Subscriber__c>();
         for(Id userId: userIds){
-            subscribers.add( new Known_Issue_Subscriber__c( Known_Issue__c = issueId,
-                                                          	Subscriber__c  = userId ) );
+            subscribers.add( new Known_Issue_Subscriber__c(Known_Issue__c = issueId,
+                                                          	Subscriber__c  = userId));
         }
         if (!subscribers.isEmpty()) {
             insert subscribers;
