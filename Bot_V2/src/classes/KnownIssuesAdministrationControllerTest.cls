@@ -4,7 +4,7 @@ public class KnownIssuesAdministrationControllerTest {
         KnownIssuesAdministrationController controller = new KnownIssuesAdministrationController();
        
         System.assert(controller.selectedKeyword == 'All');
-        System.assert(controller.selectedStatus == 'Pending Approval');
+        System.assert(controller.selectedStatus == KnownIssuesUtils.STATUS_PENDINGAPPROVAL);
         List<SelectOption> keywords = controller.getKeywordSelectOptions();
         List<SelectOption> status = controller.getStatusSelectOptions();
         System.assert(keywords.size() > 0);
@@ -13,7 +13,7 @@ public class KnownIssuesAdministrationControllerTest {
     
     static testMethod void testFilterUnknown(){
         KnownIssuesAdministrationController controller = new KnownIssuesAdministrationController();
-        controller.selectedKeyword = 'Unknown';
+        controller.selectedKeyword = EinsteinUtils.KEYWORD_UNKNOWN;
        	controller.reloadKnowIssues();
         List<Known_Issue__c> filtered = controller.filteredKnownIssues;
         System.assert(filtered.size() == 0);

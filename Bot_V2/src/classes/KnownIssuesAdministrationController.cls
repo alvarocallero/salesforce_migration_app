@@ -1,6 +1,7 @@
 public class KnownIssuesAdministrationController {
-    private Map<String, String> KEYWORDS = new Map<String, String>{'All' => 'All', 'Unknown' => 'Unknown'};
-    
+    private Map<String, String> KEYWORDS = new Map<String, String>{'All' => 'All', 'Unknown' => EinsteinUtils.KEYWORD_UNKNOWN};
+    private String ALL_KNOWN_ISSUES = 'All';
+        
     private List<SelectOption> keywordSelectOptions = new List<SelectOption>();
 	private List<SelectOption> statusSelectOptions = new List<SelectOption>();
 
@@ -12,8 +13,8 @@ public class KnownIssuesAdministrationController {
     public KnownIssuesAdministrationController(){
         loadKeywordSelectOptions();
         loadStatusSelectOptions();
-		selectedKeyword = 'All';
-		selectedStatus = 'Pending Approval';
+		selectedKeyword = ALL_KNOWN_ISSUES;
+		selectedStatus = KnownIssuesUtils.STATUS_PENDINGAPPROVAL;
         filterKnownIssues();
     }
     
@@ -49,7 +50,7 @@ public class KnownIssuesAdministrationController {
         filteredKnownIssues = new List<Known_Issue__c>();
         String queryString = 'SELECT Id, Status__c, Message_Summary__c, Einstein_Keyword__r.Name From Known_Issue__c ';
         queryString += 'WHERE Status__c = \'' + selectedStatus + '\' ';
-        if(selectedKeyword != 'All'){
+        if(selectedKeyword != ALL_KNOWN_ISSUES){
             queryString += 'and Einstein_Keyword__r.Name = \'' + selectedKeyword + '\' ';
         }
         queryString += 'Limit 1000';

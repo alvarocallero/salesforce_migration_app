@@ -1,6 +1,7 @@
 public class EinsteinUtils {
 	
     public static final String KEYWORD_UNDEFINED = 'UNDEFINED';
+    public static final String KEYWORD_UNKNOWN = 'UNKNOWN';
     private static Id KEYWORD_ID_UNDEFINED;
     
     
