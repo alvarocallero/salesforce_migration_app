@@ -1,0 +1,103 @@
+<apex:page controller="KnownIssuesAdministrationController" standardStylesheets="false">
+    <apex:slds />
+    
+    <div class="slds-scope">
+        
+        <!-- PAGE TITLE -->
+        <div class="slds-p-around_large"
+             style="width: 30rem;" >
+            <article class="slds-tile slds-media" > 
+                <div class="slds-media__figure" > 
+                    <img src="/img/icon/service_contracts32.png" title="/img/icon/service_contracts32.png" />
+                </div>
+                <div class="slds-media__body" >
+                    <h3 class="slds-truncate">KNOWN ISSUES ADMINISTRATION</h3>
+                    <div class="slds-tile__detail slds-text-body_small" >
+                        <p>Edit Known Issues.</p>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+    
+    
+        <apex:form >
+            <div class="slds-grid">
+                
+            
+            <fieldset class="slds-form-element slds-p-horizontal_large">
+                <label class="slds-form-element__label">Keyword</label>
+                <div class="slds-form-element__control">
+                    <div class="slds-select_container">
+                        <apex:selectList size="1" styleClass="slds-select" id="KnownIssueKeywordsSelectList" value="{!selectedKeyword}">
+                            <apex:selectOptions value="{!KeywordSelectOptions}"/>
+                            <apex:actionSupport event="onchange" action="{!reloadKnowIssues}" rerender="knownIssuesTable"/>
+                        </apex:selectList>
+                    </div>
+                </div>
+            </fieldset>
+            
+            <!-- / WRITERS PICKLIST -->
+            <fieldset class="slds-form-element slds-p-horizontal_large">
+                <label class="slds-form-element__label">Status</label>
+                <div class="slds-form-element__control">
+                    <div class="slds-select_container">
+                        <apex:selectList size="1" styleClass="slds-select" id="KnownIssueStatusSelectList" value="{!selectedStatus}">
+                            <apex:selectOptions value="{!StatusSelectOptions}"/>
+                            <apex:actionSupport event="onchange" action="{!reloadKnowIssues}" rerender="knownIssuesTable"/>
+                        </apex:selectList>
+                    </div>
+                </div>
+            </fieldset>
+            </div>
+            
+            
+            <!-- PAGE TABLE -->
+          <apex:outputPanel id="knownIssuesTable" styleClass="slds-grid"> 
+            <div class="slds-section slds-is-open slds-container_fluid slds-p-horizontal_large">
+                <h3 class="slds-section__title slds-theme_shade">
+                    <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Known Issues</span>
+                </h3>
+                <div aria-hidden="false" class="slds-section__content">
+                    
+                    <apex:dataTable value="{!filteredKnownIssues}"
+                                    var="row"
+                                    id="knownIssuesTableData"
+                                    styleClass="slds-table slds-table_bordered slds-table_cell-buffer" >
+                        
+                        <apex:column >
+                            <apex:facet name="header">ID</apex:facet>
+                            <apex:outputText value="{!row.Id}"/>
+                        </apex:column>
+                        
+                        <apex:column >
+                            <apex:facet name="header">STATUS</apex:facet>
+                            <apex:outputText value="{!row.Status__c}"/>
+                        </apex:column>
+                        
+                        <apex:column >
+                            <apex:facet name="header">SUMARY</apex:facet>
+                            <apex:outputText value="{!row.Message_Summary__c}"/>
+                        </apex:column>
+                        
+                        <apex:column >
+                            <apex:facet name="header">KEYWORD</apex:facet>
+                            <apex:outputText value="{!row.Einstein_Keyword__r.Name}"/>
+                        </apex:column>
+                        
+                        <apex:column >
+                            <apex:facet name="header">ACTIONS</apex:facet>
+                            <input type="button"
+                                   onclick="window.open('/one/one.app?#/sObject/{!row.Id}/view', '_blank');"
+                                   class="slds-button slds-button_neutral manage-button"
+                                   value="Edit" />
+                        </apex:column>
+                        
+                    </apex:dataTable>
+                    
+                </div>
+            </div>
+             </apex:outputPanel>
+        </apex:form>
+
+</apex:page>
