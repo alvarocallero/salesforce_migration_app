@@ -1,4 +1,9 @@
-global class checkEinsteinAvailable implements Database.Batchable<sObject>{ 
+global class checkEinsteinAvailable implements Database.Batchable<sObject>,Schedulable{ 
+        global void execute(SchedulableContext SC) {       
+
+        database.executeBatch(this);
+    }
+    
 
     global string resultjsonTraining = LanguageController.getTrainStatus(EinsteinUtils.getEinsteinModelId());
     global String data = 'In Process';
@@ -7,6 +12,7 @@ global class checkEinsteinAvailable implements Database.Batchable<sObject>{
     
     global list<Einstein_Keyword__c> start(Database.BatchableContext bc){
         //Getting the needed records with DataBase.getQueryLocator.
+
         return [Select e.Id, e.Einstein_Upload_Status__c From Einstein_Keyword__c e WHERE e.Einstein_Upload_Status__c = 'In Process'];
     }
     
