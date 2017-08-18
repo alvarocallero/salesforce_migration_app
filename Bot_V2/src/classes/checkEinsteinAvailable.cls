@@ -5,18 +5,17 @@ global class checkEinsteinAvailable implements Database.Batchable<sObject>{
     global string resultjsonStatus = LanguageController.getDataset(String.valueOf(EinsteinUtils.getEinsteinDatasetId().intValue()));
     
     
-    global Database.QueryLocator start(Database.BatchableContext bc){
+    global list<Einstein_Keyword__c> start(Database.BatchableContext bc){
         //Getting the needed records with DataBase.getQueryLocator.
-
-        string query = 'Select e.Id, e.Einstein_Upload_Status__c From Einstein_Keyword__c e WHERE e.Einstein_Upload_Status__c = :data';
-        return Database.getQueryLocator(query);
+        return [Select e.Id, e.Einstein_Upload_Status__c From Einstein_Keyword__c e WHERE e.Einstein_Upload_Status__c = 'In Process'];
     }
     
-    global void execute(Database.BatchableContext bc,list<Einstein_Keyword__c> scope) {
+    global void execute(Database.BatchableContext bc,List<Einstein_Keyword__c> scope) {
         //Executing the method with the list
 
 
         if(!EinsteinUtils.getEinsteinEnabled()){
+
             checkAvailable(scope);
         }
         
