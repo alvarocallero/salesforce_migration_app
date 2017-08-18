@@ -1,48 +1,42 @@
-global class checkEinsteinAvailable implements Database.Batchable<sObject>{
+global class checkEinsteinAvailable implements Database.Batchable<sObject>{ 
+
+    global string resultjsonTraining = LanguageController.getTrainStatus(EinsteinUtils.getEinsteinModelId());
+    global String data = 'In Process';
+    global string resultjsonStatus = LanguageController.getDataset(String.valueOf(EinsteinUtils.getEinsteinDatasetId().intValue()));
     
-     string modelId =  EinsteinUtils.getEinsteinModelId();
-     String data = 'In Process';
-     String query = 'Select e.Id, e.Einstein_Upload_Status__c From Einstein_Keyword__c e WHERE e.Einstein_Upload_Status__c = :Data';
-     string datasetId = String.valueOf(EinsteinUtils.getEinsteinDatasetId().intValue());
-     
     
     global Database.QueryLocator start(Database.BatchableContext bc){
         //Getting the needed records with DataBase.getQueryLocator.
 
-          return Database.getQueryLocator(query);
+        string query = 'Select e.Id, e.Einstein_Upload_Status__c From Einstein_Keyword__c e WHERE e.Einstein_Upload_Status__c = :data';
+        return Database.getQueryLocator(query);
     }
     
-    global void execute(Database.BatchableContext bc,List<Einstein_Keyword__c> EinsteinKeyword) {
+    global void execute(Database.BatchableContext bc,list<Einstein_Keyword__c> scope) {
         //Executing the method with the list
-		
-        checkAvailable(EinsteinKeyword,modelId,datasetId);
+
+
+        if(!EinsteinUtils.getEinsteinEnabled()){
+            checkAvailable(scope);
+        }
+        
     }
     
-    global void checkAvailable(List<Einstein_Keyword__c> EinsteinKeyword,String modelId,String datasetId){
+    global void checkAvailable(list<Einstein_Keyword__c> scope){
 
-        //Getting the string json with information weather the training was successfull or not
-        string resultTrainingStatus = LanguageController.getTrainStatus(modelId);     
-        string resultStatusMsg = '';
-        
-        //Desalinating the resultTrainging status
-
-        Map<String, Object> jsonResultTrainingStatus = (Map<String, Object>)JSON.deserializeUntyped(resultTrainingStatus);
+        Map<String, Object> jsonResultTrainingStatus = (Map<String, Object>)JSON.deserializeUntyped(resultjsonTraining);
         //Checking if Einstein is Enable or not and checking if the Training status is successful or not 
         //In the case of fail of ether we set every keyword with the status error
         //if Einstein is disable and the training was successful and the status of message is success
         //we activate Einstein and set all the key words to Uploaded 
-        if((!EinsteinUtils.getEinsteinEnabled()) && (jsonResultTrainingStatus.get('status') == 'SUCCEEDED')){
-            system.debug('IM IN THE IF');
-            resultStatusMsg = LanguageController.getDataset(datasetId);
-            Map<String, Object> jsonResultStatusMsg = (Map<String, Object>)JSON.deserializeUntyped(resultStatusMsg);
-            
+        if((jsonResultTrainingStatus.get('status') == 'SUCCEEDED')){
+            Map<String, Object> jsonResultStatusMsg = (Map<String, Object>)JSON.deserializeUntyped(resultjsonStatus);
             if(jsonResultStatusMsg.get('statusMsg') == 'SUCCEEDED'){
-                
-                EinsteinUtils.setEinsteinEnabled(true);
-                setUploadStatus(EinsteinKeyword,'Uploaded');
+				EinsteinUtils.setEinsteinEnabled(true);
+                setUploadStatus(scope,'Uploaded');
             }
         }else{           
-            setUploadStatus(EinsteinKeyword,'Error');
+            setUploadStatus(scope,'Error');
         }
         
     } 
@@ -55,7 +49,6 @@ global class checkEinsteinAvailable implements Database.Batchable<sObject>{
     }
     
     global void finish(Database.BatchableContext bc){
-        
-      
+
     }
 }
