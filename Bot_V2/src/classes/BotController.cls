@@ -61,9 +61,9 @@ public with sharing class BotController {
     }
     
     @AuraEnabled
-    public static BotResponse addNewKnownIssue(String dataMessageId){
+    public static BotResponse addNewKnownIssue(String dataMessageId, String currentUrl){
         
-        Known_Issue__c newKnownIssue = KnownIssuesUtils.createKnownIssue(dataMessageId);
+        Known_Issue__c newKnownIssue = KnownIssuesUtils.createKnownIssue(dataMessageId, currentUrl);
         
         List<BotItem> botItemsList = new List<BotItem>();
         String pageUrl = KnownIssueDetailController.getPageURL(newKnownIssue.Id, dataMessageId);
@@ -121,7 +121,7 @@ public with sharing class BotController {
                     buttons.add(btnUseless);
                     return new BotResponse(new BotMessage('', 'This is what I found...', botItemsList, buttons), dataMessageId, null);
                 }else{
-                    return addNewKnownIssue(dataMessageId);
+                    return addNewKnownIssue(dataMessageId, currentUrl);
                     //return new BotResponse(new BotMessage('', 'Sorry, I have not found anything related to your problem...'));
                 }
 

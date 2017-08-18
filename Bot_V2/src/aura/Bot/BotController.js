@@ -83,10 +83,12 @@
              helper.submit(component, utterance, component.get('v.session'), function(answer) {
                 		if (answer) {
                             $A.util.addClass(spinnerDiv, "slds-hidden");
+                            
                             component.set("v.placeholderText", "Provide feedback...");
                     		component.set("v.dataMessageId", answer.dataMessageId);
                     		component.set("v.session", answer.session);
                     		Array.prototype.push.apply(messages, answer.messages);
+                            component.set("v.CurrentKnownIssueId", answer.knownIssueId);
                     		component.set("v.messages", messages);
                 		}
              });
