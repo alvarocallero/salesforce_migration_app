@@ -1,6 +1,6 @@
 global class checkEinsteinAvailable implements Database.Batchable<sObject>,Schedulable{ 
         global void execute(SchedulableContext SC) {       
-
+        
         database.executeBatch(this);
     }
     
