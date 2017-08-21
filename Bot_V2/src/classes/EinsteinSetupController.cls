@@ -1,6 +1,11 @@
 public class EinsteinSetupController {
 	
-    public static Boolean einsteinEnabled {get; set;}
+    public Boolean einsteinEnabled {get; set;}
+    public Boolean datasetUploaded {get; set;}
+    public Boolean couldTrain {get; set;}
+    public Boolean couldRetrain {get; set;}
+    public String datasetStatus {get; set;}
+    public String trainStatus {get; set;}
     private static Map<Id, Einstein_Keyword__c> keywordsById;
     
     public String toastSuccessMessage {get; set;}
@@ -16,7 +21,32 @@ public class EinsteinSetupController {
         } else {
             einsteinEnabled = false;
         }
-        keywordsMissingMessages = new List<Einstein_Keyword__c>();
+        
+        datasetStatus = 'There was a problem checking the dataset\'s status. Please check it again later.';
+        String datasetId = EinsteinUtils.getEinsteinDatasetId();
+        if(datasetId != null && datasetId !=''){            
+            Map<String, Object> jsonDatasetStatus = (Map<String, Object>)JSON.deserializeUntyped(LanguageController.getDataset(datasetId));
+            if (jsonDatasetStatus.containsKey('statusMsg') && datasetId != null && datasetId != ''){
+                datasetStatus = (String)jsonDatasetStatus.get('statusMsg');
+            }
+        } else{
+            datasetStatus = 'The dataset was not uploaded yet';
+        }
+        
+        trainStatus = 'There was a problem checking the train\'s status. Please check it again later.';
+        String modelId = EinsteinUtils.getEinsteinModelId();
+        if(modelId != null && modelId !=''){    
+            Map<String, Object> jsonTrainStatus = (Map<String, Object>)JSON.deserializeUntyped(LanguageController.getTrainStatus(modelId));
+            if (jsonTrainStatus.containsKey('status') && modelId != null && modelId != ''){
+                trainStatus = (String)jsonTrainStatus.get('status');
+            }
+        } else {
+            trainStatus = 'The dataset was not trained yet.';
+        }
+        datasetUploaded = EinsteinUtils.getEinsteinDatasetId() != null && EinsteinUtils.getEinsteinDatasetId() != '' && datasetStatus == EinsteinUtils.EINSTEIN_DS_STATUS_SUCCEEDED;
+        couldTrain =  datasetUploaded && (modelId == null || modelId == '');
+        couldRetrain = EinsteinUtils.getEinsteinModelId() != null && EinsteinUtils.getEinsteinModelId() != '' && trainStatus == EinsteinUtils.EINSTEIN_TRAIN_STATUS_SUCCEEDED;
+	    keywordsMissingMessages = new List<Einstein_Keyword__c>();
         keywordsToUpload = new List<Einstein_Keyword__c>();
         keywordsWithError = new List<Einstein_Keyword__c>();        
         //New Known Issues
@@ -29,9 +59,9 @@ public class EinsteinSetupController {
             WHERE Status__c !=: EinsteinUtils.KNOWN_ISSUE_PENDING_APPROVAL AND
             Status__c !=: EinsteinUtils.KNOWN_ISSUE_INVALID
         ];
-        System.debug(newKnownIssues);
+        //System.debug(newKnownIssues);
         for(Known_Issue__c knownIssue: newKnownIssues){
-            System.debug(knownIssue.Einstein_Keyword__r);
+            //System.debug(knownIssue.Einstein_Keyword__r);            
             if(knownIssue.Einstein_Keyword__r.Einstein_Upload_Status__c == EinsteinUtils.UPLOAD_STATUS_NOT_UPLOADED){  
                 if(knownIssue.Einstein_Keyword__r.Einstein_Data_Messages_Count__c < 5){
                     keywordsMissingMessages.add(knownIssue.Einstein_Keyword__r);
@@ -46,8 +76,11 @@ public class EinsteinSetupController {
     
     public PageReference enableEinstein() {
         resetToastMessages();
-        if (keywordsToUpload.size() < 3) {
-            toastErrorMessage = 'Einstein needs at least 3 Keywords that have at least 5 Messages each.';
+        if (trainStatus != EinsteinUtils.EINSTEIN_TRAIN_STATUS_SUCCEEDED || datasetStatus != EinsteinUtils.EINSTEIN_DS_STATUS_SUCCEEDED) {
+            toastErrorMessage = 'Einstein cannot be enabled, the dataset and train status must be SUCCEEDED';
+        } else {
+            EinsteinUtils.setEinsteinEnabled(true);
+        	einsteinEnabled = true;
         }
         return null;
     }
@@ -76,9 +109,57 @@ public class EinsteinSetupController {
                 toastErrorMessage = response;
                 
             } else {
-                toastSuccessMessage = 'Einstein training complete.';
+                toastSuccessMessage = 'Einstein dataset was uploaded.';
             }            
         }        
+        // Value is lost on rerender for some reason
+        einsteinEnabled = EinsteinUtils.getEinsteinEnabled();		
+     	return null;
+    }
+    
+    public PageReference train() {
+        resetToastMessages();
+        String response = EinsteinUtils.trainEinstein();
+        if (response != null) {
+                toastErrorMessage = response;
+        } else{
+        	toastSuccessMessage = 'Training in process';
+            einsteinEnabled = false;
+            EinsteinUtils.setEinsteinEnabled(false);
+        }
+        return null;
+    }
+    
+    public PageReference retrain() {
+        resetToastMessages();
+        String response = EinsteinUtils.retrainEinstein();
+        if (response != null) {
+                toastErrorMessage = response;
+        } else{
+        	toastSuccessMessage = 'Training in process';
+            einsteinEnabled = false;
+            EinsteinUtils.setEinsteinEnabled(false);
+        }
+        return null;
+    }
+    
+    public PageReference uploadExamples() {        
+        resetToastMessages();
+       	if(!keywordsToUpload.isEmpty()) {
+			Set<Id> setKeywordsToUpload = new Set<Id>();
+            for (Einstein_Keyword__c keyword: keywordsToUpload) {
+                setKeywordsToUpload.add(keyword.Id);
+            }
+            String response = EinsteinUtils.uploadExamplesToEinstein(setKeywordsToUpload);
+            //System.debug('response '+ response);
+            if (response != null) {
+                toastErrorMessage = response;                
+            } else {
+                toastSuccessMessage = 'The examples were uploaded.';
+            }            
+        } else {            
+        	toastErrorMessage = 'There are no keywords to upload at the moment.';
+        }
         // Value is lost on rerender for some reason
         einsteinEnabled = EinsteinUtils.getEinsteinEnabled();		
      	return null;

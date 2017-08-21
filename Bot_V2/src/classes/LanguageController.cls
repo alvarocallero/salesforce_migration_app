@@ -59,7 +59,7 @@ public class LanguageController {
         String result = Language.apiCallUploadFile('/datasets/upload',access_token,params,'POST','data',file);
         Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
         if (jsonResult.containsKey('id')){
-            EinsteinUtils.setEinsteinDatasetId((Decimal)jsonResult.get('id'));
+            EinsteinUtils.setEinsteinDatasetId(String.valueOf(jsonResult.get('id')));
         } else {
         	throw new Language.LanguageException('Could not save the datasetId. The result json has not got the datasetId.');
         }
@@ -104,7 +104,7 @@ public class LanguageController {
             String result = Language.apiCall('/datasets/upload',access_token,params,'POST');
             Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
             if (jsonResult.containsKey('id')){
-                EinsteinUtils.setEinsteinDatasetId((Decimal)jsonResult.get('id'));
+                EinsteinUtils.setEinsteinDatasetId((String)jsonResult.get('id'));
             } else { 
                 throw new Language.LanguageException('Could not save the datasetId. The result json has not got the datasetId.');
             }

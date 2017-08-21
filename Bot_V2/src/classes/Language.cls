@@ -50,13 +50,8 @@ public class Language {
         
         Http http = new Http();
         try {
-            System.Debug(httpRequest);
-            System.Debug(httpRequest.toString());
-            System.Debug(httpRequest.getHeader('Content-Type'));
-            System.Debug(httpRequest.getHeader('Authorization'));
-            System.Debug(httpRequest.getBody());
             HTTPResponse res = http.send(httpRequest);
-            System.Debug('statuscode: '+res.getStatusCode());            
+            //System.Debug('statuscode: '+res.getStatusCode());            
             result = res.getBody();
             if (res.getStatusCode() != 200) {
                 Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
@@ -67,9 +62,15 @@ public class Language {
                 throw new LanguageException('404 Bad Request' + message);
             }
         } catch(System.CalloutException e) {
+            System.Debug(httpRequest);
+            System.Debug(httpRequest.toString());
+            System.Debug(httpRequest.getHeader('Content-Type'));
+            System.Debug(httpRequest.getHeader('Authorization'));
+            System.Debug(httpRequest.getBody());
             System.debug('ERROR:' + e);
             throw new LanguageException(e);            
         }        
+        //System.debug(result);
         return result;
     }
     
@@ -83,7 +84,7 @@ public class Language {
         String body = '';
         String value = '';
         String mimeType = 'application/octet-stream';
-        String name = 'data';      
+        String name = 'data.json';      
         HttpRequest httpRequest = new HttpRequest();
         if(!params.isEmpty()){
             if (params.containsKey('name')){
@@ -119,13 +120,8 @@ public class Language {
         httpRequest.setEndpoint(LANGUAGE_API+endpoint);        
         Http http = new Http();
         try {
-            System.Debug(httpRequest);
-            System.Debug(httpRequest.toString());
-            System.Debug(httpRequest.getHeader('Content-Type'));
-            System.Debug(httpRequest.getHeader('Authorization'));
-            System.Debug(httpRequest.getBody());
             HTTPResponse res = http.send(httpRequest);
-            System.Debug('statuscode: '+res.getStatusCode());            
+            //System.Debug('statuscode: '+res.getStatusCode());            
             result = res.getBody();
             if (res.getStatusCode() != 200) {
                 Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
@@ -136,6 +132,11 @@ public class Language {
                 throw new LanguageException('404 Bad Request' + message);
             }
         } catch(System.CalloutException e) {
+            System.Debug(httpRequest);
+            System.Debug(httpRequest.toString());
+            System.Debug(httpRequest.getHeader('Content-Type'));
+            System.Debug(httpRequest.getHeader('Authorization'));
+            System.Debug(httpRequest.getBody());
             System.debug('ERROR:' + e);
             throw new LanguageException(e); 
         }        

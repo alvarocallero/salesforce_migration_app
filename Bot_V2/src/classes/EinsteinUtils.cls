@@ -15,6 +15,16 @@ public class EinsteinUtils {
     public static final String KNOWN_ISSUE_DUPLICATED = 'Duplicated';
     public static final String KNOWN_ISSUE_INVALID = 'Invalid';
     
+    // EINSTEIN TRAIN STATUS
+    public static final String EINSTEIN_TRAIN_STATUS_SUCCEEDED = 'SUCCEEDED';
+    public static final String EINSTEIN_TRAIN_STATUS_FAILED = 'FAILED';
+    
+    // EINSTEIN DATASET STATUS
+    public static final String EINSTEIN_DS_STATUS_SUCCEEDED = 'SUCCEEDED';
+    // This status begins with FAILURE and is composed with its reason like this: 'FAILURE: <failure_reason>—Data upload has failed.'
+    public static final String EINSTEIN_DS_STATUS_FAILURE = 'FAILURE';
+    public static final String EINSTEIN_DS_STATUS_UPLOADING = 'UPLOADING';
+    
     // MANAGE CUSTOM SETTING VALUES RELATED TO EINSTEIN
     
     public static Boolean getEinsteinEnabled() {
@@ -35,11 +45,11 @@ public class EinsteinUtils {
         update GeneralUtils.BOT_SETTINGS;
     }
     
-    public static Decimal getEinsteinDatasetId() {
+   public static String getEinsteinDatasetId() {
         return GeneralUtils.getBotSettings().Einstein_DatasetId__c;
     }
     
-    public static void setEinsteinDatasetId(Decimal datasetId) {
+    public static void setEinsteinDatasetId(String datasetId) {
         GeneralUtils.getBotSettings().Einstein_DatasetId__c = datasetId;
         update GeneralUtils.BOT_SETTINGS;
     }
@@ -110,16 +120,21 @@ public class EinsteinUtils {
     public static String uploadMessagesToEinstein(Set<Id> keywordIds) {
         
         // get all Keyword and Message records
-        List<Einstein_Keyword__c> keywords = [ SELECT Id,
-                                              		  Name,
-                                              		  Einstein_Upload_Status__c,
-                                              		  (SELECT Id,
-                                                   			  Name,
-                                                   		 	  Message__c,
-                                                   		 	  Einstein_Upload_Status__c
-                                                       FROM Einstein_Data_Messages__r)
-                                               FROM Einstein_Keyword__c
-                                               WHERE Id IN :keywordIds ];
+        List<Einstein_Keyword__c> keywords = [ 
+            SELECT Id,
+            Name,
+            Einstein_Upload_Status__c,
+            (
+                SELECT Id,
+                Name,
+                Message__c,
+                Einstein_Upload_Status__c
+                FROM Einstein_Data_Messages__r
+                WHERE Einstein_Upload_Status__c =: UPLOAD_STATUS_NOT_UPLOADED
+            )
+            FROM Einstein_Keyword__c
+            WHERE Id IN :keywordIds
+        ];
         
         // initialize lists to store records to update
         List<Einstein_Keyword__c> keywordsToUpdate = new List<Einstein_Keyword__c>();
@@ -145,12 +160,9 @@ public class EinsteinUtils {
             
             // write each Message into JSON if it was never uploaded
             for (Einstein_Data_Message__c message: keyword.Einstein_Data_Messages__r) {
-                if (message.Einstein_Upload_Status__c == UPLOAD_STATUS_NOT_UPLOADED) {
-                	message.Einstein_Upload_Status__c = UPLOAD_STATUS_IN_PROCESS;
-                	messagesToUpdate.add(message);
-                    gen.writeString(message.Message__c);
-
-            	}
+                message.Einstein_Upload_Status__c = UPLOAD_STATUS_IN_PROCESS;
+                messagesToUpdate.add(message);
+                gen.writeString(message.Message__c);
             }
             gen.writeEndArray();
             
@@ -164,7 +176,7 @@ public class EinsteinUtils {
         try{
             // Upload JSON
             if (!Test.isRunningTest()) {
-                Decimal datasetId = getEinsteinDatasetId();
+                String datasetId = getEinsteinDatasetId();
                 if(datasetId == null){
                     Map<String, String> params = new Map<String, String>();
                     params.put('name', 'EinsteinDataset.json');
@@ -187,6 +199,138 @@ public class EinsteinUtils {
         return null;
     }
     
+    public static String uploadExamplesToEinstein(Set<Id> keywordIds) {
+        String datasetId = getEinsteinDatasetId();
+        if(datasetId != null && datasetId != ''){
+            // get all Keyword and Message records
+            List<Einstein_Keyword__c> keywords = [ 
+                SELECT Id,
+                Name,
+                Einstein_Upload_Status__c,
+                (
+                    SELECT Id,
+                    Name,
+                    Message__c,
+                    Einstein_Upload_Status__c
+                    FROM Einstein_Data_Messages__r
+                    WHERE Einstein_Upload_Status__c =: UPLOAD_STATUS_NOT_UPLOADED
+                )
+                FROM Einstein_Keyword__c
+                WHERE Id IN :keywordIds ];
+            
+            List<Einstein_Data_Message__c> messagesToUpdate = new List<Einstein_Data_Message__c>();
+            
+            // initialize JSON
+            JSONGenerator gen = JSON.createGenerator(true);
+            gen.writeStartObject();
+            gen.writeFieldName('intents');
+            gen.writeStartObject();
+            
+            // write each Keyword into the JSON and add it to update list if needed
+            for (Einstein_Keyword__c keyword: keywords) {                
+                gen.writeFieldName(keyword.Name);
+                keyword.Einstein_Upload_Status__c = UPLOAD_STATUS_IN_PROCESS;                
+                gen.writeStartArray();
+                
+                // write each Message into JSON if it was never uploaded
+                for (Einstein_Data_Message__c message: keyword.Einstein_Data_Messages__r) {
+                        message.Einstein_Upload_Status__c = UPLOAD_STATUS_IN_PROCESS;
+                        messagesToUpdate.add(message);
+                        gen.writeString(message.Message__c);
+                }
+                gen.writeEndArray();
+                
+            }
+            gen.writeEndObject();
+            gen.writeEndObject();
+            gen.close();
+            
+            String jsonString = gen.getAsString();
+            
+            try{
+                // Upload JSON
+                if (!Test.isRunningTest()) {
+                    String result = LanguageController.createExample(datasetId, Blob.valueof(jsonString));
+                    //System.debug(result);
+                }
+                
+                // Update uploaded records
+                if (!keywords.isEmpty()) {
+                    update keywords;
+                }
+                if (!messagesToUpdate.isEmpty()) {
+                    update messagesToUpdate;
+                }                
+            } catch (Exception e){
+                return e.getMessage();
+            }
+            
+            return null;
+        } else {
+            return 'You have to upload a dataset first before you can add new examples.';
+        }
+    }
+    
+    public static String trainEinstein() {
+    	String datasetId = EinsteinUtils.getEinsteinDatasetId();
+        if(datasetId != null){
+            Map<String, String> params = new Map<String, String>();
+            params.put('name', 'LexCoeToolkitModel');
+            //System.debug(datasetId);
+            params.put('datasetId', datasetId);
+            try{
+                String result = LanguageController.train(params);
+                Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);            
+                if (jsonResult.containsKey('status')){
+                    String status = (String)jsonResult.get('status');
+                    if(status == EINSTEIN_TRAIN_STATUS_FAILED){
+                        String datasetStatus = LanguageController.getDataset(datasetId);
+                        Map<String, Object> jsondatasetStatus = (Map<String, Object>)JSON.deserializeUntyped(datasetStatus);            
+                        return 'Training failed. Status: ' + status + '\nDataset status: ' + (String)jsondatasetStatus.get('statusMsg');
+                    }                
+                } else { 
+                    return 'Training failed.';
+                }
+            } catch (Exception e){
+                return e.getMessage();
+            }
+        } else {
+            return 'You have to upload a dataset first before you can train it.';
+        }
+        return null;
+    }
+    
+    public static String retrainEinstein() {
+    	String modelId = EinsteinUtils.getEinsteinModelId();
+        Map<String, Object> jsonTrainStatus = (Map<String, Object>)JSON.deserializeUntyped(LanguageController.getTrainStatus(modelId));
+        if (jsonTrainStatus.containsKey('status') && modelId != null && modelId != ''){
+            String trainStatus = (String)jsonTrainStatus.get('status');
+            if( trainStatus == EINSTEIN_TRAIN_STATUS_SUCCEEDED || trainStatus == EINSTEIN_TRAIN_STATUS_FAILED){
+                Map<String, String> params = new Map<String, String>();
+                params.put('modelId', modelId);
+                try{
+                    String result = LanguageController.retrain(params);
+                    Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
+                    if (jsonResult.containsKey('status')){
+                        String status = (String)jsonResult.get('status');
+                        if(status == EINSTEIN_TRAIN_STATUS_FAILED){
+                            return 'Training failed. Status: ' + status;
+                        }                
+                    } else { 
+                        return 'Training failed.';
+                    } 
+                } catch (Exception e){
+                    return e.getMessage();
+                }
+            } else {
+                return 'You could not train because the model is being trained now. Wait until it has finished. Status: ' + trainStatus;
+            }  
+                
+        } else {
+            return 'You have to upload a dataset first before you can train it.';
+        }           
+        return null;
+    }
     /********************************************************************************************************************************
     * @description Set keywords and messages uploadedToEinstein's field to false. 
     * This is necessary because if an upload fails the dataset remains unavailable and you have to delete it and create another one.
@@ -210,7 +354,7 @@ public class EinsteinUtils {
                 message.Einstein_Upload_Status__c = status;
             }
             update messages;
-        }      
+        }
         setEinsteinEnabled(false);
         setEinsteinDatasetId(null);
         setEinsteinModelId(null);
