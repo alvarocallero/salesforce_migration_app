@@ -739,4 +739,20 @@
     </recordTypes>
     <searchLayouts/>
     <sharingModel>ReadWrite</sharingModel>
+    <validationRules>
+        <fullName>CannotChangeToPendingIfKeywordIfUnknown</fullName>
+        <active>true</active>
+        <description>If keyword is Unknown, status can not be changed from pending approval</description>
+        <errorConditionFormula>Einstein_Keyword__r.Name == &apos;Unknown&apos; &amp;&amp;   NOT(ISPICKVAL(Status__c, &apos;Pending Approval&apos;))</errorConditionFormula>
+        <errorDisplayField>Status__c</errorDisplayField>
+        <errorMessage>If the Keyword is Unknown, the Status can not be changed from Pending Approval</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>CannotChangeToPendingIfSummaryEmpty</fullName>
+        <active>true</active>
+        <description>If the Summary is empty, the Status can not be changed from Pending Approval</description>
+        <errorConditionFormula>ISBLANK(Message_Summary__c) &amp;&amp;   NOT(ISPICKVAL(Status__c, &apos;Pending Approval&apos;))</errorConditionFormula>
+        <errorDisplayField>Status__c</errorDisplayField>
+        <errorMessage>If the Summary is empty, the Status can not be changed from Pending Approval</errorMessage>
+    </validationRules>
 </CustomObject>

@@ -112,6 +112,56 @@ public class KnownIssuesUtilsTest {
         Test.stopTest();
     }
     
+    static testmethod void testSetDuplicatedOrNewKeyword() {
+        Einstein_Keyword__c keywordTest = new Einstein_Keyword__c(Name = 'TEST');
+        insert keywordTest;
+        
+        List<Known_Issue__c> issues = new List<Known_Issue__c>();
+        String targetId = 'a01f400000AAAAA123';
+        String targetName = 'nameABC';
+        for(Integer i=0; i<10; i++){
+        	issues.add( getNewKnownIssue('message', 'summary', KnownIssuesUtils.STATUS_NEW, targetName, targetId ) );
+        }
+        issues[0].recordTypeId = KnownIssuesUtils.RTYPE_ID_VFP;
+        issues[0].Einstein_Keyword__c = keywordTest.id;
+        insert issues;
+        
+        Test.startTest();
+       	 
+     	Known_Issue__c issueToUpdate = issues[1];
+        issueToUpdate.Einstein_Keyword__c = keywordTest.id;
+        update issueToUpdate;
+        Known_Issue__c updatedIssue = [Select id, Name, Status__c From Known_Issue__c Where Id = :issueToUpdate.id Limit 1];
+        System.assert(updatedIssue.Status__c == KnownIssuesUtils.STATUS_DUPLICATED);
+        Test.stopTest();
+    }
+    
+    static testmethod void testSetNewKeyword() {
+        Einstein_Keyword__c keywordTest = new Einstein_Keyword__c(Name = 'TEST');
+        insert keywordTest;
+        Einstein_Keyword__c newKeyword = new Einstein_Keyword__c(Name = 'NEW KEYWORD');
+        insert newKeyword;
+        
+        List<Known_Issue__c> issues = new List<Known_Issue__c>();
+        String targetId = 'a01f400000AAAAA123';
+        String targetName = 'nameABC';
+        for(Integer i=0; i<10; i++){
+        	issues.add( getNewKnownIssue('message', 'summary', KnownIssuesUtils.STATUS_PENDINGAPPROVAL, targetName, targetId ) );
+        }
+        issues[0].recordTypeId = KnownIssuesUtils.RTYPE_ID_VFP;
+        issues[0].Einstein_Keyword__c = keywordTest.id;
+        insert issues;
+        
+        Test.startTest();
+       	 
+     	Known_Issue__c issueToUpdate = issues[1];
+        issueToUpdate.Einstein_Keyword__c = newKeyword.id;
+        update issueToUpdate;
+        Known_Issue__c updatedIssue = [Select id, Name, Status__c From Known_Issue__c Where Id = :issueToUpdate.id Limit 1];
+        System.assert(updatedIssue.Status__c == KnownIssuesUtils.STATUS_NEW);
+        Test.stopTest();
+    }
+    
     
     // TEST DATA
     

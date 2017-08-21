@@ -266,4 +266,29 @@ public class KnownIssuesUtils {
         return issues;
     }
     
+    public static void setDuplicatedOrNewKeyword(List<Known_Issue__c> issuesToUpdate, Map<Id,Known_Issue__c> oldIssuesById){
+        for(Known_Issue__c updatedKI: issuesToUpdate){
+            if(updatedKI.Status__c == oldIssuesById.get(updatedKI.Id).Status__c && updatedKI.Status__c != null){
+                if(updatedKI.Einstein_Keyword__c != null){
+                    Einstein_Keyword__c issueKeyword = [Select id, Name 
+                                                        FROM Einstein_Keyword__c 
+                                                        WHERE ID = :updatedKI.Einstein_Keyword__c 
+                                                        Limit 1];
+                    if(issueKeyword.Id != EinsteinUtils.getUndefinedKeywordId()){ 
+                        if(issueKeyword.Name != EinsteinUtils.KEYWORD_UNKNOWN){
+                            List<Known_Issue__c> duplicatedKnownIssues = [SELECT Id, Einstein_Keyword__r.Name 
+                                                                          FROM Known_Issue__c 
+                                                                          WHERE Id != :updatedKI.Id 
+                                                                          AND Einstein_Keyword__r.Name = :issueKeyword.Name];
+                            if(duplicatedKnownIssues.size() > 0){
+                                updatedKI.Status__c = STATUS_DUPLICATED;
+                            }else{
+                                updatedKI.Status__c = STATUS_NEW;
+                            }
+                        }   
+                    }
+                }
+            }
+        }
+    }
 }
