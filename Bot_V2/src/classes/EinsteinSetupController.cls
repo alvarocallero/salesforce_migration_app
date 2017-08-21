@@ -4,6 +4,7 @@ public class EinsteinSetupController {
     public Boolean datasetUploaded {get; set;}
     public Boolean couldTrain {get; set;}
     public Boolean couldRetrain {get; set;}
+    public Boolean couldResetEinstein {get; set;}
     public String datasetStatus {get; set;}
     public String trainStatus {get; set;}
     private static Map<Id, Einstein_Keyword__c> keywordsById;
@@ -12,7 +13,7 @@ public class EinsteinSetupController {
     public String toastErrorMessage {get; set;}
     public List<Einstein_Keyword__c> keywordsMissingMessages {get; set;}
     public List<Einstein_Keyword__c> keywordsToUpload {get; set;}
-    public List<Einstein_Keyword__c> keywordsWithError {get; set;}
+    public List<Einstein_Data_Message__c> messagesWithError {get; set;}
     
     public EinsteinSetupController() {
         
@@ -46,32 +47,59 @@ public class EinsteinSetupController {
         datasetUploaded = EinsteinUtils.getEinsteinDatasetId() != null && EinsteinUtils.getEinsteinDatasetId() != '' && datasetStatus == EinsteinUtils.EINSTEIN_DS_STATUS_SUCCEEDED;
         couldTrain =  datasetUploaded && (modelId == null || modelId == '');
         couldRetrain = EinsteinUtils.getEinsteinModelId() != null && EinsteinUtils.getEinsteinModelId() != '' && trainStatus == EinsteinUtils.EINSTEIN_TRAIN_STATUS_SUCCEEDED;
-	    keywordsMissingMessages = new List<Einstein_Keyword__c>();
+	    couldResetEinstein = datasetStatus.startsWith(EinsteinUtils.EINSTEIN_DS_STATUS_FAILURE);
+        
+        keywordsMissingMessages = new List<Einstein_Keyword__c>();
         keywordsToUpload = new List<Einstein_Keyword__c>();
-        keywordsWithError = new List<Einstein_Keyword__c>();        
-        //New Known Issues
-        List<Known_Issue__c> newKnownIssues = [
-            SELECT Einstein_Keyword__r.Id,
+        messagesWithError = new List<Einstein_Data_Message__c>(); 
+        
+        messagesWithError = [
+            SELECT Id,
+            	Message__c,
             	Einstein_Keyword__r.Name,
-            	Einstein_Keyword__r.Einstein_Upload_Status__c,
-            	Einstein_Keyword__r.Einstein_Data_Messages_Count__c
-            FROM Known_Issue__c
-            WHERE Status__c !=: EinsteinUtils.KNOWN_ISSUE_PENDING_APPROVAL AND
-            Status__c !=: EinsteinUtils.KNOWN_ISSUE_INVALID
+            	Einstein_Upload_Status__c            
+            FROM Einstein_Data_Message__c
+            WHERE Einstein_Upload_Status__c =: EinsteinUtils.UPLOAD_STATUS_ERROR
         ];
-        //System.debug(newKnownIssues);
-        for(Known_Issue__c knownIssue: newKnownIssues){
-            //System.debug(knownIssue.Einstein_Keyword__r);            
-            if(knownIssue.Einstein_Keyword__r.Einstein_Upload_Status__c == EinsteinUtils.UPLOAD_STATUS_NOT_UPLOADED){  
-                if(knownIssue.Einstein_Keyword__r.Einstein_Data_Messages_Count__c < 5){
-                    keywordsMissingMessages.add(knownIssue.Einstein_Keyword__r);
-                } else {
-                    keywordsToUpload.add(knownIssue.Einstein_Keyword__r);
-                }            
-            } else if (knownIssue.Einstein_Keyword__r.Einstein_Upload_Status__c == EinsteinUtils.UPLOAD_STATUS_ERROR){
-                keywordsWithError.add(knownIssue.Einstein_Keyword__r);
+        
+        List<Einstein_Keyword__c> keywords = [
+            SELECT Id,
+            	Name,
+            	Einstein_Data_Messages_Count__c,
+            	Einstein_Upload_Status__c,
+            (
+                SELECT Id,
+                	Message__c,
+                    Known_Issue__r.Status__c,
+                    Einstein_Keyword__r.Einstein_Upload_Status__c,
+                    Einstein_Keyword__r.Einstein_Data_Messages_Count__c,
+                    Einstein_Upload_Status__c
+                FROM Einstein_Data_Messages__r
+                WHERE Known_Issue__r.Status__c !=: EinsteinUtils.KNOWN_ISSUE_PENDING_APPROVAL AND
+                    Known_Issue__r.Status__c !=: EinsteinUtils.KNOWN_ISSUE_INVALID AND 
+                	(Einstein_Upload_Status__c =: EinsteinUtils.UPLOAD_STATUS_NOT_UPLOADED)
+            )
+            FROM Einstein_Keyword__c
+        ];
+        Integer index = 0;
+        for (Einstein_Keyword__c keyword: keywords){
+            index = 0;
+            for(Einstein_Data_Message__c message: keyword.Einstein_Data_Messages__r){
+                if (message.Einstein_Upload_Status__c == EinsteinUtils.UPLOAD_STATUS_ERROR){
+                    messagesWithError.add(message);
+                    keyword.Einstein_Data_Messages__r.remove(index);
+                }  
+                index ++;
+            }
+            if (keyword.Einstein_Data_Messages__r.size()>0){
+                if(keyword.Einstein_Data_Messages_Count__c < 5){  
+                keywordsMissingMessages.add(keyword);
+                } 
+                else {
+                    keywordsToUpload.add(keyword);
+                }
             }            
-        }             
+        }      
     }
     
     public PageReference enableEinstein() {
@@ -96,20 +124,16 @@ public class EinsteinSetupController {
     public PageReference uploadMessages() {
         resetToastMessages();            
        	if(keywordsToUpload.isEmpty()) {
-        	toastErrorMessage = 'There are no keywords to upload at the moment.';
+        	toastErrorMessage = 'There are no messages to upload at the moment.';
         } else if (keywordsToUpload.size() < 3) {
             toastErrorMessage = 'You have to upload at least 3 keywords with 5 Messages for each one.';
         } else {
-			Set<Id> setKeywordsToUpload = new Set<Id>();
-            for (Einstein_Keyword__c keyword: keywordsToUpload) {
-                setKeywordsToUpload.add(keyword.Id);
-            }
-            String response = EinsteinUtils.uploadMessagesToEinstein(setKeywordsToUpload);
+            String response = EinsteinUtils.uploadMessagesToEinstein(keywordsToUpload);
             if (response != null) {
                 toastErrorMessage = response;
                 
             } else {
-                toastSuccessMessage = 'Einstein dataset was uploaded.';
+                toastSuccessMessage = 'The dataset was uploaded.';
             }            
         }        
         // Value is lost on rerender for some reason
@@ -146,11 +170,7 @@ public class EinsteinSetupController {
     public PageReference uploadExamples() {        
         resetToastMessages();
        	if(!keywordsToUpload.isEmpty()) {
-			Set<Id> setKeywordsToUpload = new Set<Id>();
-            for (Einstein_Keyword__c keyword: keywordsToUpload) {
-                setKeywordsToUpload.add(keyword.Id);
-            }
-            String response = EinsteinUtils.uploadExamplesToEinstein(setKeywordsToUpload);
+            String response = EinsteinUtils.uploadExamplesToEinstein(keywordsToUpload);
             //System.debug('response '+ response);
             if (response != null) {
                 toastErrorMessage = response;                
@@ -163,6 +183,13 @@ public class EinsteinSetupController {
         // Value is lost on rerender for some reason
         einsteinEnabled = EinsteinUtils.getEinsteinEnabled();		
      	return null;
+    }
+    
+    public PageReference resetEinstein() {
+        resetToastMessages();
+        EinsteinUtils.resetEinstein();
+        toastSuccessMessage = 'The dataset was reset.';
+        return null;
     }
     
     private void resetToastMessages() {

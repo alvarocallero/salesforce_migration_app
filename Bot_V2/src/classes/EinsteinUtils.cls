@@ -22,7 +22,7 @@ public class EinsteinUtils {
     // EINSTEIN DATASET STATUS
     public static final String EINSTEIN_DS_STATUS_SUCCEEDED = 'SUCCEEDED';
     // This status begins with FAILURE and is composed with its reason like this: 'FAILURE: <failure_reason>—Data upload has failed.'
-    public static final String EINSTEIN_DS_STATUS_FAILURE = 'FAILURE';
+    public static final String EINSTEIN_DS_STATUS_FAILURE = 'FAILED';
     public static final String EINSTEIN_DS_STATUS_UPLOADING = 'UPLOADING';
     
     // MANAGE CUSTOM SETTING VALUES RELATED TO EINSTEIN
@@ -107,39 +107,8 @@ public class EinsteinUtils {
             update messages[0];
         }
     }
-    
-    
-    // Returns null if successfull or String if fails
-    // JSON format:
-    /*
-     { "intents": { "keyword1": [ "message1","message2","message3","message4","message5"],
-					"keyword2": [ "message1","message2","message3","message4","message5"], 
-					"keywordN": [ "message1","message2","message3","message4","message5"] }
-      }
-	*/
-    public static String uploadMessagesToEinstein(Set<Id> keywordIds) {
-        
-        // get all Keyword and Message records
-        List<Einstein_Keyword__c> keywords = [ 
-            SELECT Id,
-            Name,
-            Einstein_Upload_Status__c,
-            (
-                SELECT Id,
-                Name,
-                Message__c,
-                Einstein_Upload_Status__c
-                FROM Einstein_Data_Messages__r
-                WHERE Einstein_Upload_Status__c =: UPLOAD_STATUS_NOT_UPLOADED
-            )
-            FROM Einstein_Keyword__c
-            WHERE Id IN :keywordIds
-        ];
-        
-        // initialize lists to store records to update
-        List<Einstein_Keyword__c> keywordsToUpdate = new List<Einstein_Keyword__c>();
-        List<Einstein_Data_Message__c> messagesToUpdate = new List<Einstein_Data_Message__c>();
-        
+
+    public static String datasetToJson(List<Einstein_Keyword__c> keywords, List<Einstein_Keyword__c> keywordsToUpdate, List<Einstein_Data_Message__c> messagesToUpdate){
         // initialize JSON
         JSONGenerator gen = JSON.createGenerator(true);
         gen.writeStartObject();
@@ -170,9 +139,23 @@ public class EinsteinUtils {
         gen.writeEndObject();
         gen.writeEndObject();
         gen.close();
+        return gen.getAsString();
         
-        String jsonString = gen.getAsString();
-        
+    }
+    
+    // Returns null if successfull or String if fails
+    // JSON format:
+    /*
+     { "intents": { "keyword1": [ "message1","message2","message3","message4","message5"],
+					"keyword2": [ "message1","message2","message3","message4","message5"], 
+					"keywordN": [ "message1","message2","message3","message4","message5"] }
+      }
+	*/
+    public static String uploadMessagesToEinstein(List<Einstein_Keyword__c> keywords) {
+        // initialize lists to store records to update
+        List<Einstein_Data_Message__c> messagesToUpdate = new List<Einstein_Data_Message__c>();
+        List<Einstein_Keyword__c> keywordsToUpdate = new List<Einstein_Keyword__c>();
+       	String jsonString = datasetToJson(keywords, keywordsToUpdate, messagesToUpdate);
         try{
             // Upload JSON
             if (!Test.isRunningTest()) {
@@ -182,89 +165,43 @@ public class EinsteinUtils {
                     params.put('name', 'EinsteinDataset.json');
                     String result = LanguageController.createDataset(params, Blob.valueof(jsonString));
                 }            	
-        	}
-            
-            // Update uploaded records
-            if (!keywordsToUpdate.isEmpty()) {
-                update keywordsToUpdate;
-            }
-            if (!messagesToUpdate.isEmpty()) {
-                update messagesToUpdate;
-            }
-            
+        	}  
         } catch (Exception e){
             return e.getMessage();
+        }         
+        // Update uploaded records
+        if (!keywordsToUpdate.isEmpty()) {
+            update keywordsToUpdate;
         }
-        
+        if (!messagesToUpdate.isEmpty()) {
+            update messagesToUpdate;
+        }
         return null;
     }
     
-    public static String uploadExamplesToEinstein(Set<Id> keywordIds) {
+    public static String uploadExamplesToEinstein(List<Einstein_Keyword__c> keywords) {
         String datasetId = getEinsteinDatasetId();
-        if(datasetId != null && datasetId != ''){
-            // get all Keyword and Message records
-            List<Einstein_Keyword__c> keywords = [ 
-                SELECT Id,
-                Name,
-                Einstein_Upload_Status__c,
-                (
-                    SELECT Id,
-                    Name,
-                    Message__c,
-                    Einstein_Upload_Status__c
-                    FROM Einstein_Data_Messages__r
-                    WHERE Einstein_Upload_Status__c =: UPLOAD_STATUS_NOT_UPLOADED
-                )
-                FROM Einstein_Keyword__c
-                WHERE Id IN :keywordIds ];
-            
+        if(datasetId != null && datasetId != ''){                
+            // initialize lists to store records to update
             List<Einstein_Data_Message__c> messagesToUpdate = new List<Einstein_Data_Message__c>();
-            
-            // initialize JSON
-            JSONGenerator gen = JSON.createGenerator(true);
-            gen.writeStartObject();
-            gen.writeFieldName('intents');
-            gen.writeStartObject();
-            
-            // write each Keyword into the JSON and add it to update list if needed
-            for (Einstein_Keyword__c keyword: keywords) {                
-                gen.writeFieldName(keyword.Name);
-                keyword.Einstein_Upload_Status__c = UPLOAD_STATUS_IN_PROCESS;                
-                gen.writeStartArray();
-                
-                // write each Message into JSON if it was never uploaded
-                for (Einstein_Data_Message__c message: keyword.Einstein_Data_Messages__r) {
-                        message.Einstein_Upload_Status__c = UPLOAD_STATUS_IN_PROCESS;
-                        messagesToUpdate.add(message);
-                        gen.writeString(message.Message__c);
-                }
-                gen.writeEndArray();
-                
-            }
-            gen.writeEndObject();
-            gen.writeEndObject();
-            gen.close();
-            
-            String jsonString = gen.getAsString();
-            
+            List<Einstein_Keyword__c> keywordsToUpdate = new List<Einstein_Keyword__c>();
+            String jsonString = datasetToJson(keywords, keywordsToUpdate, messagesToUpdate);           
             try{
                 // Upload JSON
                 if (!Test.isRunningTest()) {
                     String result = LanguageController.createExample(datasetId, Blob.valueof(jsonString));
                     //System.debug(result);
-                }
-                
-                // Update uploaded records
-                if (!keywords.isEmpty()) {
-                    update keywords;
-                }
-                if (!messagesToUpdate.isEmpty()) {
-                    update messagesToUpdate;
-                }                
+                }           
             } catch (Exception e){
                 return e.getMessage();
             }
-            
+            // Update uploaded records
+            if (!keywordsToUpdate.isEmpty()) {
+                update keywords;
+            }
+            if (!messagesToUpdate.isEmpty()) {
+                update messagesToUpdate;
+            }
             return null;
         } else {
             return 'You have to upload a dataset first before you can add new examples.';
@@ -342,7 +279,9 @@ public class EinsteinUtils {
         List<Einstein_Keyword__c> keywords = [ SELECT Id, Uploaded_to_Einstein__c
                                               FROM Einstein_Keyword__c ];
         List<Einstein_Data_Message__c> messages = [ SELECT Id, Uploaded_to_Einstein__c
-                                                   	FROM Einstein_Data_Message__c];
+                                                   	FROM Einstein_Data_Message__c
+                                                    WHERE Einstein_Upload_Status__c !=: EinsteinUtils.UPLOAD_STATUS_ERROR
+                                                  ];
         if(!keywords.isEmpty()){
             for (Einstein_Keyword__c keyword: keywords) {
             	keyword.Einstein_Upload_Status__c = status;
