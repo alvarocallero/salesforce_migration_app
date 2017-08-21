@@ -42,7 +42,13 @@
         action.setCallback(this, function(a) {
             var state = a.getState();
             if (state === "SUCCESS") {
-                callback(a.getReturnValue());
+                window.setTimeout(
+    			$A.getCallback(function() {
+                    callback(a.getReturnValue());
+        			component.set("v.placeholderText", "Provide feedback...");
+    			}), 5000
+			);
+                
             } else if (state === "INCOMPLETE") {
 
             } else if (state === "ERROR") {
@@ -56,15 +62,21 @@
     
     createNewIssue : function (component, dataMessageId, callback){
     	var action = component.get("c.addNewKnownIssue");
+        var url = decodeURIComponent(window.location.href);
         
         action.setParams({
-            "dataMessageId" : dataMessageId
+            "dataMessageId" : dataMessageId,
+            "currentUrl" : url
         });
         
         action.setCallback(this, function(a) {
             var state = a.getState();
-            if (state === "SUCCESS") {
-                callback(a.getReturnValue());
+            if (state === "SUCCESS") { 
+                window.setTimeout(
+    			$A.getCallback(function() {
+                    callback(a.getReturnValue());
+    			}), 5000
+			);
             } else if (state === "INCOMPLETE") {
 
             } else if (state === "ERROR") {
@@ -89,7 +101,11 @@
         action.setCallback(this, function(a) {
             var state = a.getState();
             if (state === "SUCCESS") {
-                callback(a.getReturnValue());
+                window.setTimeout(
+    			$A.getCallback(function() {
+                    callback(a.getReturnValue());
+    			}), 5000
+			);
             } else if (state === "INCOMPLETE") {
 
             } else if (state === "ERROR") {

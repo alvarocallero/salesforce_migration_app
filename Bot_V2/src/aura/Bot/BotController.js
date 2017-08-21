@@ -6,6 +6,11 @@
   		if (component.get('v.sessionId') != null)
     		helper.connectCometd(component);
 		},
+    
+    checkRecord : function(component){
+      console.info("RECORD ID --> ", component.get("v.recordId"));
+        console.info("RECORD NAME --> ", component.get("v.sObjectName"))
+    },
 
     doInit : function(component, event, helper){
         var action = component.get("c.userInfo");
@@ -64,17 +69,29 @@
 
     utteranceHandler : function(component, event, helper) {
         if (event.keyCode === 13) {
+            var spinnerDiv = component.find("spinnerDiv");
+            $A.util.removeClass(spinnerDiv, "slds-hidden");
             var utterance = event.target.value;
             var messages = component.get("v.messages");
             event.target.value = "";
-            helper.submit(component, utterance, component.get('v.session'), function(answer) {
-                if (answer) {
-                    component.set("v.dataMessageId", answer.dataMessageId);
-                    component.set("v.session", answer.session);
-                    Array.prototype.push.apply(messages, answer.messages);
-                    component.set("v.messages", messages);
-                }
-            });
+            component.set("v.placeholderText", "Leah is trying to find an answer...");
+            window.setTimeout(
+    			$A.getCallback(function() {
+        			component.set("v.placeholderText", "Leah is typing...");
+    			}), 3000
+			);
+             helper.submit(component, utterance, component.get('v.session'), function(answer) {
+                		if (answer) {
+                            $A.util.addClass(spinnerDiv, "slds-hidden");
+                            
+                            component.set("v.placeholderText", "Provide feedback...");
+                    		component.set("v.dataMessageId", answer.dataMessageId);
+                    		component.set("v.session", answer.session);
+                    		Array.prototype.push.apply(messages, answer.messages);
+                            component.set("v.CurrentKnownIssueId", answer.knownIssueId);
+                    		component.set("v.messages", messages);
+                		}
+             });
         }
 
     },
@@ -82,18 +99,32 @@
     postbackButtonClickHandler : function(component, event, helper) {
         var utterance = event.getSource().get("v.name");
         var messages = component.get("v.messages");
+        var spinnerDiv = component.find("spinnerDiv");
+        $A.util.removeClass(spinnerDiv, "slds-hidden");
         
         switch(utterance){
             case 'helpful':
-        	messages.push({author: "Leah", messageText: 'Glad you found what you were looking for!'});
-        	component.set("v.messages", messages);
+                component.set("v.placeholderText", "Leah is typing...");
+                window.setTimeout(
+    				$A.getCallback(function() {
+        				component.set("v.placeholderText", "Provide feedback...");
+                        $A.util.addClass(spinnerDiv, "slds-hidden");
+                        messages.push({author: "Leah", messageText: 'Glad you found what you were looking for!'});
+        				component.set("v.messages", messages);
+    				}), 2000
+				);
+        		
                 break;
                 
             case 'useless':
             var dataMessageId = component.get("v.dataMessageId");
+            component.set("v.placeholderText", "Leah is creating a new Issue...");
+                
             helper.createNewIssue(component, dataMessageId, function(answer){
                 if(answer){
+                    component.set("v.placeholderText", "Provide feedback...");
                     component.set("v.CurrentKnownIssueId", answer.knownIssueId);
+                    $A.util.addClass(spinnerDiv, "slds-hidden");
                     Array.prototype.push.apply(messages, answer.messages);
                     component.set("v.messages", messages);
                 }
@@ -101,9 +132,12 @@
                 break;
                 
             default: 
+            component.set("v.placeholderText", "Leah is working on your subscription...");    
             var currentKnownIssueId = component.get("v.CurrentKnownIssueId"); 
                 helper.subscribeUserToIssue(component, currentKnownIssueId, function(answer){
                     if(answer){
+                        component.set("v.placeholderText", "Provide feedback...");
+                        $A.util.addClass(spinnerDiv, "slds-hidden");
 						Array.prototype.push.apply(messages, answer.messages);
                     	component.set("v.messages", messages);
                     }
