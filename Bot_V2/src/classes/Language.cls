@@ -1,8 +1,4 @@
-public class Language {
-    
-    public static String LANGUAGE_API = 'https://api.einstein.ai/v2/language';
-    public static String SENTIMENT = LANGUAGE_API + '/sentiment';
-    public static String INTENT = LANGUAGE_API + '/intent';    
+public class Language {    
    	public class LanguageException extends Exception {}
     
     public static String apiCall(String endpoint, String access_token, Map<String, String> params, String method) {
@@ -46,7 +42,7 @@ public class Language {
         httpRequest.setMethod(method);
         httpRequest.setTimeout(120000);
         httpRequest.setHeader('Authorization','Bearer ' + access_token);
-        httpRequest.setEndpoint(LANGUAGE_API+endpoint);
+        httpRequest.setEndpoint(EinsteinUtils.EINSTEIN_ENDPOINT_LANGUAGE_API+endpoint);
         
         Http http = new Http();
         try {
@@ -117,7 +113,7 @@ public class Language {
         httpRequest.setMethod(method);
         httpRequest.setTimeout(120000);
         httpRequest.setHeader('Authorization','Bearer ' + access_token);
-        httpRequest.setEndpoint(LANGUAGE_API+endpoint);        
+        httpRequest.setEndpoint(EinsteinUtils.EINSTEIN_ENDPOINT_LANGUAGE_API+endpoint);        
         Http http = new Http();
         try {
             HTTPResponse res = http.send(httpRequest);

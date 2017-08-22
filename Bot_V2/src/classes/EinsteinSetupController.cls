@@ -22,13 +22,13 @@ public class EinsteinSetupController {
         } else {
             einsteinEnabled = false;
         }
-        
+                
         datasetStatus = 'There was a problem checking the dataset\'s status. Please check it again later.';
         String datasetId = EinsteinUtils.getEinsteinDatasetId();
-        if(datasetId != null && datasetId !=''){            
+        if(!String.isBlank(datasetId)){            
             Map<String, Object> jsonDatasetStatus = (Map<String, Object>)JSON.deserializeUntyped(LanguageController.getDataset(datasetId));
-            if (jsonDatasetStatus.containsKey('statusMsg') && datasetId != null && datasetId != ''){
-                datasetStatus = (String)jsonDatasetStatus.get('statusMsg');
+            if (jsonDatasetStatus.containsKey(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETDS_STATUS) && datasetId != null && datasetId != ''){
+                datasetStatus = (String)jsonDatasetStatus.get(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETDS_STATUS);
             }
         } else{
             datasetStatus = 'The dataset was not uploaded yet';
@@ -36,17 +36,17 @@ public class EinsteinSetupController {
         
         trainStatus = 'There was a problem checking the train\'s status. Please check it again later.';
         String modelId = EinsteinUtils.getEinsteinModelId();
-        if(modelId != null && modelId !=''){    
+        if(!String.isBlank(modelId)){    
             Map<String, Object> jsonTrainStatus = (Map<String, Object>)JSON.deserializeUntyped(LanguageController.getTrainStatus(modelId));
-            if (jsonTrainStatus.containsKey('status') && modelId != null && modelId != ''){
-                trainStatus = (String)jsonTrainStatus.get('status');
+            if (jsonTrainStatus.containsKey(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS) && modelId != null && modelId != ''){
+                trainStatus = (String)jsonTrainStatus.get(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS);
             }
         } else {
             trainStatus = 'The dataset was not trained yet.';
         }
         datasetUploaded = EinsteinUtils.getEinsteinDatasetId() != null && EinsteinUtils.getEinsteinDatasetId() != '' && datasetStatus == EinsteinUtils.EINSTEIN_DS_STATUS_SUCCEEDED;
-        couldTrain =  datasetUploaded && (modelId == null || modelId == '');
-        couldRetrain = EinsteinUtils.getEinsteinModelId() != null && EinsteinUtils.getEinsteinModelId() != '' && trainStatus == EinsteinUtils.EINSTEIN_TRAIN_STATUS_SUCCEEDED;
+        couldTrain =  datasetUploaded && (String.isBlank(modelId));
+        couldRetrain = !String.isBlank(modelId) && trainStatus == EinsteinUtils.EINSTEIN_TRAIN_STATUS_SUCCEEDED;
 	    couldResetEinstein = datasetStatus.startsWith(EinsteinUtils.EINSTEIN_DS_STATUS_FAILURE);
         
         keywordsMissingMessages = new List<Einstein_Keyword__c>();
@@ -100,17 +100,6 @@ public class EinsteinSetupController {
                 }
             }            
         }      
-    }
-    
-    public PageReference enableEinstein() {
-        resetToastMessages();
-        if (trainStatus != EinsteinUtils.EINSTEIN_TRAIN_STATUS_SUCCEEDED || datasetStatus != EinsteinUtils.EINSTEIN_DS_STATUS_SUCCEEDED) {
-            toastErrorMessage = 'Einstein cannot be enabled, the dataset and train status must be SUCCEEDED';
-        } else {
-            EinsteinUtils.setEinsteinEnabled(true);
-        	einsteinEnabled = true;
-        }
-        return null;
     }
     
     public PageReference disableEinstein() {

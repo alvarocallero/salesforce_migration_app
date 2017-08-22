@@ -3,7 +3,7 @@ public class LanguageController {
     public static String getAccessToken() {
         // Ignore the File upload part and "jwt.pkcs" if you used a Salesforce certificate to sign up
         // for an Einstein Platform account
-        ContentVersion base64Content = [SELECT Title, VersionData FROM ContentVersion where Title='einstein_platform' OR  Title='predictive_services' ORDER BY Title LIMIT 1];
+        ContentVersion base64Content = [SELECT Title, VersionData FROM ContentVersion where Title=:EinsteinUtils.EINSTEIN_ENDPOINT_APITOKEN_KEYNAME OR  Title=:EinsteinUtils.EINSTEIN_ENDPOINT_APITOKEN_KEYNAME_OLD ORDER BY Title LIMIT 1];
         String keyContents = base64Content.VersionData.tostring();
         keyContents = keyContents.replace('-----BEGIN RSA PRIVATE KEY-----', '');
         keyContents = keyContents.replace('-----END RSA PRIVATE KEY-----', '');
@@ -13,11 +13,11 @@ public class LanguageController {
         JWT jwt = new JWT('RS256');
         // jwt.cert = 'JWTCert'; // Uncomment this if you used a Salesforce certificate to sign up for an Einstein Platform account
         jwt.pkcs8 = keyContents; // Comment this if you are using jwt.cert
-        jwt.iss = 'developer.force.com';
-        jwt.sub = 'etorrano@altimetrik.com';
-        jwt.aud = 'https://api.metamind.io/v1/oauth2/token';
+        jwt.iss = EinsteinUtils.EINSTEIN_ENDPOINT_APITOKEN_JWTISS;
+        jwt.sub = EinsteinUtils.EINSTEIN_ENDPOINT_APITOKEN_JWTSUB;
+        jwt.aud = EinsteinUtils.EINSTEIN_ENDPOINT_APITOKEN_URL;
         jwt.exp = '3600';
-        String access_token = JWTBearerFlow.getAccessToken('https://api.metamind.io/v1/oauth2/token', jwt);
+        String access_token = JWTBearerFlow.getAccessToken(EinsteinUtils.EINSTEIN_ENDPOINT_APITOKEN_URL, jwt);
         return access_token;
     }
 
@@ -55,11 +55,12 @@ public class LanguageController {
     */
     public static String createDataset(Map<String, String> params, Blob file) {
         String access_token = getAccessToken();
-        params.put('type', 'text-intent');
-        String result = Language.apiCallUploadFile('/datasets/upload',access_token,params,'POST','data',file);
+        params.put(EinsteinUtils.EINSTEIN_PARAMS_REQUEST_CREATEDS_TYPE, EinsteinUtils.EINSTEIN_PARAMS_REQUEST_CREATEDS_TYPE_INTENT);
+        String result = Language.apiCallUploadFile(EinsteinUtils.EINSTEIN_ENDPOINT_CREATEDS,access_token,params,'POST','data',file);
         Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
-        if (jsonResult.containsKey('id')){
-            EinsteinUtils.setEinsteinDatasetId(String.valueOf(jsonResult.get('id')));
+        if (jsonResult.containsKey(EinsteinUtils.EINSTEIN_PARAMS_REQUEST_CREATEDS_ID)){
+            System.debug(String.valueOf(jsonResult.get(EinsteinUtils.EINSTEIN_PARAMS_REQUEST_CREATEDS_ID)));
+            EinsteinUtils.setEinsteinDatasetId(String.valueOf(jsonResult.get(EinsteinUtils.EINSTEIN_PARAMS_REQUEST_CREATEDS_ID)));
         } else {
         	throw new Language.LanguageException('Could not save the datasetId. The result json has not got the datasetId.');
         }
@@ -100,11 +101,11 @@ public class LanguageController {
     public static String createDatasetURL(Map<String, String> params) {
         if(!params.isEmpty()){           
             String access_token = getAccessToken();
-            params.put('type', 'text-intent');
-            String result = Language.apiCall('/datasets/upload',access_token,params,'POST');
+            params.put(EinsteinUtils.EINSTEIN_PARAMS_REQUEST_CREATEDS_TYPE, EinsteinUtils.EINSTEIN_PARAMS_REQUEST_CREATEDS_TYPE_INTENT);
+            String result = Language.apiCall(EinsteinUtils.EINSTEIN_ENDPOINT_CREATEDS,access_token,params,'POST');
             Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
-            if (jsonResult.containsKey('id')){
-                EinsteinUtils.setEinsteinDatasetId((String)jsonResult.get('id'));
+            if (jsonResult.containsKey(EinsteinUtils.EINSTEIN_PARAMS_REQUEST_CREATEDS_ID)){
+                EinsteinUtils.setEinsteinDatasetId((String)jsonResult.get(EinsteinUtils.EINSTEIN_PARAMS_REQUEST_CREATEDS_ID));
             } else { 
                 throw new Language.LanguageException('Could not save the datasetId. The result json has not got the datasetId.');
             }
@@ -146,7 +147,7 @@ public class LanguageController {
     */
     public static String getDataset(String datasetId) {
         String access_token = getAccessToken();
-		return Language.apiCall('/datasets/'+datasetId,access_token,new Map<String, String>(),'GET');
+		return Language.apiCall(EinsteinUtils.EINSTEIN_ENDPOINT_DATASETS+datasetId,access_token,new Map<String, String>(),'GET');
     }
     
     /*******************************************************************************************************
@@ -158,7 +159,7 @@ public class LanguageController {
     */
     public static String deleteDataset(String datasetId) {
 		String access_token = getAccessToken();
-		return Language.apiCall('/datasets/'+datasetId,access_token,new Map<String, String>(),'DELETE');
+		return Language.apiCall(EinsteinUtils.EINSTEIN_ENDPOINT_DATASETS+datasetId,access_token,new Map<String, String>(),'DELETE');
     }
     
     /*******************************************************************************************************
@@ -209,10 +210,10 @@ public class LanguageController {
     public static String train(Map<String, String> params) {
 		String access_token = getAccessToken();
         if(!params.isEmpty()){
-            String result = Language.apiCall('/train',access_token,params,'POST');
+            String result = Language.apiCall(EinsteinUtils.EINSTEIN_ENDPOINT_TRAINDS,access_token,params,'POST');
             Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
-            if (jsonResult.containsKey('modelId')){
-                EinsteinUtils.setEinsteinModelId((String)jsonResult.get('modelId'));
+            if (jsonResult.containsKey(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_TRAINDS_MODELID)){
+                EinsteinUtils.setEinsteinModelId((String)jsonResult.get(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_TRAINDS_MODELID));
             } else { 
                 throw new Language.LanguageException('Could not save the datasetId. The result json has not got the datasetId.');
             }
@@ -281,7 +282,7 @@ public class LanguageController {
     public static String retrain(Map<String, String> params) {
 		String access_token = getAccessToken();
         if(!params.isEmpty()){ 
-            return Language.apiCall('/retrain',access_token,params,'POST');
+            return Language.apiCall(EinsteinUtils.EINSTEIN_ENDPOINT_RETRAINDS,access_token,params,'POST');
         }
         else{
             return 'Error';
@@ -329,7 +330,7 @@ public class LanguageController {
     */
     public static String getTrainStatus(String modelId) {
 		String access_token = getAccessToken();
-		return Language.apiCall('/train/'+modelId,access_token,new Map<String, String>(),'GET');
+		return Language.apiCall(EinsteinUtils.EINSTEIN_ENDPOINT_TRAINDS+'/'+modelId,access_token,new Map<String, String>(),'GET');
     }
 
     /*******************************************************************************************************
@@ -381,7 +382,7 @@ public class LanguageController {
     public static String createExample(String datasetId, Blob file) {
         String access_token = getAccessToken();
         Map<String, String> params = new Map<String, String>();
-        return Language.apiCallUploadFile('/datasets/' + datasetId + '/upload',access_token,params,'PUT','data',file);
+        return Language.apiCallUploadFile(EinsteinUtils.EINSTEIN_ENDPOINT_DATASETS + datasetId + EinsteinUtils.EINSTEIN_ENDPOINT_CREATEEXAMPLE_UPLOAD,access_token,params,'PUT','data',file);
 	}
     
     /*******************************************************************************************************
@@ -433,8 +434,8 @@ public class LanguageController {
     public static String createExampleURL(String url, String datasetId) {
 		String access_token = getAccessToken();
 		Map<String, String> parameters = new Map<String, String>();
-        parameters.put('path', url);
-		return Language.apiCall('/datasets/' + datasetId + '/upload',access_token,parameters,'PUT');
+        parameters.put(EinsteinUtils.EINSTEIN_PARAMS_REQUEST_CREATEEXAMPLE_PATH, url);
+		return Language.apiCall(EinsteinUtils.EINSTEIN_ENDPOINT_DATASETS + datasetId + EinsteinUtils.EINSTEIN_ENDPOINT_CREATEEXAMPLE_UPLOAD,access_token,parameters,'PUT');
     }
     
     /*******************************************************************************************************
@@ -485,7 +486,7 @@ public class LanguageController {
     */    
     public static String getAllExamples(String modelId) {
         String access_token = getAccessToken();
-		return Language.apiCall('/train/'+modelId,access_token,new Map<String, String>(),'GET');
+		return Language.apiCall(EinsteinUtils.EINSTEIN_ENDPOINT_TRAINDS + '/' + modelId,access_token,new Map<String, String>(),'GET');
     }
     
     /*******************************************************************************************************
@@ -522,7 +523,7 @@ public class LanguageController {
     */
     public static String createFeedback(Map<String, String> params) {
         String access_token = getAccessToken();
-		return Language.apiCall('/feedback',access_token,params,'POST');
+		return Language.apiCall(EinsteinUtils.EINSTEIN_ENDPOINT_FEEDBACK,access_token,params,'POST');
     }
     
     /*******************************************************************************************************
@@ -573,7 +574,7 @@ public class LanguageController {
     */    
     public static String getModelMetrics(String modelId) {
         String access_token = getAccessToken();
-		return Language.apiCall('/models/'+modelId,access_token,new Map<String, String>(),'GET');
+		return Language.apiCall(EinsteinUtils.EINSTEIN_ENDPOINT_MODELS + '/' + modelId,access_token,new Map<String, String>(),'GET');
     }
     
     /*******************************************************************************************************
@@ -615,6 +616,6 @@ public class LanguageController {
     */
     public static String predict(Map<String, String> params) {
         String access_token = getAccessToken();
-		return Language.apiCall('/intent',access_token,params,'POST');
+		return Language.apiCall(EinsteinUtils.EINSTEIN_ENDPOINT_INTENT,access_token,params,'POST');
     }
 }

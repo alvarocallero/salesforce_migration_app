@@ -26,13 +26,12 @@
         }
         
         .train-button {
-        position: absolute !important;
-        left: 40%;
         height: 30px;
+        margin-top: 0px !important;
         }
         
         .slds-section {
-        margin-top: 30px !important;
+        margin-top: 0px !important;
         }
         
     </style>
@@ -55,16 +54,15 @@
                     <div class="slds-tile__detail slds-text-body_small" >
                         <p>Configure here all settings refered to Einstein usage.</p>
                     </div>
-                </div>
-            </article>
-        </div>
+                </div>                
+            </article>            
+        </div>       
+        
         
         <!-- PAGE CONTENT -->
         <apex:outputPanel layout="block"
                           styleClass="page-content">
-            <apex:form >
-                
-                <apex:actionFunction action="{!enableEinstein}" name="enableEinstein" reRender="einstein-switch"/>
+            <apex:form >                
                 <apex:actionFunction action="{!disableEinstein}" name="disableEinstein" reRender="einstein-switch"/>
                 
                 <!-- checkbox duplicated one with checked attribute and other without it due to slds limitations causing problems when changing -->
@@ -102,7 +100,7 @@
                         <div class="demo-only slds-size_1-of-2">
                             <div class="slds-form-element">
                                 <label class="slds-checkbox_toggle slds-grid">
-                                    <input type="checkbox" name="checkbox" aria-describedby="toggle-desc" value="on" onclick="enableEinstein(); return false;" />
+                                    <input type="checkbox" name="checkbox" disabled="disabled" aria-describedby="toggle-desc" value="on" />
                                     <span id="toggle-desc" class="slds-checkbox_faux_container" aria-live="assertive">
                                         <span class="slds-checkbox_faux"></span>
                                         <span class="slds-checkbox_on">Enabled</span>
@@ -128,7 +126,39 @@
                             </div>
                         </div>
                     </apex:outputPanel>
-                </apex:outputPanel>
+                    
+                </apex:outputPanel>  
+                <br/>
+                <apex:pageBlock >  
+                    <div class="slds-section slds-is-open">
+                        <div class="slds-section__title">
+                            <h3 class="slds-section__header">
+                                <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Status</span>
+                                
+                            </h3>
+                        </div>     
+                        
+                        <div aria-hidden="false" class="slds-section__content">
+                            <p>Dataset status: <span class="slds-badge">{!datasetStatus}</span></p> <br/>
+                            <p>Train status: <span class="slds-badge">{!trainStatus}</span></p><br/>
+                            <apex:commandButton action="{!resetEinstein}" rendered="{!couldResetEinstein}"
+                                                value="Reset dataset"
+                                                styleClass="slds-button slds-button_brand slds-align--absolute-center train-button"
+                                                reRender="einstein-switch" />
+                            <apex:commandButton action="{!retrain}" rendered="{!couldRetrain}"
+                                                value="Retrain"
+                                                styleClass="slds-button slds-button_brand slds-align--absolute-center train-button"
+                                                reRender="einstein-switch" />
+                            <apex:commandButton action="{!train}"
+                                                value="Train"
+                                                styleClass="slds-button slds-button_brand slds-align--absolute-center train-button"
+                                                reRender="einstein-switch" rendered="{!couldTrain}"/>
+                            
+                        </div>
+                    </div>         
+                </apex:pageBlock>    
+                
+                <br/>
                 <apex:pageBlock rendered="{!AND(NOT(ISNULL(keywordsMissingMessages)),keywordsMissingMessages.size>0)}">    
                     <div class="slds-section slds-is-open" rendered="{!keywordsMissingMessages.size!=0}">
                         <h3 class="slds-section__title slds-theme_shade">
@@ -167,11 +197,7 @@
                 <apex:pageBlock rendered="{!AND(NOT(ISNULL(keywordsToUpload)),keywordsToUpload.size>0)}">    
                     <div class="slds-section slds-is-open" rendered="{!keywordsToUpload.size!=0}">
                         <h3 class="slds-section__title slds-theme_shade">
-                            <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Keywords ready for upload</span>
-                            <apex:commandButton action="{!uploadMessages}"
-                                                value="TRAIN"
-                                                styleClass="slds-button slds-button_neutral train-button"
-                                                reRender="einstein-switch"/>
+                            <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Keywords ready for upload</span>                         
                         </h3>
                         <div aria-hidden="false" class="slds-section__content">
                             
@@ -198,32 +224,47 @@
                                            value=" + " />
                                 </apex:column>
                                 
-                            </apex:dataTable>
-                            
+                            </apex:dataTable> 
+                            <br/>
+                               <apex:outputPanel rendered="{!!datasetUploaded}"> 
+                                <apex:commandButton action="{!uploadMessages}"
+                                                    value="Create Dataset"
+                                                    styleClass="slds-button slds-button_brand slds-align--absolute-center train-button"
+                                                    reRender="einstein-switch"
+                                                    rendered="{!!datasetUploaded}"/>
+                            </apex:outputPanel>
+                            <apex:outputPanel rendered="{!datasetUploaded}">
+                                <apex:commandButton action="{!uploadExamples}"
+                                                    value="Upload Examples"
+                                                    styleClass="slds-button slds-button_brand slds-align--absolute-center train-button"
+                                                    reRender="einstein-switch"/>
+                            </apex:outputPanel>
                         </div>
                     </div>
                 </apex:pageBlock> 
-                <apex:pageBlock rendered="{!AND(NOT(ISNULL(keywordsWithError)),keywordsWithError.size>0)}">           
+                <apex:pageBlock rendered="{!AND(NOT(ISNULL(messagesWithError)),messagesWithError.size>0)}">           
                     <div class="slds-section slds-is-open"  >
                         <h3 class="slds-section__title slds-theme_shade">
-                            <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Keywords with error</span>
+                            <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Messages with error</span>
                         </h3>
                         <div aria-hidden="false" class="slds-section__content" >
                             
-                            <apex:dataTable value="{!keywordsWithError}"
+                            <apex:dataTable value="{!messagesWithError}"
                                             var="row"
-                                            id="keywordsWithErrorTable"
+                                            id="messagesWithErrorTable"
                                             styleClass="slds-table slds-table_bordered slds-table_cell-buffer"  >
+                                
+                                                                
+                                <apex:column >
+                                    <apex:facet name="header">MESSAGE</apex:facet>
+                                    <apex:outputText value="{!row.Message__c}"/>
+                                </apex:column>
                                 
                                 <apex:column >
                                     <apex:facet name="header">KEYWORD</apex:facet>
-                                    <apex:outputText value="{!row.Name}"/>
+                                    <apex:outputText value="{!row.Einstein_Keyword__r.Name}"/>
                                 </apex:column>
-                                
-                                <apex:column >
-                                    <apex:facet name="header">MESSAGES</apex:facet>
-                                    <apex:outputText value="{!row.Einstein_Data_Messages_Count__c}"/>
-                                </apex:column>
+
                                 
                                 <apex:column >
                                     <apex:facet name="header">MANAGE</apex:facet>

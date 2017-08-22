@@ -1,7 +1,6 @@
 public class EinsteinUtils {
 	
     public static final String KEYWORD_UNDEFINED = 'UNDEFINED';
-    public static final String KEYWORD_UNKNOWN = 'UNKNOWN';
     private static Id KEYWORD_ID_UNDEFINED;
     // UPLOAD STATUS
     public static final String UPLOAD_STATUS_NOT_UPLOADED = 'Not Uploaded';
@@ -16,15 +15,84 @@ public class EinsteinUtils {
     public static final String KNOWN_ISSUE_DUPLICATED = 'Duplicated';
     public static final String KNOWN_ISSUE_INVALID = 'Invalid';
     
-    // EINSTEIN TRAIN STATUS
+    // EINSTEIN TRAIN STATUS    
     public static final String EINSTEIN_TRAIN_STATUS_SUCCEEDED = 'SUCCEEDED';
     public static final String EINSTEIN_TRAIN_STATUS_FAILED = 'FAILED';
     
-    // EINSTEIN DATASET STATUS
+    // EINSTEIN DATASET STATUS    
     public static final String EINSTEIN_DS_STATUS_SUCCEEDED = 'SUCCEEDED';
     // This status begins with FAILURE and is composed with its reason like this: 'FAILURE: <failure_reason>—Data upload has failed.'
     public static final String EINSTEIN_DS_STATUS_FAILURE = 'FAILED';
     public static final String EINSTEIN_DS_STATUS_UPLOADING = 'UPLOADING';
+    
+    // EINSTEIN ENDPOINTS
+    // EINSTEIN ENDPOINTS - API TOKEN - URL
+    public static final String EINSTEIN_ENDPOINT_APITOKEN_URL = 'https://api.metamind.io/v1/oauth2/token';
+    // EINSTEIN ENDPOINTS - API TOKEN - KEYNAME
+    public static final String EINSTEIN_ENDPOINT_APITOKEN_KEYNAME = 'einstein_platform';
+    // EINSTEIN ENDPOINTS - API TOKEN - KEYNAME_OLD
+    public static final String EINSTEIN_ENDPOINT_APITOKEN_KEYNAME_OLD = 'predictive_services';
+    // EINSTEIN ENDPOINTS - API TOKEN - JWTISS
+    public static final String EINSTEIN_ENDPOINT_APITOKEN_JWTISS = 'developer.force.com';
+    // EINSTEIN ENDPOINTS - API TOKEN - JWTSUB
+    public static final String EINSTEIN_ENDPOINT_APITOKEN_JWTSUB = 'etorrano@altimetrik.com';
+    
+    // EINSTEIN ENDPOINTS - LANGUAGE_API
+    public static final String EINSTEIN_ENDPOINT_LANGUAGE_API = 'https://api.einstein.ai/v2/language';
+    
+    // EINSTEIN ENDPOINTS - DATASETS
+    public static final String EINSTEIN_ENDPOINT_DATASETS = '/datasets/';
+    
+    // EINSTEIN ENDPOINTS - CREATE DATASET
+    public static final String EINSTEIN_ENDPOINT_CREATEDS = EINSTEIN_ENDPOINT_DATASETS + 'upload';
+    
+    // EINSTEIN ENDPOINTS - CREATE EXAMPLE
+    public static final String EINSTEIN_ENDPOINT_CREATEEXAMPLE_UPLOAD = '/upload';
+    
+    // EINSTEIN ENDPOINTS - TRAIN DATASET
+    public static final String EINSTEIN_ENDPOINT_TRAINDS = '/train';
+    
+    // EINSTEIN ENDPOINTS - RETRAIN DATASET
+    public static final String EINSTEIN_ENDPOINT_RETRAINDS = '/retrain';    
+    
+    // EINSTEIN ENDPOINTS - FEEDBACK
+    public static final String EINSTEIN_ENDPOINT_FEEDBACK = '/feedback';
+    
+    // EINSTEIN ENDPOINTS - MODELS
+    public static final String EINSTEIN_ENDPOINT_MODELS = '/models';
+    
+    // EINSTEIN ENDPOINTS - INTENT
+    public static final String EINSTEIN_ENDPOINT_INTENT = '/intent';    
+        
+    // EINSTEIN PARAMS
+    // EINSTEIN PARAMS - CREATE DATASET - REQUEST
+    public static final String EINSTEIN_PARAMS_REQUEST_CREATEDS_NAME = 'name';
+    public static final String EINSTEIN_PARAMS_REQUEST_CREATEDS_ID = 'id';
+    public static final String EINSTEIN_PARAMS_REQUEST_CREATEDS_TYPE = 'type';
+    public static final String EINSTEIN_PARAMS_REQUEST_CREATEDS_TYPE_INTENT = 'text-intent';
+    public static final String EINSTEIN_PARAMS_REQUEST_CREATEDS_JSON_TOPOBJECTNAME = 'intents';
+    
+    // EINSTEIN PARAMS - TRAIN DATASET - REQUEST
+    public static final String EINSTEIN_PARAMS_REQUEST_TRAINDS_NAME = 'name';
+    public static final String EINSTEIN_PARAMS_REQUEST_TRAINDS_DATASETID = 'datasetId';
+    // EINSTEIN PARAMS - TRAIN DATASET - RESPONSE
+    public static final String EINSTEIN_PARAMS_RESPONSE_TRAINDS_STATUS = 'status';
+    // EINSTEIN PARAMS - TRAIN DATASET - RESPONSE
+    public static final String EINSTEIN_PARAMS_RESPONSE_TRAINDS_MODELID = 'modelId';
+    
+    // EINSTEIN PARAMS - RETRAIN DATASET - REQUEST
+    public static final String EINSTEIN_PARAMS_REQUEST_RETRAINDS_MODELID = 'modelId';
+    // EINSTEIN PARAMS - RETRAIN DATASET - RESPONSE
+    public static final String EINSTEIN_PARAMS_RESPONSE_RETRAINDS_STATUS = 'status';
+        
+    // EINSTEIN PARAMS - GET DATASET - RESPONSE
+    public static final String EINSTEIN_PARAMS_RESPONSE_GETDS_STATUS = 'statusMsg';
+    
+    // EINSTEIN PARAMS - GET TRAIN STATUS - RESPONSE
+    public static final String EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS = 'status';
+    
+    // EINSTEIN PARAMS - CREATE EXAMPLE - REQUEST
+    public static final String EINSTEIN_PARAMS_REQUEST_CREATEEXAMPLE_PATH = 'path';
     
     // MANAGE CUSTOM SETTING VALUES RELATED TO EINSTEIN
     
@@ -113,7 +181,7 @@ public class EinsteinUtils {
         // initialize JSON
         JSONGenerator gen = JSON.createGenerator(true);
         gen.writeStartObject();
-		gen.writeFieldName('intents');
+		gen.writeFieldName(EINSTEIN_PARAMS_REQUEST_CREATEDS_JSON_TOPOBJECTNAME);
         gen.writeStartObject();
         
         // write each Keyword into the JSON and add it to update list if needed
@@ -160,12 +228,9 @@ public class EinsteinUtils {
         try{
             // Upload JSON
             if (!Test.isRunningTest()) {
-                String datasetId = getEinsteinDatasetId();
-                if(datasetId == null){
-                    Map<String, String> params = new Map<String, String>();
-                    params.put('name', 'EinsteinDataset.json');
-                    String result = LanguageController.createDataset(params, Blob.valueof(jsonString));
-                }            	
+                Map<String, String> params = new Map<String, String>();
+                params.put(EINSTEIN_PARAMS_REQUEST_CREATEDS_NAME, 'EinsteinDataset.json');
+                String result = LanguageController.createDataset(params, Blob.valueof(jsonString));
         	}  
         } catch (Exception e){
             return e.getMessage();
@@ -182,7 +247,7 @@ public class EinsteinUtils {
     
     public static String uploadExamplesToEinstein(List<Einstein_Keyword__c> keywords) {
         String datasetId = getEinsteinDatasetId();
-        if(datasetId != null && datasetId != ''){                
+        if(!String.isBlank(datasetId)){                
             // initialize lists to store records to update
             List<Einstein_Data_Message__c> messagesToUpdate = new List<Einstein_Data_Message__c>();
             List<Einstein_Keyword__c> keywordsToUpdate = new List<Einstein_Keyword__c>();
@@ -211,20 +276,20 @@ public class EinsteinUtils {
     
     public static String trainEinstein() {
     	String datasetId = EinsteinUtils.getEinsteinDatasetId();
-        if(datasetId != null){
+        if(!String.isBlank(datasetId)){
             Map<String, String> params = new Map<String, String>();
-            params.put('name', 'LexCoeToolkitModel');
+            params.put(EINSTEIN_PARAMS_REQUEST_TRAINDS_NAME, 'LexCoeToolkitModel');
             //System.debug(datasetId);
-            params.put('datasetId', datasetId);
+            params.put(EINSTEIN_PARAMS_REQUEST_TRAINDS_DATASETID, datasetId);
             try{
                 String result = LanguageController.train(params);
                 Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);            
-                if (jsonResult.containsKey('status')){
-                    String status = (String)jsonResult.get('status');
+                if (jsonResult.containsKey(EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS)){
+                    String status = (String)jsonResult.get(EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS);
                     if(status == EINSTEIN_TRAIN_STATUS_FAILED){
                         String datasetStatus = LanguageController.getDataset(datasetId);
                         Map<String, Object> jsondatasetStatus = (Map<String, Object>)JSON.deserializeUntyped(datasetStatus);            
-                        return 'Training failed. Status: ' + status + '\nDataset status: ' + (String)jsondatasetStatus.get('statusMsg');
+                        return 'Training failed. Status: ' + status + '\nDataset status: ' + (String)jsondatasetStatus.get(EINSTEIN_PARAMS_RESPONSE_GETDS_STATUS);
                     }                
                 } else { 
                     return 'Training failed.';
@@ -240,30 +305,33 @@ public class EinsteinUtils {
     
     public static String retrainEinstein() {
     	String modelId = EinsteinUtils.getEinsteinModelId();
-        Map<String, Object> jsonTrainStatus = (Map<String, Object>)JSON.deserializeUntyped(LanguageController.getTrainStatus(modelId));
-        if (jsonTrainStatus.containsKey('status') && modelId != null && modelId != ''){
-            String trainStatus = (String)jsonTrainStatus.get('status');
-            if( trainStatus == EINSTEIN_TRAIN_STATUS_SUCCEEDED || trainStatus == EINSTEIN_TRAIN_STATUS_FAILED){
-                Map<String, String> params = new Map<String, String>();
-                params.put('modelId', modelId);
-                try{
-                    String result = LanguageController.retrain(params);
-                    Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
-                    if (jsonResult.containsKey('status')){
-                        String status = (String)jsonResult.get('status');
-                        if(status == EINSTEIN_TRAIN_STATUS_FAILED){
-                            return 'Training failed. Status: ' + status;
-                        }                
-                    } else { 
-                        return 'Training failed.';
-                    } 
-                } catch (Exception e){
-                    return e.getMessage();
+        if (!String.isBlank(modelId)){
+            Map<String, Object> jsonTrainStatus = (Map<String, Object>)JSON.deserializeUntyped(LanguageController.getTrainStatus(modelId));            
+            if(jsonTrainStatus.containsKey(EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS)){    
+                String trainStatus = (String)jsonTrainStatus.get(EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS);            
+                if( trainStatus == EINSTEIN_TRAIN_STATUS_SUCCEEDED || trainStatus == EINSTEIN_TRAIN_STATUS_FAILED){
+                    Map<String, String> params = new Map<String, String>();
+                    params.put(EINSTEIN_PARAMS_REQUEST_RETRAINDS_MODELID, modelId);
+                    try{
+                        String result = LanguageController.retrain(params);
+                        Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
+                        if (jsonResult.containsKey(EINSTEIN_PARAMS_RESPONSE_RETRAINDS_STATUS)){
+                            String status = (String)jsonResult.get(EINSTEIN_PARAMS_RESPONSE_RETRAINDS_STATUS);
+                            if(status == EINSTEIN_TRAIN_STATUS_FAILED){
+                                return 'Training failed. Status: ' + status;
+                            }                
+                        } else { 
+                            return 'Training failed.';
+                        } 
+                    } catch (Exception e){
+                        return e.getMessage();
+                    }
+                } else {
+                    return 'You could not train because the model is being trained now. Wait until it has finished. Status: ' + trainStatus;
                 }
-            } else {
-                return 'You could not train because the model is being trained now. Wait until it has finished. Status: ' + trainStatus;
-            }  
-                
+            }else {
+                return 'There was an error retreiving the train status, please try it again later.';
+            }                 
         } else {
             return 'You have to upload a dataset first before you can train it.';
         }           
