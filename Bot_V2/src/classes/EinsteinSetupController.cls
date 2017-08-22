@@ -160,7 +160,6 @@ public class EinsteinSetupController {
         resetToastMessages();
        	if(!keywordsToUpload.isEmpty()) {
             String response = EinsteinUtils.uploadExamplesToEinstein(keywordsToUpload);
-            //System.debug('response '+ response);
             if (response != null) {
                 toastErrorMessage = response;                
             } else {
