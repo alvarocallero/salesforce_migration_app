@@ -18,9 +18,9 @@
     </taskdef>
 
     <!-- Test out deploy-->
-    <target name="deployToolkit">
+    <target name="deployRestResource">
         <!-- Upload the contents of the "mypkg" package -->
-        <sf:deploy username="${sf.username}" password="${sf.password}" sessionId="${sf.sessionId}" serverurl="${sf.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="../src" rollbackOnError="true"/>
+        <sf:deploy username="${sf.username}" password="${sf.password}" sessionId="${sf.sessionId}" serverurl="${sf.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="../RestResourceMigrationDocuments/src" rollbackOnError="true"/>
 
     </target>
     <target name="deployToolkitBot">
