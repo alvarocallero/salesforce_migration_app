@@ -8,6 +8,8 @@
     <aura:attribute name="hasNameField" type="Boolean" default="true" access="global"/>
     <aura:attribute name="listOfChildRelationhips" type="String[]"/>
     <aura:attribute name="showPickList" type="Boolean" access="global"/>
+    <aura:attribute name="relatedListTitle" type="String" access="global"/>
+    <aura:attribute name="popoverTargetRecordId" type="ID" access="global"/>
     
     <aura:attribute name="listOfObjects" type="SObject[]"/>
     <aura:attribute name="relationships" type="String[]"/>
@@ -20,11 +22,14 @@
     
     <div class="slds-card">
         <div class="slds-card__header">
-            <span class="slds-text-heading--small slds-truncate slds-m-right--xx-small">{!v.pluralSObjectName} {!v.pluralSObjectName != '' ? (' (' + v.totalNumberOfRecords + ')') : ''}</span>
             <br/>
             <aura:if isTrue="{!v.showPickList}">
+                <span class="slds-text-heading--small slds-truncate slds-m-right--xx-small">{!v.pluralSObjectName} {!v.pluralSObjectName != '' ? (' (' + v.totalNumberOfRecords + ')') : ''}</span>
                 <ui:inputSelect class="slds-select" label="Relationships" aura:id="selectedRelation" change="{!c.changeRelationship}">   
                 </ui:inputSelect>
+                	<aura:set attribute="else">
+            			<span class="slds-text-heading--small slds-truncate slds-m-right--xx-small">{!v.relatedListTitle} {!v.pluralSObjectName != '' ? (' (' + v.totalNumberOfRecords + ')') : ''}</span>
+		    		</aura:set>
             </aura:if>
         </div>
         <br/>
@@ -47,15 +52,17 @@
                     <aura:iteration items="{!v.listOfObjects}" var="obj">
                         <tr class="body-row">
                             <td scope="row" data-label="Id">
-                                <a id="{!obj.Id}" onclick="{!c.navigateToObjectPage}">
+                                <a id="{!obj.Id}" onmouseenter="{!c.handleMouseEnter}" onclick="{!c.navigateToObjectPage}">
                                     <ui:outputText class="slds-truncate" value="{!obj.Id}"/>
                                 </a>
                             </td>
                             <aura:if isTrue="{!v.hasNameField}">
-                                <td scope="row" data-label="Name">
-                                    <a id="{!obj.Id}" onclick="{!c.navigateToObjectPage}">
-                                        <ui:outputText class="slds-truncate" value="{!obj.Name}"/>
-                                    </a>
+                                <td scope="row" data-label="Name" onmouseenter="{!c.handleMouseEnter}" onmouseout="{!c.handleMouseOut}">
+                                    <span onMouseOver="{!c.handleMouseEnter}" onmouseout="{!c.handleMouseOut}">
+                                        <a id="{!obj.Id}" onclick="{!c.navigateToObjectPage}">
+                                            <ui:outputText class="slds-truncate" value="{!obj.Name}"/>
+                                        </a>
+                                    </span>
                                 </td>
                             </aura:if>
                         </tr>
@@ -77,4 +84,20 @@
         </aura:if>
     </div>
     
+    <span aura:id="popover" class="slds-hide popover" style="position:absolute" role="dialog">
+    <section class="slds-popover slds-nubbin_left-top" role="dialog" aria-label="Dialog Title" aria-describedby="dialog-body-id-3">
+        <button class="slds-button slds-button_icon slds-button_icon-small slds-float_right slds-popover__close slds-button_icon" title="Close dialog" onclick="{!c.handleMouseOut}">
+            x
+            <span class="slds-assistive-text">Close dialog</span>
+        </button>
+        <div class="slds-popover__body">
+            <force:recordView recordId="{!v.popoverTargetRecordId}" type="FULL"/>
+        </div>
+    </section>
+    </span>
+    
+    
+    
+    
+
 </aura:component>
