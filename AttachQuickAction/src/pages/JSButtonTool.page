@@ -1,4 +1,4 @@
-<apex:page controller="JSButtonToolController">
+<apex:page controller="JSButtonToolController" >
     <!--
 <apex:page showHeader="false" standardStylesheets="false" sidebar="false" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0">
 -->
@@ -16,7 +16,10 @@
         
         
         <body>
-            
+            <apex:form >
+		        <!-- Define the JavaScript function sayHello-->
+		        <apex:actionFunction id="hideToast" name="hideToast" action="{!hideToastAction}" rerender="toasts" />
+		    </apex:form>
             
             
             <!-- slds wrapper -->
@@ -24,12 +27,13 @@
                 
                 
                 
-                <!-- error msg -->            
+                <!-- error msg -->   
+                <apex:outputPanel id="toasts">         
                 <div  style="display:{!if(hasError = true,'block','none')};" class=" slds-m-top_xx-large">
                     <div class="slds-notify_container slds-is-relative">
                         <div class="slds-notify slds-notify_toast slds-theme_error" role="alert">
                             <span class="slds-assistive-text">success</span>
-                            <span class="slds-icon_container slds-icon-utility-error slds-m-right_small slds-no-flex slds-align-top" title="Description of icon when needed">
+                            <span class="slds-icon_container slds-icon-utility-error slds-m-right_small slds-no-flex slds-align-top">
                                 
                                 <svg class="slds-icon slds-icon_small" aria-hidden="true">
                                     <use xlink:href="{!URLFOR($Asset.SLDS, '/assets/icons/utility-sprite/svg/symbols.svg#error')}"></use>
@@ -37,11 +41,11 @@
                             </span>
                             <div class="slds-notify__content">
                                 <h2 class="slds-text-heading_small ">
-                                    <apex:outputText value="{!errorMessage}"  >
+                                    <apex:outputText value="{!errorMessage}" >
                                     </apex:outputText>
                                 </h2>
                             </div>
-                            <button class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse" title="Close">
+                            <button class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse" title="Close" onclick="hideToast();">
                                 <svg class="slds-button__icon slds-button__icon_large" aria-hidden="true">
                                     <use xlink:href="{!URLFOR($Asset.SLDS, '/assets/icons/utility-sprite/svg/symbols.svg#close')}"></use>
                                 </svg>
@@ -59,18 +63,18 @@
                     <div class="slds-notify_container slds-is-relative">
                         <div class="slds-notify slds-notify_toast slds-theme_success" role="alert">
                             <span class="slds-assistive-text">error</span>
-                            <span class="slds-icon_container slds-icon-utility-success slds-m-right_small slds-no-flex slds-align-top" title="Description of icon when needed">
+                            <span class="slds-icon_container slds-icon-utility-success slds-m-right_small slds-no-flex slds-align-top">
                                 <svg class="slds-icon slds-icon_small" aria-hidden="true">
                                     <use xlink:href="{!URLFOR($Asset.SLDS, '/assets/icons/utility-sprite/svg/symbols.svg#success')}"></use>
                                 </svg>
                             </span>
                             <div class="slds-notify__content">
                                 <h2 class="slds-text-heading_small ">
-                                    <apex:outputText value="{!successMessage}"  >
+                                    <apex:outputText value="{!successMessage}"  escape="false">
                                     </apex:outputText>
                                 </h2>
                             </div>
-                            <button class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse" title="Close">
+                            <button class="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse" title="Close" onclick="hideToast();">
                                 <svg class="slds-button__icon slds-button__icon_large" aria-hidden="true">
                                     <use xlink:href="{!URLFOR($Asset.SLDS, '/assets/icons/utility-sprite/svg/symbols.svg#close')}"></use>
                                 </svg>
@@ -80,7 +84,7 @@
                     </div>
                 </div>
                 <!-- end success msg -->        
-                
+                </apex:outputPanel>
                 
                 
                 <!-- header -->
@@ -99,10 +103,7 @@
                     <apex:form styleClass="slds-form slds-form_compound">
                         
                         <!-- row1 -->
-                        <div >
-                            
-                            
-                            
+                        <div >  
                             <!-- obj -->
                             <div class="slds-form-element slds-m-top_medium">
                                 <label class="slds-form-element__label" for="text-input-obj">Object</label>
