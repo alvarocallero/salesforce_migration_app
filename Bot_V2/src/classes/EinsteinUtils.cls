@@ -93,6 +93,15 @@ public class EinsteinUtils {
     
     // EINSTEIN PARAMS - CREATE EXAMPLE - REQUEST
     public static final String EINSTEIN_PARAMS_REQUEST_CREATEEXAMPLE_PATH = 'path';
+        
+    // EINSTEIN PARAMS - PREDICT - REQUEST
+    public static final String EINSTEIN_PARAMS_REQUEST_PREDICT_MODELID = 'modelId';
+    public static final String EINSTEIN_PARAMS_REQUEST_PREDICT_NUMRESULTS = 'numResults';
+	public static final String EINSTEIN_PARAMS_REQUEST_PREDICT_DOCUMENT = 'document';  
+    // EINSTEIN PARAMS - PREDICT - RESPONSE
+    public static final String EINSTEIN_PARAMS_RESPONSE_PREDICT_PROBABILITIES = 'probabilities';
+    public static final String EINSTEIN_PARAMS_RESPONSE_PREDICT_PROBABILITIES_JSON_LABEL = 'label';
+    public static final String EINSTEIN_PARAMS_RESPONSE_PREDICT_PROBABILITIES_JSON_PROBABILITY = 'probability';
     
     // MANAGE CUSTOM SETTING VALUES RELATED TO EINSTEIN
     

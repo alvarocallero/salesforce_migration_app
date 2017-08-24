@@ -611,6 +611,7 @@ public class LanguageController {
     * @example
     * Map<String, String> params = new Map<String, String>();
     * params.put('modelId', '3CMCRC572BD3OZTQSTTUU4733Y');
+    * params.put('numResults', '5');
     * params.put('document', 'what is the weather in los angeles');
     * String result = LanguageController.predict(params);
     */
