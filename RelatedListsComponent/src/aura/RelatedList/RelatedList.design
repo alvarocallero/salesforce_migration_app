@@ -1,4 +1,5 @@
 <design:component >
+    <design:attribute name="relatedListTitle" label="Title" description="The title to be displayed on the top of the table"/>
     <design:attribute name="childObjectName" label="Related list name" description="The API Name of related list to be displayed"/>
     <design:attribute name="showPickList" label="Show relationships" description="Select to display a list of possible related objects"/>
     <design:attribute name="Quantity" label="Records to display" description="Number of related records per page" datasource="1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 50, 100" default="10" />

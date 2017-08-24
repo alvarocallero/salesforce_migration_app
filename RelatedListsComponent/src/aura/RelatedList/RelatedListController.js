@@ -52,7 +52,27 @@
 		var actualPage = component.get("v.ActualPageNumber");
         if(actualPage > 0){
             component.set("v.ActualPageNumber", actualPage - 1);
-        	helper.loadList(component, event, helper);
+            helper.loadList(component, event, helper);
         }
+    },
+    handleMouseEnter : function(component, event, helper) {
+        var popover = component.find("popover");
+		$A.util.removeClass(popover,'slds-hide');
+        var targetRecordId = event.target.id;
+        component.set("v.popoverTargetRecordId", targetRecordId);
+        window.setTimeout(
+            $A.getCallback(function() { 
+        		
+                popover.getElement().style.left = event.clientX -20 + "px";
+                popover.getElement().style.top = document.body.scrollTop + event.clientY -300 +"px"
+                
+            }), 1000
+        );
+    },
+    handleMouseOut : function(component, event, helper) {
+        var popover = component.find("popover");
+        
+        component.set("v.recordIdToPreview", );
+        $A.util.addClass(popover,'slds-hide');
     }
 })
