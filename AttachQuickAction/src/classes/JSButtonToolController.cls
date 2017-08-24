@@ -3,7 +3,7 @@ public class JSButtonToolController {
     public JSButtonToolController(){
     	fillObject();
         fillComponents();
-    	if (String.isBlank(selectOptionObject)){
+    	if (String.isBlank(selectOptionObject) && options.size()>0){
         	selectOptionObject = options[0].getValue();
         	fillLayouts();   
         }
@@ -100,26 +100,31 @@ public class JSButtonToolController {
     
     // list all Metadata of the specific type -- ok    
     private static List<MetadataService.FileProperties> listMetadataByType(String regex, String metadataType){
-        MetadataService.MetadataPort service = createService();
-        List<MetadataService.FileProperties> result = new List<MetadataService.FileProperties>();
-        List<MetadataService.ListMetadataQuery> queries = new List<MetadataService.ListMetadataQuery>();
-        MetadataService.ListMetadataQuery queryMetaData = new MetadataService.ListMetadataQuery();
-        
-        // type of metadata
-        queryMetaData.type_x = metadataType;
-        queries.add(queryMetaData);
-        
-        // !important: listMetadata(query, apiVersion)
-        MetadataService.FileProperties[] fileProperties = service.listMetadata(queries, 40);
-        
-        for(MetadataService.FileProperties fileProperty : fileProperties){
-            String text = fileProperty.fileName;
-            Matcher m = Pattern.compile(regex).matcher(text);
-            if(m.matches()) {
-                result.add(fileProperty);
-            }
-        }
-        return result;
+    	try{
+	        MetadataService.MetadataPort service = createService();
+	        List<MetadataService.FileProperties> result = new List<MetadataService.FileProperties>();
+	        List<MetadataService.ListMetadataQuery> queries = new List<MetadataService.ListMetadataQuery>();
+	        MetadataService.ListMetadataQuery queryMetaData = new MetadataService.ListMetadataQuery();
+	        
+	        // type of metadata
+	        queryMetaData.type_x = metadataType;
+	        queries.add(queryMetaData);
+	        
+	        // !important: listMetadata(query, apiVersion)
+	        MetadataService.FileProperties[] fileProperties = service.listMetadata(queries, 40);
+	        
+	        for(MetadataService.FileProperties fileProperty : fileProperties){
+	            String text = fileProperty.fileName;
+	            Matcher m = Pattern.compile(regex).matcher(text);
+	            if(m.matches()) {
+	                result.add(fileProperty);
+	            }
+	        }
+	        return result;
+    	}catch(Exception e){
+    		errorManager(e.getMessage() + ' - Verify the Remote Site Setting');
+    		return null;
+    	}
     }
     
     // create quickaction -- ok
@@ -138,7 +143,7 @@ public class JSButtonToolController {
             if(results[0].success == true){
                 return name;
             }   
-            errorManager('Cannot create Quick Action');
+            errorManager('Cannot create Quick Action - Possible Duplicate');
         }
         catch(Exception e){
             errorManager(e.getMessage());
@@ -221,7 +226,7 @@ public class JSButtonToolController {
         }
         catch(Exception e){
             
-            errorManager(e.getMessage() );
+            errorManager('Please enable the Lightning Action section');
             return null;
         } 
         
@@ -253,7 +258,7 @@ public class JSButtonToolController {
             this.options.sort(); 
         }
         catch(Exception e){
-            errorManager(e.getMessage());
+            errorManager(e.getMessage() + ' = Remember to add the Remote Site Settings');
         }
     }
     
