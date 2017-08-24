@@ -13,7 +13,7 @@ global class checkEinsteinAvailable implements Database.Batchable<sObject>,Sched
     global list<Einstein_Keyword__c> start(Database.BatchableContext bc){
         //Getting the needed records with DataBase.getQueryLocator.
 
-        return [Select e.Id, e.Einstein_Upload_Status__c From Einstein_Keyword__c e WHERE e.Einstein_Upload_Status__c = EinsteinUtils.UPLOAD_STATUS_IN_PROCESS];
+        return [Select e.Id, e.Einstein_Upload_Status__c From Einstein_Keyword__c e WHERE e.Einstein_Upload_Status__c =: EinsteinUtils.UPLOAD_STATUS_IN_PROCESS];
     }
 
     global void execute(Database.BatchableContext bc,List<Einstein_Keyword__c> scope) {
