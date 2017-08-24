@@ -153,15 +153,28 @@ public class JSButtonToolController {
            
             //create name according to the type of object
             if (!String.isBlank(layoutPrefix)){
-                layoutPrefix = layoutPrefix + '__';
+            	if (layoutPrefix == 'null'){
+            		layoutPrefix = '';
+            	}else{
+                	layoutPrefix = layoutPrefix + '__';
+            	}
+            }else{
+            	layoutPrefix = '';
             }
              if (!String.isBlank(objectPrefix)){
-                objectPrefix = objectPrefix + '__';
+             	if (objectPrefix == 'null'){
+             		objectPrefix = '';
+             	}else{
+               		 objectPrefix = objectPrefix + '__';
+             	}
+            }else{
+            	objectPrefix = '';
             }
             
             
             String objectLayout = targetLayoutFile.fullName;
             List<String> possibleNames = new List<String>{ objectPrefix+objectLayout.split('-')[0]+'-'+layoutPrefix+objectLayout.split('-')[1]};
+            
             // Read the Layout
             List<MetadataService.Metadata> layouts = service.readMetadata('Layout', possibleNames).getRecords();
             
@@ -173,6 +186,7 @@ public class JSButtonToolController {
 			     }
             }
 
+          
             if (foundLayout.platformActionList == null){
             	foundLayout.platformActionList = new MetadataService.PlatformActionList();
             	foundLayout.platformActionList.actionListContext = 'Record';
@@ -189,6 +203,7 @@ public class JSButtonToolController {
             foundLayout.platformActionList.platformActionListItems.add(newPlatformActionListItem);
             
 			for (Integer i=0; i<foundLayout.platformActionList.platformActionListItems.size(); i++){
+					
 					String str = objectPrefix +obj+'-'+layoutPrefix;
 					foundLayout.platformActionList.platformActionListItems[i].actionName = foundLayout.platformActionList.platformActionListItems[i].actionName.replace(str, '');
 			}
@@ -205,6 +220,7 @@ public class JSButtonToolController {
             
         }
         catch(Exception e){
+            
             errorManager(e.getMessage() );
             return null;
         } 
