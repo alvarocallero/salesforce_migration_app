@@ -22,7 +22,7 @@ public with sharing class BotController {
         infoList.add(name);
         infoList.add('Hi ' + name + ', I\'m Leah! My job is to help you address any problems you might have with Lightning Experience.' +
                      ' Just send feedback starting with the word <strong>\"Error\"</strong> and I\'ll try to find out what\'s going on. ' + '<br/>' + 'I may provide some helpful information and tips if you start your sentence with the word '+
-                     '<strong>\"Help\"</strong>.');
+                     '<strong>\"Train\"</strong>.');
         infoList.add('So, how can I help you today?');
         infoList.add(userId);
         return infoList;
@@ -93,16 +93,75 @@ public with sharing class BotController {
     }
 
     @AuraEnabled
-    public static BotResponse submit(String utterance, Map<String, String> session, String currentUrl, String currentUser) {
+    public static BotResponse submit(String utterance, Map<String, String> session, String currentUrl, String currentUser, String responseText) {
 		//see flow for first time, when there are not any known issues
         try {
 
-            utterance.toLowerCase();
-            if(utterance.substringBefore(' ') == 'error'){
+            utterance = utterance.toLowerCase();
+            
+            if(EinsteinUtils.getEinsteinEnabled() == true){
+            	if(utterance.substringBefore(' ') == 'error'){
+            		utterance=utterance.removeStart('error');
+            		
+    				Map<String, String> params = new Map<String, String>();
+    				params.put('modelId', EinsteinUtils.getEinsteinModelId());
+    				params.put('document', utterance);
+    				params.put('numResults', '5');
+    				String result = LanguageController.predict(params);
+    				
+    				Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
+    				
+    				List<Known_Issue__c> knownIssuesFound = new List<Known_Issue__c>();
+    				
+    				
+    				List<Object> predictions = (List<Object>)jsonResult.get('probabilities');
+    				
+    				if(predictions != null){
+    					for(Object pred : predictions){
+    						
+    						Map<String, Object> objects = (Map<String, Object>) pred;
+    						
+                            String einstainDataMessage = (String) objects.get('label');
+                            
+    						List<Einstein_Data_Message__c> edmObject = [SELECT Id, Known_Issue__c FROM Einstein_Data_Message__c WHERE Message__c = :einstainDataMessage LIMIT 1];
+    						
+    						List<Known_Issue__c> ki = [SELECT Id, Message__c, Message_Summary__c FROM Known_Issue__c WHERE Id = :edmObject.get(0).Known_Issue__c LIMIT 1];
+    						
+    						knownIssuesFound.add(ki.get(0));
+    						
+    						
+    					}
+    					
+    					
+                    	List<BotItem> botItemsList = new List<BotItem>();
+                    	
+                    	for(Known_Issue__c ki : knownIssuesFound){
+                        	String pageUrl = KnownIssueDetailController.getPageURL(ki.Id, '');
+                        	BotItem botItem = new BotItem(ki.Message_Summary__c, pageUrl);
+                        	botItemsList.add(botItem);
+                    	}
+                    	
+                    	List<BotMessageButton> buttons = new List<BotMessageButton>();
+                    	BotMessageButton btnHelpful = new BotMessageButton('This is helpful!', 'helpful');
+                    	BotMessageButton btnUseless = new BotMessageButton('I was not looking for this', 'useless');
+                    	buttons.add(btnHelpful);
+                    	buttons.add(btnUseless);
+                    	
+                        return new BotResponse(new BotMessage('', 'I talked to Einstein and I found this...', botItemsList, buttons), '', null);
+                
+    				
+                    }else{
+                    	return new BotResponse(new BotMessage('', 'Sorry, I have not found anything related to your problem...'));
+                    }
+            		
+            	}	 
+                
+                return new BotResponse(new BotMessage('', 'Sorry, I have not found anything related to your problem...'));
+            }
+            else{
+            	if(utterance.substringBefore(' ') == 'error'){
                 //Einstein Not Enabled
-                if(EinsteinUtils.getEinsteinEnabled() == false){
-                    
-                }
+                
                 utterance = utterance.removeStart('error');
                 Id dataMessageId = EinsteinUtils.createMessage(null, utterance);
                 Set<Known_Issue__c> knownIssuesFound = findKnownIssuesByUtterance(utterance);
@@ -125,11 +184,29 @@ public with sharing class BotController {
                     //return new BotResponse(new BotMessage('', 'Sorry, I have not found anything related to your problem...'));
                 }
 
+            }else if(utterance.substringBefore(' ') == 'train'){
+                
+               /*utterance = utterance.removeStart('train');
+               TrainDocument__c td = new TrainDocument__c();
+               String searchCriteria = utterance;
+               td.ResponseBody__c = 'https://developer.salesforce.com/search?q=' + searchCriteria;
+               
+               insert td;
+               List<BotItem> botItemsList = new List<BotItem>();
+               String pageUrl = TrainUtils.getPageURL(td.Id);
+               BotItem botItem = new BotItem(utterance, pageUrl);
+               botItemsList.add(botItem);
+               return new BotResponse(new BotMessage('', 'Click on the link to see what I found for you', botItemsList, null), null, null);*/
+               
+               return new BotResponse(new BotMessage('', 'I am not ready to retrieve documentation yet, but I will be soon!'));
+                
             }
             else{
                 //logUserMessage(utterance, currentUrl, null);
                 return new BotResponse(new BotMessage('', 'Please, start your feedback with the word \"<strong>Error</strong>\". For example: \"<strong>Error</strong> update button not working.\"'));
             }
+            }
+            
 
         } catch (Exception e) {
             System.debug(e);
