@@ -263,7 +263,7 @@
         <type>Text</type>
         <unique>false</unique>
     </fields>
-  
+
     <label>Known Issue</label>
     <listViews>
         <fullName>All</fullName>
@@ -742,10 +742,10 @@
     <validationRules>
         <fullName>CannotChangeToPendingIfKeywordIfUnknown</fullName>
         <active>true</active>
-        <description>If keyword is Unknown, status can not be changed from pending approval</description>
-        <errorConditionFormula>Einstein_Keyword__r.Name == &apos;Unknown&apos; &amp;&amp;   NOT(ISPICKVAL(Status__c, &apos;Pending Approval&apos;))</errorConditionFormula>
+        <description>If keyword is Undefined, status cannot be changed from pending approval</description>
+        <errorConditionFormula>Einstein_Keyword__r.Name == &apos;UNDEFINED&apos; &amp;&amp;   NOT(ISPICKVAL(Status__c, &apos;Pending Approval&apos;))</errorConditionFormula>
         <errorDisplayField>Status__c</errorDisplayField>
-        <errorMessage>If the Keyword is Unknown, the Status can not be changed from Pending Approval</errorMessage>
+        <errorMessage>If the Keyword is Undefined, the Status can not be changed from Pending Approval</errorMessage>
     </validationRules>
     <validationRules>
         <fullName>CannotChangeToPendingIfSummaryEmpty</fullName>
