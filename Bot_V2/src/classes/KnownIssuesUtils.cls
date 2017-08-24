@@ -275,7 +275,7 @@ public class KnownIssuesUtils {
                                                         WHERE ID = :updatedKI.Einstein_Keyword__c
                                                         Limit 1];
                     if(issueKeyword.Id != EinsteinUtils.getUndefinedKeywordId()){
-                        if(issueKeyword.Name != EinsteinUtils.KEYWORD_UNDEFINED){
+
                             List<Known_Issue__c> duplicatedKnownIssues = [SELECT Id, Einstein_Keyword__r.Name
                                                                           FROM Known_Issue__c
                                                                           WHERE Id != :updatedKI.Id
@@ -285,8 +285,8 @@ public class KnownIssuesUtils {
                             }else{
                                 updatedKI.Status__c = STATUS_NEW;
                             }
-                        }
                     }
+
                 }
             }
         }
