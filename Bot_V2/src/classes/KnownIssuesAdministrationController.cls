@@ -29,7 +29,7 @@ public class KnownIssuesAdministrationController {
     }
 
     public void reloadKnowIssues(){
-        if(selectedKeyword == 'Unknown'){
+        if(selectedKeyword == EinsteinUtils.KEYWORD_UNDEFINED){
             isKeywordUnknown = true;
             selectedStatus = KnownIssuesUtils.STATUS_PENDINGAPPROVAL;
         }else{
