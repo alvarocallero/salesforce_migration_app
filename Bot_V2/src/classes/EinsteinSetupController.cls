@@ -1,12 +1,19 @@
 public class EinsteinSetupController {
 	
-    public static Boolean einsteinEnabled {get; set;}
+    public Boolean einsteinEnabled {get; set;}
+    public Boolean datasetUploaded {get; set;}
+    public Boolean couldTrain {get; set;}
+    public Boolean couldRetrain {get; set;}
+    public Boolean couldResetEinstein {get; set;}
+    public String datasetStatus {get; set;}
+    public String trainStatus {get; set;}
     private static Map<Id, Einstein_Keyword__c> keywordsById;
     
     public String toastSuccessMessage {get; set;}
     public String toastErrorMessage {get; set;}
     public List<Einstein_Keyword__c> keywordsMissingMessages {get; set;}
-    public List<Einstein_Data_Message__c> messagesToUpload {get; set;}
+    public List<Einstein_Keyword__c> keywordsToUpload {get; set;}
+    public List<Einstein_Data_Message__c> messagesWithError {get; set;}
     
     public EinsteinSetupController() {
         
@@ -15,72 +22,84 @@ public class EinsteinSetupController {
         } else {
             einsteinEnabled = false;
         }
+                
+        datasetStatus = 'There was a problem checking the dataset\'s status. Please check it again later.';
+        String datasetId = EinsteinUtils.getEinsteinDatasetId();
+        if(!String.isBlank(datasetId)){            
+            Map<String, Object> jsonDatasetStatus = (Map<String, Object>)JSON.deserializeUntyped(LanguageController.getDataset(datasetId));
+            if (jsonDatasetStatus.containsKey(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETDS_STATUS) && datasetId != null && datasetId != ''){
+                datasetStatus = (String)jsonDatasetStatus.get(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETDS_STATUS);
+            }
+        } else{
+            datasetStatus = 'The dataset was not uploaded yet';
+        }
+        
+        trainStatus = 'There was a problem checking the train\'s status. Please check it again later.';
+        String modelId = EinsteinUtils.getEinsteinModelId();
+        if(!String.isBlank(modelId)){    
+            Map<String, Object> jsonTrainStatus = (Map<String, Object>)JSON.deserializeUntyped(LanguageController.getTrainStatus(modelId));
+            if (jsonTrainStatus.containsKey(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS) && modelId != null && modelId != ''){
+                trainStatus = (String)jsonTrainStatus.get(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS);
+            }
+        } else {
+            trainStatus = 'The dataset was not trained yet.';
+        }
+        datasetUploaded = EinsteinUtils.getEinsteinDatasetId() != null && EinsteinUtils.getEinsteinDatasetId() != '' && datasetStatus == EinsteinUtils.EINSTEIN_DS_STATUS_SUCCEEDED;
+        couldTrain =  datasetUploaded && (String.isBlank(modelId));
+        couldRetrain = !String.isBlank(modelId) && trainStatus == EinsteinUtils.EINSTEIN_TRAIN_STATUS_SUCCEEDED;
+	    couldResetEinstein = datasetStatus.startsWith(EinsteinUtils.EINSTEIN_DS_STATUS_FAILURE);
         
         keywordsMissingMessages = new List<Einstein_Keyword__c>();
-        messagesToUpload = new List<Einstein_Data_Message__c>();
+        keywordsToUpload = new List<Einstein_Keyword__c>();
+        messagesWithError = new List<Einstein_Data_Message__c>(); 
         
-        // get Keyword records without messages
-        keywordsById = new Map<Id, Einstein_Keyword__c>([ SELECT Id,
-                                                             	 Name,
-                                                             	 Einstein_Upload_Status__c,
-                                                             	 Einstein_Data_Messages_Count__c
-                                                          FROM Einstein_Keyword__c
-                                                          WHERE Einstein_Data_Messages_Count__c = 0
-                                                          AND Name != :EinsteinUtils.KEYWORD_UNDEFINED]);
+        messagesWithError = [
+            SELECT Id,
+            	Message__c,
+            	Einstein_Keyword__r.Name,
+            	Einstein_Upload_Status__c            
+            FROM Einstein_Data_Message__c
+            WHERE Einstein_Upload_Status__c =: EinsteinUtils.UPLOAD_STATUS_ERROR
+        ];
         
-        // get Message records of keywords that have less than 5 messages or that were not uploaded
-        List<Einstein_Data_Message__c> messages = [ SELECT Id,
-                                                   		   Name,
-                                                   		   Message__c,
-                                                   		   Einstein_Upload_Status__c,
-                                                  		   Einstein_Keyword__r.Id,
-                                                   		   Einstein_Keyword__r.Name,
-                                                   		   Einstein_Keyword__r.Einstein_Upload_Status__c,
-                                                   		   Einstein_Keyword__r.Einstein_Data_Messages_Count__c
-                                                  	FROM Einstein_Data_Message__c
-                                                  	WHERE (Einstein_Upload_Status__c = 'Not Uploaded'
-                                                  			OR Einstein_Keyword__r.Einstein_Upload_Status__c = 'Not Uploaded'
-                                                  			OR Einstein_Keyword__r.Einstein_Data_Messages_Count__c < 5)
-                                                  	AND Einstein_Keyword__r.Name != :EinsteinUtils.KEYWORD_UNDEFINED ];
-        
-        // map Messages by Keyword
-        for (Einstein_Data_Message__c message: messages) {
-            if (!keywordsById.containsKey(message.Einstein_Keyword__r.Id)) {
-                keywordsById.put(message.Einstein_Keyword__r.Id, message.Einstein_Keyword__r);
+        List<Einstein_Keyword__c> keywords = [
+            SELECT Id,
+            	Name,
+            	Einstein_Data_Messages_Count__c,
+            	Einstein_Upload_Status__c,
+            (
+                SELECT Id,
+                	Message__c,
+                    Known_Issue__r.Status__c,
+                    Einstein_Keyword__r.Einstein_Upload_Status__c,
+                    Einstein_Keyword__r.Einstein_Data_Messages_Count__c,
+                    Einstein_Upload_Status__c
+                FROM Einstein_Data_Messages__r
+                WHERE Known_Issue__r.Status__c !=: EinsteinUtils.KNOWN_ISSUE_PENDING_APPROVAL AND
+                    Known_Issue__r.Status__c !=: EinsteinUtils.KNOWN_ISSUE_INVALID AND 
+                	(Einstein_Upload_Status__c =: EinsteinUtils.UPLOAD_STATUS_NOT_UPLOADED)
+            )
+            FROM Einstein_Keyword__c
+        ];
+        Integer index = 0;
+        for (Einstein_Keyword__c keyword: keywords){
+            index = 0;
+            for(Einstein_Data_Message__c message: keyword.Einstein_Data_Messages__r){
+                if (message.Einstein_Upload_Status__c == EinsteinUtils.UPLOAD_STATUS_ERROR){
+                    messagesWithError.add(message);
+                    keyword.Einstein_Data_Messages__r.remove(index);
+                }  
+                index ++;
             }
-        }
-        
-        // list Keywords with missing Messages for section 1 of the page
-        for (Einstein_Keyword__c keyword: keywordsById.values()) {
-            if (keyword.Einstein_Data_Messages_Count__c < 5) {
+            if (keyword.Einstein_Data_Messages__r.size()>0){
+                if(keyword.Einstein_Data_Messages_Count__c < 5){  
                 keywordsMissingMessages.add(keyword);
-            }
-        }
-        keywordsMissingMessages.sort();
-		
-		Map<Id, Einstein_Keyword__c> mapAux = new Map<Id, Einstein_Keyword__c>(keywordsMissingMessages);
-        for (Einstein_Data_Message__c message: messages) {
-            if (!mapAux.containsKey(message.Einstein_Keyword__r.Id) && message.Einstein_Upload_Status__c == 'Not Uploaded') {
-                messagesToUpload.add(message);
-            }
-        }
-        
-    }
-    
-    public PageReference enableEinstein() {
-        resetToastMessages();
-        
-        // Validate there are at least 3 Keywords with at least 5 messages
-        AggregateResult result = [ SELECT count(Id) keywordsCount FROM Einstein_Keyword__c WHERE Einstein_Data_Messages_Count__c >= 5 ][0];
-        if (((Integer) result.get('keywordsCount')) < 3) {
-            toastErrorMessage = 'Einstein needs at least 3 Keywords that have at least 5 Messages each.';
-        
-        // Enable einstein
-        } else {
-            EinsteinUtils.setEinsteinEnabled(true);
-            einsteinEnabled = true;
-        }
-        return null;
+                } 
+                else {
+                    keywordsToUpload.add(keyword);
+                }
+            }            
+        }      
     }
     
     public PageReference disableEinstein() {
@@ -92,33 +111,73 @@ public class EinsteinSetupController {
     }
     
     public PageReference uploadMessages() {
-        resetToastMessages();
-        
-        // Validate no missing messages in Keywords section
-        if (!keywordsMissingMessages.isEmpty()) {
-            toastErrorMessage = 'Please verify there are no Keywords missing messages.';
-            
-        } else if(messagesToUpload.isEmpty()) {
+        resetToastMessages();            
+       	if(keywordsToUpload.isEmpty()) {
         	toastErrorMessage = 'There are no messages to upload at the moment.';
+        } else if (keywordsToUpload.size() < 3) {
+            toastErrorMessage = 'You have to upload at least 3 keywords with 5 Messages for each one.';
         } else {
-			Set<Id> keywordsToUpload = new Set<Id>();
-            for (Einstein_Data_Message__c message: messagesToUpload) {
-                keywordsToUpload.add(message.Einstein_Keyword__r.Id);
-            }
             String response = EinsteinUtils.uploadMessagesToEinstein(keywordsToUpload);
             if (response != null) {
                 toastErrorMessage = response;
                 
             } else {
-                toastSuccessMessage = 'Einstein training complete.';
-            }
-            
-        }
-        
+                toastSuccessMessage = 'The dataset was uploaded.';
+            }            
+        }        
         // Value is lost on rerender for some reason
-        einsteinEnabled = EinsteinUtils.getEinsteinEnabled();
-		
+        einsteinEnabled = EinsteinUtils.getEinsteinEnabled();		
      	return null;
+    }
+    
+    public PageReference train() {
+        resetToastMessages();
+        String response = EinsteinUtils.trainEinstein();
+        if (response != null) {
+                toastErrorMessage = response;
+        } else{
+        	toastSuccessMessage = 'Training in process';
+            einsteinEnabled = false;
+            EinsteinUtils.setEinsteinEnabled(false);
+        }
+        return null;
+    }
+    
+    public PageReference retrain() {
+        resetToastMessages();
+        String response = EinsteinUtils.retrainEinstein();
+        if (response != null) {
+                toastErrorMessage = response;
+        } else{
+        	toastSuccessMessage = 'Training in process';
+            einsteinEnabled = false;
+            EinsteinUtils.setEinsteinEnabled(false);
+        }
+        return null;
+    }
+    
+    public PageReference uploadExamples() {        
+        resetToastMessages();
+       	if(!keywordsToUpload.isEmpty()) {
+            String response = EinsteinUtils.uploadExamplesToEinstein(keywordsToUpload);
+            if (response != null) {
+                toastErrorMessage = response;                
+            } else {
+                toastSuccessMessage = 'The examples were uploaded.';
+            }            
+        } else {            
+        	toastErrorMessage = 'There are no keywords to upload at the moment.';
+        }
+        // Value is lost on rerender for some reason
+        einsteinEnabled = EinsteinUtils.getEinsteinEnabled();		
+     	return null;
+    }
+    
+    public PageReference resetEinstein() {
+        resetToastMessages();
+        EinsteinUtils.resetEinstein();
+        toastSuccessMessage = 'The dataset was reset.';
+        return null;
     }
     
     private void resetToastMessages() {
