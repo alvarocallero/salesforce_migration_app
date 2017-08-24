@@ -7,6 +7,7 @@ public class KnownIssuesAdministrationController {
 
     public String selectedKeyword {get; set;}
     public String selectedStatus {get; set;}
+    private boolean isKeywordUnknown;
 
     public List<Known_Issue__c> filteredKnownIssues {get; set;}
 
@@ -16,6 +17,7 @@ public class KnownIssuesAdministrationController {
 		selectedKeyword = ALL_KNOWN_ISSUES;
 		selectedStatus = KnownIssuesUtils.STATUS_PENDINGAPPROVAL;
         filterKnownIssues();
+        isKeywordUnknown = false;
     }
 
     public List<SelectOption> getKeywordSelectOptions() {
@@ -27,7 +29,19 @@ public class KnownIssuesAdministrationController {
     }
 
     public void reloadKnowIssues(){
+        if(selectedKeyword == 'Unknown'){
+            isKeywordUnknown = true;
+            selectedStatus = KnownIssuesUtils.STATUS_PENDINGAPPROVAL;
+        }else{
+            
+            isKeywordUnknown = false;
+        } 
         filterKnownIssues();
+    }
+     public boolean getIsKeywordUnknown(){
+        
+        return isKeywordUnknown;
+        
     }
 
     private void loadKeywordSelectOptions(){
