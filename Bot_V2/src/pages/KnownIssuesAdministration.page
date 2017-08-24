@@ -22,6 +22,7 @@
     
     
         <apex:form >
+         <apex:outputPanel id="knownIssuesTable" > 
             <div class="slds-grid">
                 
             
@@ -42,7 +43,7 @@
                 <label class="slds-form-element__label">Status</label>
                 <div class="slds-form-element__control">
                     <div class="slds-select_container">
-                        <apex:selectList size="1" styleClass="slds-select" id="KnownIssueStatusSelectList" value="{!selectedStatus}">
+                        <apex:selectList size="1" styleClass="slds-select" id="KnownIssueStatusSelectList" value="{!selectedStatus}" disabled="{!IsKeywordUnknown}">
                             <apex:selectOptions value="{!StatusSelectOptions}"/>
                             <apex:actionSupport event="onchange" action="{!reloadKnowIssues}" rerender="knownIssuesTable"/>
                         </apex:selectList>
@@ -53,7 +54,6 @@
             
             
             <!-- PAGE TABLE -->
-          <apex:outputPanel id="knownIssuesTable" styleClass="slds-grid"> 
             <div class="slds-section slds-is-open slds-container_fluid slds-p-horizontal_large">
                 <h3 class="slds-section__title slds-theme_shade">
                     <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Known Issues</span>
