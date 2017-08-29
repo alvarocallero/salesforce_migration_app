@@ -45,7 +45,6 @@
     <deploymentStatus>Deployed</deploymentStatus>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
-    <enableChangeDataCapture>false</enableChangeDataCapture>
     <enableFeeds>false</enableFeeds>
     <enableHistory>false</enableHistory>
     <enableReports>false</enableReports>
@@ -79,22 +78,18 @@
                 <value>
                     <fullName>Not Uploaded</fullName>
                     <default>true</default>
-                    <label>Not Uploaded</label>
                 </value>
                 <value>
                     <fullName>Uploaded</fullName>
                     <default>false</default>
-                    <label>Uploaded</label>
                 </value>
                 <value>
                     <fullName>In Process</fullName>
                     <default>false</default>
-                    <label>In Process</label>
                 </value>
                 <value>
                     <fullName>Error</fullName>
                     <default>false</default>
-                    <label>Error</label>
                 </value>
             </valueSetDefinition>
         </valueSet>
@@ -127,7 +122,6 @@
         <trackTrending>false</trackTrending>
         <type>Checkbox</type>
     </fields>
-    
     <label>Einstein Data Message</label>
     <nameField>
         <displayFormat>EDM-{0000}</displayFormat>
@@ -137,5 +131,11 @@
     <pluralLabel>Einstein Data Messages</pluralLabel>
     <searchLayouts/>
     <sharingModel>ControlledByParent</sharingModel>
-    <visibility>Public</visibility>
+    <validationRules>
+        <fullName>Message_Not_Empty</fullName>
+        <active>true</active>
+        <errorConditionFormula>ISBLANK( Message__c )  ||  ISNULL(Message__c )</errorConditionFormula>
+        <errorDisplayField>Message__c</errorDisplayField>
+        <errorMessage>You must enter a valid message</errorMessage>
+    </validationRules>
 </CustomObject>
