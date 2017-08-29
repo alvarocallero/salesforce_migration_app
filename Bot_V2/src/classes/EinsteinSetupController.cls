@@ -129,6 +129,7 @@ public class EinsteinSetupController {
         einsteinEnabled = EinsteinUtils.getEinsteinEnabled();		
      	return null;
     }
+ 
     
     public PageReference train() {
         resetToastMessages();
@@ -180,7 +181,7 @@ public class EinsteinSetupController {
         return null;
     }
     
-    private void resetToastMessages() {
+    public void resetToastMessages() {
         toastErrorMessage = null;
         toastSuccessMessage = null;
     }
