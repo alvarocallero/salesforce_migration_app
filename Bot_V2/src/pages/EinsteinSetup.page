@@ -33,6 +33,14 @@
         .slds-section {
         margin-top: 0px !important;
         }
+        .toastButton{
+        height: 25px;
+        width: 25px;
+        text-decoration: none;
+        }
+        .buttonClose{
+        font-size: 20px;
+        }
         
     </style>
     
@@ -77,12 +85,18 @@
                                     <div class="slds-notify__content slds-align_absolute-center">
                                         <h2 class="slds-text-heading_small ">{!toastSuccessMessage}</h2>
                                     </div>
+                                     <apex:commandlink action="{!resetToastMessages}" style="text-decoration: none;" styleClass="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse toastButton" title="Close"> 
+                                        <span class="buttonClose">
+                                            X
+                                        </span>
+                                        <span class="slds-assistive-text">Close</span>
+                                    </apex:commandlink>  
                                 </div>
                             </div>
                         </div>
                     </apex:outputPanel>
                     <apex:outputPanel layout="none"
-                                      rendered="{!toastErrorMessage != null}">
+                                      rendered="{!toastErrorMessage != null}" >
                         <div class="demo-only toast-message" style="height: 4rem;">
                             <div class="slds-notify_container slds-is-relative">
                                 <div class="slds-notify slds-notify_toast slds-theme_error" role="alert">
@@ -90,6 +104,12 @@
                                     <div class="slds-notify__content slds-align_absolute-center">
                                         <h2 class="slds-text-heading_small ">{!toastErrorMessage}</h2>
                                     </div>
+                                    <apex:commandlink action="{!resetToastMessages}" style="text-decoration: none;" styleClass="slds-button slds-button_icon slds-notify__close slds-button_icon-inverse toastButton" title="Close"> 
+                                        <span class="buttonClose">
+                                            X
+                                        </span>
+                                        <span class="slds-assistive-text">Close</span>
+                                    </apex:commandlink>              
                                 </div>
                             </div>
                         </div>
@@ -226,7 +246,7 @@
                                 
                             </apex:dataTable> 
                             <br/>
-                               <apex:outputPanel rendered="{!!datasetUploaded}"> 
+                            <apex:outputPanel rendered="{!!datasetUploaded}"> 
                                 <apex:commandButton action="{!uploadMessages}"
                                                     value="Create Dataset"
                                                     styleClass="slds-button slds-button_brand slds-align--absolute-center train-button"
@@ -254,7 +274,7 @@
                                             id="messagesWithErrorTable"
                                             styleClass="slds-table slds-table_bordered slds-table_cell-buffer"  >
                                 
-                                                                
+                                
                                 <apex:column >
                                     <apex:facet name="header">MESSAGE</apex:facet>
                                     <apex:outputText value="{!row.Message__c}"/>
@@ -264,7 +284,7 @@
                                     <apex:facet name="header">KEYWORD</apex:facet>
                                     <apex:outputText value="{!row.Einstein_Keyword__r.Name}"/>
                                 </apex:column>
-
+                                
                                 
                                 <apex:column >
                                     <apex:facet name="header">MANAGE</apex:facet>
