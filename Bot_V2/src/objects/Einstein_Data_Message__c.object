@@ -131,6 +131,7 @@
     <pluralLabel>Einstein Data Messages</pluralLabel>
     <searchLayouts/>
     <sharingModel>ControlledByParent</sharingModel>
+	<visibility>Public</visibility>
     <validationRules>
         <fullName>Message_Not_Empty</fullName>
         <active>true</active>
