@@ -8,6 +8,8 @@ public class KnownIssueDetailController {
     private Id userId;
     public Boolean userIsSubscribed {get; set;}
     
+    public List<Known_Issue__c> relatedIssues {get; set;}
+    
     public KnownIssueDetailController(ApexPages.StandardController controller) {
         knownIssueId = controller.getRecord().Id;
         dataMessageId = ApexPages.currentPage().getParameters().get(PARAM_MESSAGEID);
@@ -45,6 +47,20 @@ public class KnownIssueDetailController {
             params.add( PARAM_MESSAGEID + '=' + messageId );
         
         return pageURL + '?' + String.join(params, '&');
+    }
+    
+    private void retrieveRelatedIssues(){
+        relatedIssues = new List<Known_Issue__c>();
+        List<Known_Issue__c> currentFoundIssue = [SELECT Id, Related_Issue__c FROM Known_Issue__c WHERE Id = :knownIssueId];
+        String queryString = 'SELECT Id, Name, Status__c, Message__c, From Known_Issue__c ';
+        queryString += 'WHERE Id = \'' + currentFoundIssue.get(0).Related_Issue__c + '\' ';
+        
+        queryString += 'Limit 1000';
+        try{
+			relatedIssues = Database.query(queryString);
+        }catch(Exception e){
+            System.debug('Error: ' + e);
+        }
     }
     
 }
