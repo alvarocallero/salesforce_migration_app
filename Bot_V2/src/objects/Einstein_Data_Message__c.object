@@ -45,7 +45,6 @@
     <deploymentStatus>Deployed</deploymentStatus>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
-	<enableChangeDataCapture>false</enableChangeDataCapture>
     <enableFeeds>false</enableFeeds>
     <enableHistory>false</enableHistory>
     <enableReports>false</enableReports>
@@ -79,22 +78,22 @@
                 <value>
                     <fullName>Not Uploaded</fullName>
                     <default>true</default>
-					<label>Not Uploaded</label>
+                    <label>Not Uploaded</label>
                 </value>
                 <value>
                     <fullName>Uploaded</fullName>
                     <default>false</default>
-					<label>Uploaded</label>
+                    <label>Uploaded</label>
                 </value>
                 <value>
                     <fullName>In Process</fullName>
                     <default>false</default>
-					<label>In Process</label>
+                    <label>In Process</label>
                 </value>
                 <value>
                     <fullName>Error</fullName>
                     <default>false</default>
-					<label>Error</label>
+                    <label>Error</label>
                 </value>
             </valueSetDefinition>
         </valueSet>
@@ -118,14 +117,6 @@
         <required>false</required>
         <trackTrending>false</trackTrending>
         <type>TextArea</type>
-    </fields>
-    <fields>
-        <fullName>Uploaded_to_Einstein__c</fullName>
-        <defaultValue>false</defaultValue>
-        <externalId>false</externalId>
-        <label>Uploaded to Einstein</label>
-        <trackTrending>false</trackTrending>
-        <type>Checkbox</type>
     </fields>
     <label>Einstein Data Message</label>
     <nameField>
