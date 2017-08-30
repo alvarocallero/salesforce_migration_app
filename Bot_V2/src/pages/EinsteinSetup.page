@@ -58,7 +58,7 @@
                                 height="40"/>
                 </div>
                 <div class="slds-media__body" >
-                    <h3 class="slds-truncate">EINSTEIN MESSAGES ADMINISTRATION</h3>
+                    <h3 class="slds-truncate">Einstein Messages Administration</h3>
                     <div class="slds-tile__detail slds-text-body_small" >
                         <p>Configure here all settings refered to Einstein usage.</p>
                     </div>
@@ -159,8 +159,8 @@
                         </div>     
                         
                         <div aria-hidden="false" class="slds-section__content">
-                            <p>Dataset status: <span class="slds-badge">{!datasetStatus}</span></p> <br/>
-                            <p>Train status: <span class="slds-badge">{!trainStatus}</span></p><br/>
+                            <p>Dataset status: <span class="slds-badge" style="background-color:{!datasetColorStatus};color: #ffffff;">{!datasetStatus}</span></p> <br/>
+                            <p>Train status: <span class="slds-badge" style="background-color:{!trainingColorStatus};color: #ffffff;">{!trainStatus}</span></p><br/>
                             <apex:commandButton action="{!resetEinstein}" rendered="{!couldResetEinstein}"
                                                 value="Reset dataset"
                                                 styleClass="slds-button slds-button_brand slds-align--absolute-center train-button"
