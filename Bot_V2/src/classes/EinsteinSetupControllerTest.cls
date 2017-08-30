@@ -5,8 +5,7 @@ public class EinsteinSetupControllerTest {
 
         List<Einstein_Keyword__c> keywords = new List<Einstein_Keyword__c>();
         for(Integer i=0; i<2; i++) {
-            keywords.add( new Einstein_Keyword__c( Name = 'TEST KEYWORD ' + String.valueOf(i+1),
-                                                   Uploaded_to_Einstein__c = false,
+            keywords.add( new Einstein_Keyword__c( Name = 'TEST KEYWORD ' + String.valueOf(i+1),                                                  
                                                    Einstein_Upload_Status__c = EinsteinUtils.UPLOAD_STATUS_NOT_UPLOADED
                                                  )
                         );
@@ -16,10 +15,9 @@ public class EinsteinSetupControllerTest {
         List<Einstein_Data_Message__c> messages = new List<Einstein_Data_Message__c>();
         for (Einstein_Keyword__c keyword: keywords) {
             for(Integer i=0; i<2; i++) {
-        		messages.add( new Einstein_Data_Message__c( Einstein_Keyword__c = keyword.Id,
-                                                 			Message__c = 'TEST MESSAGE ' + String.valueOf(i+1),
-                                                 			Uploaded_to_Einstein__c = false,
-                                                   			Einstein_Upload_Status__c = EinsteinUtils.UPLOAD_STATUS_NOT_UPLOADED ) );
+                messages.add( new Einstein_Data_Message__c( Einstein_Keyword__c = keyword.Id,
+                                                            Message__c = 'TEST MESSAGE ' + String.valueOf(i+1),
+                                                            Einstein_Upload_Status__c = EinsteinUtils.UPLOAD_STATUS_NOT_UPLOADED ) );
             }
         }
         insert messages;
@@ -35,7 +33,7 @@ public class EinsteinSetupControllerTest {
         Boolean enableEinsteinError = controller.toastErrorMessage != null;
 
         controller.uploadMessages();
-		Boolean uploadMessagesError = controller.toastErrorMessage != null;
+        Boolean uploadMessagesError = controller.toastErrorMessage != null;
 
         Test.stopTest();
 
@@ -48,17 +46,15 @@ public class EinsteinSetupControllerTest {
 
         List<Einstein_Keyword__c> keywords = new List<Einstein_Keyword__c>();
         for(Integer i=0; i<3; i++) {
-            keywords.add( new Einstein_Keyword__c( Name = 'TEST KEYWORD ' + String.valueOf(i+1),
-                                                   Uploaded_to_Einstein__c = false ) );
+            keywords.add( new Einstein_Keyword__c( Name = 'TEST KEYWORD ' + String.valueOf(i+1)) );
         }
         insert keywords;
 
         List<Einstein_Data_Message__c> messages = new List<Einstein_Data_Message__c>();
         for (Einstein_Keyword__c keyword: keywords) {
             for(Integer i=0; i<5; i++) {
-        		messages.add( new Einstein_Data_Message__c( Einstein_Keyword__c = keyword.Id,
-                                                 			Message__c = 'TEST MESSAGE ' + String.valueOf(i+1),
-                                                 			Uploaded_to_Einstein__c = false ) );
+                messages.add( new Einstein_Data_Message__c( Einstein_Keyword__c = keyword.Id,
+                                                            Message__c = 'TEST MESSAGE ' + String.valueOf(i+1)) );
             }
         }
         insert messages;

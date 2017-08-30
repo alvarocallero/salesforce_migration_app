@@ -60,7 +60,6 @@
     <relatedLists>
         <fields>NAME</fields>
         <fields>Message__c</fields>
-        <fields>Uploaded_to_Einstein__c</fields>
         <relatedList>Einstein_Data_Message__c.Einstein_Keyword__c</relatedList>
     </relatedLists>
     <relatedLists>

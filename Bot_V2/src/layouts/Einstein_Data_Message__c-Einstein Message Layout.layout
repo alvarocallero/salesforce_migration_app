@@ -19,10 +19,6 @@
                 <behavior>Edit</behavior>
                 <field>Message__c</field>
             </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Uploaded_to_Einstein__c</field>
-            </layoutItems>
         </layoutColumns>
         <style>OneColumn</style>
     </layoutSections>
