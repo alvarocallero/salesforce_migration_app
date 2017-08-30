@@ -1,3 +1,4 @@
-.THIS .mytransition{
-    transition: 0.5 opacity linear;
+.THIS.popover{
+    width: 70%;
+    min-width: 400px;
 }
