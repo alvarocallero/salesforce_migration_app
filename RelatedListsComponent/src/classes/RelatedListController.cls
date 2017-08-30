@@ -116,19 +116,35 @@ public with sharing class RelatedListController {
     }
     
     private static RelatedListWrapper getRelatedPartners(ID parentObjectId, Integer sobjectLimit, Integer offset){
-        List<Sobject> accounts = [SELECT ID, Name FROM Account 
-                                  WHERE Id IN (SELECT AccountToId FROM AccountPartner WHERE AccountFromId = :parentObjectId) 
-                                  LIMIT :sobjectLimit OFFSET :offset]; 
-        
-        Integer sObjectCount = [SELECT count() FROM Account 
-                                WHERE Id IN (SELECT AccountToId FROM AccountPartner WHERE AccountFromId = :parentObjectId)]; 
+        List<Account> accounts = new List<Account>();
+        Integer accountCount = 0;
+        Map<String, SObjectField> accountfieldsMap = Schema.getGlobalDescribe().get('Account').getDescribe().fields.getMap();
+        if(accountfieldsMap.get('Id').getDescribe().isAccessible()){
+            if(accountfieldsMap.get('Name').getDescribe().isAccessible()){        
+                accounts = [SELECT ID, Name FROM Account 
+                            WHERE Id IN (SELECT AccountToId FROM AccountPartner WHERE AccountFromId = :parentObjectId) 
+                            LIMIT :sobjectLimit OFFSET :offset];
+            }else{
+                accounts = [SELECT ID FROM Account 
+                            WHERE Id IN (SELECT AccountToId FROM AccountPartner WHERE AccountFromId = :parentObjectId) 
+                            LIMIT :sobjectLimit OFFSET :offset];
+            }
+            accountCount = [SELECT count() FROM Account 
+                            WHERE Id IN (SELECT AccountToId FROM AccountPartner WHERE AccountFromId = :parentObjectId)];
+        }
+         
         RelatedListWrapper result = new RelatedListWrapper();
         result.relatedSObjects = accounts;
-        result.numberOfSObjects = sObjectCount;
+        result.numberOfSObjects = accountCount;
         return result;
     }
     
     private static RelatedListWrapper getRelatedCaseTeamMembers(ID parentObjectId, Integer sobjectLimit, Integer offset){
+        List<Contact> contactMembers = new List<Contact>();
+        List<User> userMembers = new List<User>();
+        Integer contactsCount = 0;
+        Integer usersCount = 0;
+        
         List<CaseTeamMember> members = [SELECT MemberId From CaseTeamMember WHERE ParentId = :parentObjectId LIMIT :sobjectLimit OFFSET :offset];
         
         Set<Id> memberIds = new Set<Id>();
@@ -136,29 +152,51 @@ public with sharing class RelatedListController {
             memberIds.add(member.MemberId);
         }
         
-        List<Contact> contactMembers = [SELECT ID, Name FROM Contact where id IN :memberIds];
-        List<User> userMembers= [SELECT ID, Name FROM User where id IN :memberIds];
+        Map<String, SObjectField> contactfieldsMap = Schema.getGlobalDescribe().get('Contact').getDescribe().fields.getMap();
+        if(contactfieldsMap.get('Id').getDescribe().isAccessible()){
+            if(contactfieldsMap.get('Name').getDescribe().isAccessible()){        
+                contactMembers = [SELECT ID, Name FROM Contact where id IN :memberIds];
+            }else{
+                contactMembers = [SELECT ID FROM Contact where id IN :memberIds];
+            }
+            contactsCount = [SELECT count() From Contact WHERE Id IN (SELECT MemberId From CaseTeamMember WHERE ParentId = :parentObjectId)];
+        }
+        
+        Map<String, SObjectField> userfieldsMap = Schema.getGlobalDescribe().get('User').getDescribe().fields.getMap();
+        if(userfieldsMap.get('Id').getDescribe().isAccessible()){
+            if(userfieldsMap.get('Name').getDescribe().isAccessible()){        
+                userMembers = [SELECT ID, Name FROM User where id IN :memberIds];
+            }else{
+                userMembers = [SELECT ID FROM User where id IN :memberIds];
+            }
+            usersCount = [SELECT count() From User WHERE Id IN (SELECT MemberId From CaseTeamMember WHERE ParentId = :parentObjectId)];
+        }
         
         List<Sobject> membersResult = new List<Sobject>();
         membersResult.addAll((List<Sobject>)contactMembers);
         membersResult.addAll((List<Sobject>)userMembers);
         
-        Integer membersCount = [Select count() From CaseTeamMember WHERE ParentId = :parentObjectId];
-        
         RelatedListWrapper result = new RelatedListWrapper();
         result.relatedSObjects = membersResult;
-        result.numberOfSObjects = membersCount;
+        result.numberOfSObjects = contactsCount + usersCount;
         return result;   
     }
     
     private static RelatedListWrapper getRelatedCaseSolutions(ID parentObjectId, Integer sobjectLimit, Integer offset){      
-        List<Solution> solutions = [SELECT ID, SolutionName FROM Solution 
-                                    WHERE Id IN (SELECT SolutionId FROM CaseSolution WHERE CaseId = :parentObjectId) 
-                                  	LIMIT :sobjectLimit OFFSET :offset]; 
+        List<Solution> solutions = new List<Solution>();
+        Integer solutionsCount = 0;
+        //Check field name accessibility:
+        Map<String, SObjectField> fieldsMap = Schema.getGlobalDescribe().get('Solution').getDescribe().fields.getMap();
         
-        Integer solutionsCount = [SELECT count() FROM Solution 
-                                  WHERE Id IN (SELECT SolutionId FROM CaseSolution WHERE CaseId = :parentObjectId)];
-        
+        if(fieldsMap.get('Id').getDescribe().isAccessible()){
+            solutions = [SELECT ID FROM Solution 
+                         WHERE Id IN (SELECT SolutionId FROM CaseSolution WHERE CaseId = :parentObjectId) 
+                         LIMIT :sobjectLimit OFFSET :offset];
+            
+            solutionsCount = [SELECT count() FROM Contact 
+                              WHERE Id IN (SELECT ContactId FROM CaseContactRole WHERE CasesId = :parentObjectId)];
+        }
+                
         RelatedListWrapper result = new RelatedListWrapper();
         result.relatedSObjects = solutions;
         result.numberOfSObjects = solutionsCount;
@@ -166,12 +204,25 @@ public with sharing class RelatedListController {
     }
     
 	private static RelatedListWrapper getRelatedCaseContactRoles(ID parentObjectId, Integer sobjectLimit, Integer offset){      
-        List<Contact> contacts = [SELECT ID, Name FROM Contact 
-                                    WHERE Id IN (SELECT ContactId FROM CaseContactRole WHERE CasesId = :parentObjectId) 
-                                  	LIMIT :sobjectLimit OFFSET :offset]; 
+        List<Contact> contacts = new List<Contact>();
+        Integer contactsCount = 0;
+        //Check field and name accessibility:
+        Map<String, SObjectField> fieldsMap = Schema.getGlobalDescribe().get('Contact').getDescribe().fields.getMap();
         
-        Integer contactsCount = [SELECT count() FROM Contact 
-                                  WHERE Id IN (SELECT ContactId FROM CaseContactRole WHERE CasesId = :parentObjectId)];
+        if(fieldsMap.get('Id').getDescribe().isAccessible()){
+            if(fieldsMap.get('Name').getDescribe().isAccessible()){
+                contacts = [SELECT ID, Name FROM Contact 
+                            WHERE Id IN (SELECT ContactId FROM CaseContactRole WHERE CasesId = :parentObjectId) 
+                            LIMIT :sobjectLimit OFFSET :offset];
+            }else{
+                contacts = [SELECT ID FROM Contact 
+                            WHERE Id IN (SELECT ContactId FROM CaseContactRole WHERE CasesId = :parentObjectId) 
+                            LIMIT :sobjectLimit OFFSET :offset];
+            }
+        
+           contactsCount = [SELECT count() FROM Contact 
+                                     WHERE Id IN (SELECT ContactId FROM CaseContactRole WHERE CasesId = :parentObjectId)];
+        }
         
         RelatedListWrapper result = new RelatedListWrapper();
         result.relatedSObjects = contacts;
