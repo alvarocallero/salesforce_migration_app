@@ -74,11 +74,11 @@
             var utterance = event.target.value;
             var messages = component.get("v.messages");
             event.target.value = "";
-            component.set("v.placeholderText", "Leah is trying to find an answer...");
+            component.set("v.placeholderText", "Leah is processing your input...");
             window.setTimeout(
     			$A.getCallback(function() {
         			component.set("v.placeholderText", "Leah is typing...");
-    			}), 3000
+    			}), 2000
 			);
              helper.submit(component, utterance, component.get('v.session'), function(answer) {
                 		if (answer) {
@@ -98,6 +98,8 @@
     
     postbackButtonClickHandler : function(component, event, helper) {
         var utterance = event.getSource().get("v.name");
+        var btn = event.getSource();
+        btn.set("v.disabled", true);
         var messages = component.get("v.messages");
         var spinnerDiv = component.find("spinnerDiv");
         $A.util.removeClass(spinnerDiv, "slds-hidden");
@@ -111,7 +113,7 @@
                         $A.util.addClass(spinnerDiv, "slds-hidden");
                         messages.push({author: "Leah", messageText: 'Glad you found what you were looking for!'});
         				component.set("v.messages", messages);
-    				}), 2000
+    				}), 1500
 				);
         		
                 break;
@@ -130,6 +132,36 @@
                 }
             });
                 break;
+                
+            case 'trainHelpful':
+                
+                component.set("v.placeholderText", "Leah is typing...");
+                window.setTimeout(
+    				$A.getCallback(function() {
+        				component.set("v.placeholderText", "Provide feedback...");
+                        $A.util.addClass(spinnerDiv, "slds-hidden");
+                        messages.push({author: "Leah", messageText: 'Glad you found what you were looking for!'});
+        				component.set("v.messages", messages);
+    				}), 1500
+				);
+        		
+                break;
+                
+            case 'trainUseless':
+                var dataMessageId = component.get("v.dataMessageId");
+            	component.set("v.placeholderText", "Leah is creating a new Issue...");
+                
+            	helper.createNewIssue(component, dataMessageId, function(answer){
+                if(answer){
+                    component.set("v.placeholderText", "Provide feedback...");
+                    component.set("v.CurrentKnownIssueId", answer.knownIssueId);
+                    $A.util.addClass(spinnerDiv, "slds-hidden");
+                    Array.prototype.push.apply(messages, answer.messages);
+                    component.set("v.messages", messages);
+                }
+            });
+                break;
+                
                 
             default: 
             component.set("v.placeholderText", "Leah is working on your subscription...");    

@@ -46,7 +46,7 @@
     			$A.getCallback(function() {
                     callback(a.getReturnValue());
         			component.set("v.placeholderText", "Provide feedback...");
-    			}), 5000
+    			}), 2500
 			);
                 
             } else if (state === "INCOMPLETE") {
@@ -75,7 +75,7 @@
                 window.setTimeout(
     			$A.getCallback(function() {
                     callback(a.getReturnValue());
-    			}), 5000
+    			}), 2500
 			);
             } else if (state === "INCOMPLETE") {
 
@@ -104,7 +104,7 @@
                 window.setTimeout(
     			$A.getCallback(function() {
                     callback(a.getReturnValue());
-    			}), 5000
+    			}), 2500
 			);
             } else if (state === "INCOMPLETE") {
 
@@ -195,12 +195,6 @@
 
   onReceiveNotification : function(component, platformEvent) {
     var helper = this;
-    // Extract notification from platform event
-    // Save notification in historyhttps://trailhead.salesforce.com/modules/einstein_discovery_data_integration
-    //var notifications = component.get('v.notifications');
-    //notifications.push(newNotification);
-    //component.set('v.notifications', notifications);
-    // Display notification in a toast if not muted
     if (!component.get('v.isMuted'))
       helper.displayToast(component, 'success', platformEvent);
   },

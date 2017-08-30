@@ -21,7 +21,7 @@ public with sharing class BotController {
         String name = returnUser.Name.split(' ')[0];
         infoList.add(name);
         infoList.add('Hi ' + name + ', I\'m Leah! My job is to help you address any problems you might have with Lightning Experience.' +
-                     ' Just send feedback starting with the word <strong>\"Error\"</strong> and I\'ll try to find out what\'s going on. ' + '<br/>' + 'I may provide some helpful information and tips if you start your sentence with the word '+
+                     ' Just send feedback starting with the word <strong>\"Error\"</strong> and I\'ll try to find your problem. ' + '<br/>' + 'I may provide some helpful information if you start your sentence with the word '+
                      '<strong>\"Train\"</strong>.');
         infoList.add('So, how can I help you today?');
         infoList.add(userId);
@@ -109,6 +109,7 @@ public with sharing class BotController {
     				params.put('numResults', '5');
     				String result = LanguageController.predict(params);
     				
+    			
     				Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
     				
     				List<Known_Issue__c> knownIssuesFound = new List<Known_Issue__c>();
@@ -118,21 +119,27 @@ public with sharing class BotController {
     				
     				if(predictions != null){
     					for(Object pred : predictions){
-    						
+    						try{
     						Map<String, Object> objects = (Map<String, Object>) pred;
     						
-                            String einstainDataMessage = (String) objects.get('label');
+                            String einstainKeyWord = (String) objects.get('label');
                             
-    						List<Einstein_Data_Message__c> edmObject = [SELECT Id, Known_Issue__c FROM Einstein_Data_Message__c WHERE Message__c = :einstainDataMessage LIMIT 1];
-    						
-    						List<Known_Issue__c> ki = [SELECT Id, Message__c, Message_Summary__c FROM Known_Issue__c WHERE Id = :edmObject.get(0).Known_Issue__c LIMIT 1];
+                            List<Einstein_Keyword__c> lstEinsteinKeyword = [SELECT Id FROM Einstein_Keyword__c WHERE Name = :einstainKeyWord LIMIT 1];
+                            
+    						List<Known_Issue__c> ki = [SELECT Id, Message__c, Message_Summary__c FROM Known_Issue__c WHERE Einstein_Keyword__c = :lstEinsteinKeyword.get(0).Id];
     						
     						knownIssuesFound.add(ki.get(0));
     						
+    						 
+    						}catch(Exception e){
+    							System.debug(e.getCause());
+                                System.debug(e.getLineNumber());
+    						}
     						
     					}
     					
     					
+    					try{
                     	List<BotItem> botItemsList = new List<BotItem>();
                     	
                     	for(Known_Issue__c ki : knownIssuesFound){
@@ -147,8 +154,10 @@ public with sharing class BotController {
                     	buttons.add(btnHelpful);
                     	buttons.add(btnUseless);
                     	
-                        return new BotResponse(new BotMessage('', 'I talked to Einstein and I found this...', botItemsList, buttons), '', null);
-                
+                        return new BotResponse(new BotMessage('', 'I talked to Einstein and I found this...', botItemsList, buttons), null, null);
+    					}catch(Exception e){
+    						System.debug('ERROR SHOW LINE--> ' +e.getLineNumber());
+    					}
     				
                     }else{
                     	return new BotResponse(new BotMessage('', 'Sorry, I have not found anything related to your problem...'));
@@ -161,7 +170,6 @@ public with sharing class BotController {
             else{
             	if(utterance.substringBefore(' ') == 'error'){
                 //Einstein Not Enabled
-                
                 utterance = utterance.removeStart('error');
                 Id dataMessageId = EinsteinUtils.createMessage(null, utterance);
                 Set<Known_Issue__c> knownIssuesFound = findKnownIssuesByUtterance(utterance);
@@ -186,26 +194,40 @@ public with sharing class BotController {
 
             }else if(utterance.substringBefore(' ') == 'train'){
                 
-               /*utterance = utterance.removeStart('train');
-               TrainDocument__c td = new TrainDocument__c();
-               String searchCriteria = utterance;
-               td.ResponseBody__c = 'https://developer.salesforce.com/search?q=' + searchCriteria;
+               utterance = utterance.removeStart('train');
                
-               insert td;
+               String searchCriteria = 'https://developer.salesforce.com/search?q=' + utterance;
+              
                List<BotItem> botItemsList = new List<BotItem>();
-               String pageUrl = TrainUtils.getPageURL(td.Id);
-               BotItem botItem = new BotItem(utterance, pageUrl);
-               botItemsList.add(botItem);
-               return new BotResponse(new BotMessage('', 'Click on the link to see what I found for you', botItemsList, null), null, null);*/
                
-               return new BotResponse(new BotMessage('', 'I am not ready to retrieve documentation yet, but I will be soon!'));
-                
-            }
-            else{
-                //logUserMessage(utterance, currentUrl, null);
-                return new BotResponse(new BotMessage('', 'Please, start your feedback with the word \"<strong>Error</strong>\". For example: \"<strong>Error</strong> update button not working.\"'));
-            }
-            }
+               BotItem botItem = new BotItem(utterance, searchCriteria);
+               botItemsList.add(botItem);
+               
+               List<BotMessageButton> buttons = new List<BotMessageButton>();
+                    BotMessageButton btnHelpful = new BotMessageButton('This is helpful!', 'trainHelpful');
+                    BotMessageButton btnUseless = new BotMessageButton('I was not looking for this', 'trainUseless');
+                    buttons.add(btnHelpful);
+                    buttons.add(btnUseless);
+               
+               return new BotResponse(new BotMessage('', 'Click on the link to see what I found for you', botItemsList, buttons), null, null);
+               
+            }else{
+             		for (HandlerMapping mapping : BotController.handlerMappings) {
+                		Matcher utteranceMatcher = mapping.utterancePattern.matcher(utterance);
+                		if (utteranceMatcher.matches()) {
+                    		Type t = Type.forName('', mapping.handlerClassName);
+                    		BotHandler h = (BotHandler)t.newInstance();
+                    		List<String> params = new List<String>();
+                    		for (Integer i=1; i<=utteranceMatcher.groupCount(); i=i+1) {
+                        		params.add(utteranceMatcher.group(i).trim());
+                    		}
+                    		return h.handle(utterance, params, session);
+                		}
+            		}
+            
+            return new BotResponse(new BotMessage('Bot', 'I don\'t know how to answer that'));   
+            	}
+            }//end else einstein enabled
             
 
         } catch (Exception e) {

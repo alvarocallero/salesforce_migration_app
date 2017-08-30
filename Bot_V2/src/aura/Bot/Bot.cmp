@@ -76,7 +76,7 @@
                         <aura:iteration items="{!message.items}" var="item">
                             <aura:if isTrue="{!item.linkURL}">
                                  <div class="slds-border--bottom slds-m-bottom--xx-small">
-                                     <a class="custom-a-color" href="{!item.linkURL}"># {#item.name}</a>
+                                     <a class="custom-a-color" target="_blank" href="{!item.linkURL}"># {#item.name}</a>
                                  </div>
 
                                 <aura:set attribute="else">
