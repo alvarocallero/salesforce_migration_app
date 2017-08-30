@@ -17,7 +17,7 @@ private class ContentMigratorTest {
             Name,
             BodyLength
             FROM Document
-            WHERE Name LIKE 'TESTDOCUMENT%' AND BodyLength > 0 AND BodyLength < 4000 LIMIT 50
+            WHERE Name LIKE 'TESTDOCUMENT%' AND BodyLength > 0 AND BodyLength < 4000000 LIMIT 50
         ]; 
         List<Id> filesMigratedIds = new List<Id>();
         Integer docSize = docs.size();
