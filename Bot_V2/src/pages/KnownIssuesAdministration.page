@@ -11,21 +11,16 @@
                     <img src="/img/icon/service_contracts32.png" title="/img/icon/service_contracts32.png" />
                 </div>
                 <div class="slds-media__body" >
-                    <h3 class="slds-truncate">KNOWN ISSUES ADMINISTRATION</h3>
-                    <div class="slds-tile__detail slds-text-body_small" >
-                        <p>Edit Known Issues.</p>
-                    </div>
+                    <h3 class="slds-truncate">Known Issues Administration</h3>
                 </div>
             </article>
         </div>
     </div>
-    
+    <hr/>
     
         <apex:form >
          <apex:outputPanel id="knownIssuesTable" > 
-            <div class="slds-grid">
-                
-            
+            <div class="slds-grid ">
             <fieldset class="slds-form-element slds-p-horizontal_large">
                 <label class="slds-form-element__label">Keyword</label>
                 <div class="slds-form-element__control">
@@ -39,7 +34,7 @@
             </fieldset>
             
             <!-- / WRITERS PICKLIST -->
-            <fieldset class="slds-form-element slds-p-horizontal_large">
+            <fieldset class="slds-form-element slds-p-horizontal_large ">
                 <label class="slds-form-element__label">Status</label>
                 <div class="slds-form-element__control">
                     <div class="slds-select_container">
@@ -51,46 +46,45 @@
                 </div>
             </fieldset>
             </div>
-            
+                         
             
             <!-- PAGE TABLE -->
-            <div class="slds-section slds-is-open slds-container_fluid slds-p-horizontal_large">
-                <h3 class="slds-section__title slds-theme_shade">
-                    <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Known Issues</span>
-                </h3>
-                <div aria-hidden="false" class="slds-section__content">
+
+            <div class="slds-section slds-is-open slds-container_fluid slds-p-horizontal_large ">
+                <div aria-hidden="false" class="slds-section__content ">
                     
                     <apex:dataTable value="{!filteredKnownIssues}"
                                     var="row"
                                     id="knownIssuesTableData"
-                                    styleClass="slds-table slds-table_bordered slds-table_cell-buffer" >
+                                    styleClass="slds-table slds-table_bordered slds-table_cell-buffer slds-theme_shade" >
                         
-                        <apex:column >
+                        <apex:column style="background-color:white">
                             <apex:facet name="header">ID</apex:facet>
                             <apex:outputText value="{!row.Id}"/>
                         </apex:column>
                         
-                        <apex:column >
-                            <apex:facet name="header">STATUS</apex:facet>
+                        <apex:column style="background-color:white">
+                            <apex:facet name="header">Status</apex:facet>
                             <apex:outputText value="{!row.Status__c}"/>
                         </apex:column>
                         
-                        <apex:column >
-                            <apex:facet name="header">SUMARY</apex:facet>
+                        <apex:column style="background-color:white" >
+                            <apex:facet name="header">Summary</apex:facet>
                             <apex:outputText value="{!row.Message_Summary__c}"/>
                         </apex:column>
                         
-                        <apex:column >
-                            <apex:facet name="header">KEYWORD</apex:facet>
-                            <apex:outputText value="{!row.Einstein_Keyword__r.Name}"/>
+                        <apex:column style="background-color:white">
+                            <apex:facet name="header">Keyword</apex:facet>
+                            <apex:outputText value="{!row.Einstein_Keyword__r.Name}" />
                         </apex:column>
                         
-                        <apex:column >
-                            <apex:facet name="header">ACTIONS</apex:facet>
+                        <apex:column style="background-color:white">
+                            <apex:facet name="header">Actions</apex:facet>
                             <input type="button"
                                    onclick="window.open('/one/one.app?#/sObject/{!row.Id}/view', '_blank');"
                                    class="slds-button slds-button_neutral manage-button"
-                                   value="Edit" />
+                                   value="Edit" 
+                                   />
                         </apex:column>
                         
                     </apex:dataTable>
