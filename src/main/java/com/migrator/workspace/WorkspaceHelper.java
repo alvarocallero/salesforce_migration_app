@@ -1,114 +1,143 @@
 package com.migrator.workspace;
 
-import org.apache.log4j.Logger;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
+import org.apache.log4j.Logger;
 import com.migrator.service.DocumentServiceImpl;
 import com.sforce.soap.partner.QueryResult;
 import com.sforce.soap.partner.SaveResult;
 import com.sforce.soap.partner.sobject.SObject;
 
 public class WorkspaceHelper {
-	
+
 	final static Logger logger = Logger.getLogger(WorkspaceHelper.class);
-	
-	public static String createContentWorkspaceDoc(String contentWorkSpaceId, String contentDocumentId) {
+
+	public static TreeMap <String,String> getAllContentWorkSpace(){
+		logger.info("Entering getAllContentWorkSpace >>>");
+		QueryResult qResult = null;
 		try {
-			logger.info("Entering createContentWorkspaceDoc >>>");
-			// creation of the ContentWorkspaceDoc SObject
-			SObject contentWorkspaceDoc = new SObject();
-			contentWorkspaceDoc.setType("ContentWorkspaceDoc");
-
-			// add the ContentWorkspaceDoc SObject to the request SObject array
-			SObject[] request = {contentWorkspaceDoc};
-
-			// set fields of the SObject and add the data
-			contentWorkspaceDoc.setField("ContentWorkspaceId", contentWorkSpaceId);
-			contentWorkspaceDoc.setField("ContentDocumentId", contentDocumentId);
-
-			// create the files and save the response to the request
-			SaveResult[] saveResults = DocumentServiceImpl.connection.create(request);
-
-			// check the result of the request
-			if (saveResults[0].isSuccess()) {
-				logger.info("Successfully create link: " + saveResults[0].getId());
-				return saveResults[0].getId();
+			List<SObject> arrayResult = new LinkedList<SObject>();
+			qResult = DocumentServiceImpl.connection.query("select id, name from ContentWorkspace");
+			boolean done = false;
+			if (qResult.getSize() > 0) {
+				while (!done) {
+					for (SObject obj : qResult.getRecords()){
+						arrayResult.add(obj);						
+					}
+					if (qResult.isDone()) {
+						done = true;
+					} else {
+						qResult = DocumentServiceImpl.connection.queryMore(qResult.getQueryLocator());
+					}
+				}
 			} else {
-				logger.info("Error creating the link: " + saveResults[0].getErrors()[0].getMessage());
+				logger.info("No ContentWorkspaces found");
 			}
 
+			//Map <ContentWSiD,CWSname>, we map this because we can check CWSname with the folder name
+			TreeMap <String,String> resultMap = new TreeMap<String,String>();
+			for (SObject obj : arrayResult){
+				if ((String)obj.getField("Id") != null){
+					resultMap.put((String)obj.getField("Id"), (String)obj.getField("Name"));
+				}
+			}
+			logger.info("Leaving getAllContentWorkSpace <<<");
+			return resultMap;
 		} catch (Exception e) {
-			logger.error("Error on method createContentWorkspaceDoc: " + e);
+			logger.error("Error on method getAllContentWorkSpace: " + e);
 		}
-		logger.info("Leaving createContentWorkspaceDoc <<<");
+		logger.info("Leaving getAllContentWorkSpace <<<");
 		return null;
 	}
-	
-	public static String createContentWorkspace(String contentFolderName) {
+
+
+	public static TreeMap<String, String> createContentWorkspace( SObject[] docsArray , TreeMap<String, String> mapOfCWSIdAndName, TreeMap<String,String> mapOfFolderIdAndName) {
+		logger.info("Entering createContentWorkspace >>>");
+		String response = null;
+		List<String> contentWorkspaceToCreate = new LinkedList<String>();
+		
+		//Map <ContetWorkSpaceId,ContentWorkspaceName>
+		TreeMap<String, String> mapToReturn = mapOfCWSIdAndName;
+
 		try {
-			logger.info("Entering createContentWorkspace >>>");
-			// check if directory exist
-			if (checkIfContentWorkspaceExist(contentFolderName)) {
-				logger.info("The library already exist: " + contentFolderName);
-				contentFolderName += "_lex";
-				String  idLib= checkIfContentWorkspaceExistWithLexWord(contentFolderName);
-				if(null != idLib){
-					return idLib;
+			// chequeamos si existe en los ContentWorkspace uno que se llame igual
+			for (SObject document : docsArray){
+				String folderId = (String)document.getField("FolderId");
+				String folderName = mapOfFolderIdAndName.get(folderId);
+				if(folderName != null){
+					for (Map.Entry<String, String> entry : mapOfCWSIdAndName.entrySet()){
+						if(folderName.equals(entry.getValue())){
+							response=entry.getKey();
+						}
+					}
 				}
-				logger.info("The library wil be created as " + contentFolderName);
+				//si no existe lo agregamos a una lista temporal
+				if(response==null){
+					contentWorkspaceToCreate.add(folderName);
+				}
+				else{
+					mapToReturn.put(response, folderName);
+				}
 			}
 
-			// creation of the ContentVersion SObject
-			SObject contentWorkspace = new SObject();
-			contentWorkspace.setType("ContentWorkspace");
-
-			// add the ContentVersion SObject to the request SObject array
-			SObject[] contentArray = {contentWorkspace};
-
-			// set fields of the SObject and add the data
-			contentWorkspace.setField("Name", contentFolderName);
-
-			// create the files and save the response to the request
-			SaveResult[] saveResults = DocumentServiceImpl.connection.create(contentArray);
-
-			// check the result of the request
-			if (saveResults[0].isSuccess()) {
-				logger.info("Successfully create folder: " + contentFolderName + " " + saveResults[0].getId());
-				return saveResults[0].getId();
-			} else {
-				logger.error("Error on method createContentWorkspace: " + saveResults[0].getErrors()[0].getMessage());
-				logger.error("Status code: "+saveResults[0].getErrors()[0].getStatusCode());
+			TreeMap <String,String>	mapOfCreatedCWS = createContentWorkspaceBatch(contentWorkspaceToCreate);
+			for(Map.Entry<String,String> entry : mapOfCreatedCWS.entrySet()){
+				mapToReturn.put(entry.getKey(), entry.getValue());
 			}
-
 		} catch (Exception e) {
-			logger.error("Error at createContentWorkspace: " + e);
+			logger.error("Error on method createContentWorkspace: " + e);
+			return null;
 		}
 		logger.info("Leaving createContentWorkspace <<<");
-		return null;
+		return  mapToReturn;
 	}
-	
-	private static Boolean checkIfContentWorkspaceExist(String contentFolderName) {
+
+	public static TreeMap <String,String> createContentWorkspaceBatch(List<String> contentFolderName) {
+		logger.info("Entering createContentWorkspaceBatch >>>");
+
+		//Map <CWSids,CWSname>
+		TreeMap <String,String> mapResult = new TreeMap<String,String>();
 		try {
-			QueryResult response = DocumentServiceImpl.connection.query("select id, name from ContentWorkspace where Name = '" + contentFolderName + "'");
-			if (response.getRecords().length > 0) {
-				return false;
+			// creation of the ContentVersion SObject
+			SObject[] contentArrayToCreate = new SObject[contentFolderName.size()]; 
+			for (int i=0;i<contentFolderName.size();i++){
+				SObject contentWorkspace = new SObject();
+				contentWorkspace.setType("ContentWorkspace");
+				contentWorkspace.setField("Name", contentFolderName.get(i));
+				contentArrayToCreate[i] = contentWorkspace;
 			}
+			SaveResult[] saveResults = DocumentServiceImpl.connection.create(contentArrayToCreate);
+
+			for (int i=0;i<saveResults.length;i++){
+				if (saveResults[i].getId() != null){
+					mapResult.put(saveResults[i].getId(), contentFolderName.get(i));
+				}
+			}
+
 		} catch (Exception e) {
-			logger.error("Error on method checkIfContentWorkspaceExist: " + e);
+			logger.error("Error at createContentWorkspaceBatch: " + e);
 		}
-		return true;
+		logger.info("Leaving createContentWorkspaceBatch <<<");
+		return mapResult;
 	}
-	
-	private static String checkIfContentWorkspaceExistWithLexWord(String contentFolderName) {
-		try {
-			QueryResult response = DocumentServiceImpl.connection.query("select id, name from ContentWorkspace where Name = '" + contentFolderName + "'");
-			if (response.getRecords().length > 0) {
-				SObject[] libraries = response.getRecords();
-				return (String) libraries[0].getField("Id");
+
+	public static TreeMap<String,String> createMapOfcwsIdAndCwsId(TreeMap<String,String> mapOfcwsIdAndName, TreeMap<String,String> mapOfFolderIdAndName){
+		logger.info("Entering createMapOfcwsIdAndCwsId >>>");
+		//Map<FolderId,cwsId>
+		TreeMap<String,String> mapToReturn = new TreeMap<String,String>();
+		for (Map.Entry<String, String> cws : mapOfcwsIdAndName.entrySet()){
+			for (Map.Entry<String, String> folder : mapOfFolderIdAndName.entrySet()){
+				if(folder.getValue().equals(cws.getValue())){
+					mapToReturn.put(folder.getKey(), cws.getKey());
+					break;
+				}
 			}
-		} catch (Exception e) {
-			logger.error("Error on method checkIfContentWorkspaceExistWithLexWord: " + e);
 		}
-		return null;
+		logger.info("Leaving createMapOfcwsIdAndCwsId <<<");
+		return mapToReturn;
 	}
 
 }

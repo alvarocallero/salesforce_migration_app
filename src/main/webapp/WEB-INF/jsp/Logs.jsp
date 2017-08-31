@@ -21,7 +21,16 @@
 			</div>
 		</div>
 	</div>
-
+	<c:if test="${not empty logLst}">
+		<ul>
+			<c:forEach var="log" items="${logLst}">
+				<li>${log}</li>
+			</c:forEach>
+		</ul>
+	</c:if>
+	<c:if test="${empty logLst}">
+		Es vacia la lista...
+	</c:if>
 
 </body>
 </html>

@@ -20,35 +20,37 @@
 	<div class="navbar navbar-fixed-top">
 		<div class="navbar-inner">
 			<div class="container">
-				<a class="brand">Documents Migration App</a> 
+				<a class="brand">Documents Migration App</a>
 			</div>
 		</div>
 	</div>
 
 	<div class="container">
 		<div class="row">
-			<div class="span8 offset2" >
+			<div class="span8 offset2">
 				<div class="page-header" style="font-size: 20px;">
 					<strong>Migrate Documents</strong>
 				</div>
 				<form:form action="transformDocuments" class="form-vertical">
-					<input type="submit" value="      Submit      " class="btn btn-primary btn-lg" />
+					<input type="submit" value="      Migrate      "
+						class="btn btn-primary btn-lg" />
 				</form:form>
 			</div>
 		</div>
 	</div>
+	<!--  SHOW LOGS
 	<div class="container">
 		<div class="row">
-			<div class="span8 offset2" >
+			<div class="span8 offset2">
 				<div class="page-header" style="font-size: 20px;">
 					<strong>Show logs</strong>
 				</div>
 				<form:form action="showLogs" class="form-vertical">
-					<input type="submit" value="      Submit      " class="btn btn-primary btn-lg" />
+					<input type="submit" value="      Submit      "
+						class="btn btn-primary btn-lg" />
 				</form:form>
 			</div>
 		</div>
-	</div>
-
+	</div>-->
 </body>
 </html>
