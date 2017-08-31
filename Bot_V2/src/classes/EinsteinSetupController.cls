@@ -37,7 +37,6 @@ public class EinsteinSetupController {
                 if(datasetStatus == EinsteinUtils.EINSTEIN_DS_STATUS_SUCCEEDED){
                     datasetColorStatus = '#269900';
                     lettercolor ='#ffffff';
-                    system.debug('here with the color' + letterColor);
                 }else if(datasetStatus == EinsteinUtils.EINSTEIN_DS_STATUS_UPLOADING){   
 					datasetColorStatus = '#1e968f';
 					lettercolor ='#ffffff';                      
