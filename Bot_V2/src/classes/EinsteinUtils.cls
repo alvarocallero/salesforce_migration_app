@@ -17,6 +17,8 @@ public class EinsteinUtils {
     
     // EINSTEIN TRAIN STATUS    
     public static final String EINSTEIN_TRAIN_STATUS_SUCCEEDED = 'SUCCEEDED';
+    public static final String EINSTEIN_TRAIN_STATUS_QUEUED = 'QUEUED';
+    public static final String EINSTEIN_TRAIN_STATUS_RUNNING = 'RUNNING';
     public static final String EINSTEIN_TRAIN_STATUS_FAILED = 'FAILED';
     
     // EINSTEIN DATASET STATUS    
@@ -35,7 +37,7 @@ public class EinsteinUtils {
     // EINSTEIN ENDPOINTS - API TOKEN - JWTISS
     public static final String EINSTEIN_ENDPOINT_APITOKEN_JWTISS = 'developer.force.com';
     // EINSTEIN ENDPOINTS - API TOKEN - JWTSUB
-    public static final String EINSTEIN_ENDPOINT_APITOKEN_JWTSUB = 'etorrano@altimetrik.com';
+    public static final String EINSTEIN_ENDPOINT_APITOKEN_JWTSUB = 'akazerian@altimetrik.com';
     
     // EINSTEIN ENDPOINTS - LANGUAGE_API
     public static final String EINSTEIN_ENDPOINT_LANGUAGE_API = 'https://api.einstein.ai/v2/language';

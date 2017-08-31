@@ -15,6 +15,8 @@ public class EinsteinSetupController {
     public List<Einstein_Keyword__c> keywordsToUpload {get; set;}
     public List<Einstein_Data_Message__c> messagesWithError {get; set;}
     public string datasetColorStatus{get;set;}
+    public string letterColor {get;set;}
+    public string lettercolorTraing {get;set;}
     public string trainingColorStatus{get;set;}
     
     
@@ -32,16 +34,20 @@ public class EinsteinSetupController {
             Map<String, Object> jsonDatasetStatus = (Map<String, Object>)JSON.deserializeUntyped(LanguageController.getDataset(datasetId));
             if (jsonDatasetStatus.containsKey(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETDS_STATUS) && datasetId != null && datasetId != ''){
                 datasetStatus = (String)jsonDatasetStatus.get(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETDS_STATUS);
-                if(datasetStatus == 'SUCCEEDED'){
-                    datasetColorStatus = 'Green';
-                    
-                }else if(datasetStatus == 'UPLOADING'){   
-					datasetColorStatus = '#20B2AA';                    
-                }else if(datasetStatus == 'FAILED'){
+                if(datasetStatus == EinsteinUtils.EINSTEIN_DS_STATUS_SUCCEEDED){
+                    datasetColorStatus = '#269900';
+                    lettercolor ='#ffffff';
+                    system.debug('here with the color' + letterColor);
+                }else if(datasetStatus == EinsteinUtils.EINSTEIN_DS_STATUS_UPLOADING){   
+					datasetColorStatus = '#1e968f';
+					lettercolor ='#ffffff';                      
+                }else if(datasetStatus == EinsteinUtils.EINSTEIN_DS_STATUS_FAILURE){
                     datasetColorStatus = 'Orange';
+                    lettercolor ='#ffffff';  
                 }
             }
         } else{
+            letterColor = 'Black';
             datasetStatus = 'The dataset was not uploaded yet';
         }
         
@@ -51,15 +57,26 @@ public class EinsteinSetupController {
             Map<String, Object> jsonTrainStatus = (Map<String, Object>)JSON.deserializeUntyped(LanguageController.getTrainStatus(modelId));
             if (jsonTrainStatus.containsKey(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS) && modelId != null && modelId != ''){
                 trainStatus = (String)jsonTrainStatus.get(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS);
-                if(datasetStatus == 'SUCCEEDED'){
-                    trainingColorStatus = 'Green';
+                if(trainStatus == EinsteinUtils.EINSTEIN_TRAIN_STATUS_SUCCEEDED){
+                    trainingColorStatus = '#269900';
+                    lettercolorTraing ='#ffffff';
                     
-                }else if(datasetStatus == 'FAILED'){   
-					trainingColorStatus = 'Orange';                    
+                }else if(trainStatus == EinsteinUtils.EINSTEIN_TRAIN_STATUS_FAILED){   
+					trainingColorStatus = 'Orange';
+					lettercolorTraing ='#ffffff';                    
+                }else if(trainStatus == EinsteinUtils.EINSTEIN_TRAIN_STATUS_QUEUED){
+                    trainingColorStatus = '#22b5ac';
+					lettercolorTraing ='Black';  
+                    
+                }else if(trainStatus == EinsteinUtils.EINSTEIN_TRAIN_STATUS_RUNNING){
+                    trainingColorStatus = '#13635e';
+					lettercolorTraing ='#ffffff';          
                 }
             }
         } else {
+			lettercolorTraing = 'Black';
             trainStatus = 'The dataset was not trained yet.';
+            
         }
         datasetUploaded = EinsteinUtils.getEinsteinDatasetId() != null && EinsteinUtils.getEinsteinDatasetId() != '' && datasetStatus == EinsteinUtils.EINSTEIN_DS_STATUS_SUCCEEDED;
         couldTrain =  datasetUploaded && (String.isBlank(modelId));
