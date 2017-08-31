@@ -7,11 +7,6 @@
     		helper.connectCometd(component);
 		},
     
-    checkRecord : function(component){
-      console.info("RECORD ID --> ", component.get("v.recordId"));
-        console.info("RECORD NAME --> ", component.get("v.sObjectName"))
-    },
-
     doInit : function(component, event, helper){
         var action = component.get("c.userInfo");
         action.setCallback(this, function(response){
@@ -115,6 +110,11 @@
         				component.set("v.messages", messages);
     				}), 1500
 				);
+                
+                component.set("v.fileName", "");
+        		component.set("v.attachmentURL", "");
+        		component.set("v.attachmentContent", "");
+        		component.set("v.files", null);
         		
                 break;
                 

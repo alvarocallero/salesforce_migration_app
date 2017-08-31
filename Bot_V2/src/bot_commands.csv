@@ -1,0 +1,5 @@
+Name,Invocation Pattern,Apex Class,Sample Utterance,Active
+Hello,^(hey|hi|hello|hello there|hi there|hey there|hey!|hi!|hello!|hello there!|hi there!|hey there!),HandlerHello,Hello,true
+Goodbye,^(bye|goodbye|see you|ciao|bye!|goodbye!|see you!|ciao!),HandlerGoodbye,goodbye,true
+Thanks,^(thanks|thank you|thx|I appreciate|thanks!|thank you!|thx!),HandlerThanks,thanks,true
+Help,^(help|i need help|need help),HandlerHelp,help,true

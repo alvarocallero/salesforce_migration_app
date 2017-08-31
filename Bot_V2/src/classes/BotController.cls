@@ -61,9 +61,14 @@ public with sharing class BotController {
     }
     
     @AuraEnabled
-    public static BotResponse addNewKnownIssue(String dataMessageId, String currentUrl){
+    public static BotResponse addNewKnownIssue(String dataMessageId, String currentUrl, String content, String fileName){
+        ContentVersion contentVersion = null;
+            
+        if(!String.isEmpty(content) && !String.isEmpty(fileName)){
+                contentVersion = uploadFile(fileName, content);
+        }
         
-        Known_Issue__c newKnownIssue = KnownIssuesUtils.createKnownIssue(dataMessageId, currentUrl);
+        Known_Issue__c newKnownIssue = KnownIssuesUtils.createKnownIssue(dataMessageId, currentUrl, contentVersion);
         
         List<BotItem> botItemsList = new List<BotItem>();
         String pageUrl = KnownIssueDetailController.getPageURL(newKnownIssue.Id, dataMessageId);
@@ -93,10 +98,11 @@ public with sharing class BotController {
     }
 
     @AuraEnabled
-    public static BotResponse submit(String utterance, Map<String, String> session, String currentUrl, String currentUser, String responseText) {
-		//see flow for first time, when there are not any known issues
+    public static BotResponse submit(String utterance, Map<String, String> session, String currentUrl,
+                                     String currentUser, String responseText) {
+		
         try {
-
+            
             utterance = utterance.toLowerCase();
             
             if(EinsteinUtils.getEinsteinEnabled() == true){
@@ -113,7 +119,6 @@ public with sharing class BotController {
     				Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
     				
     				List<Known_Issue__c> knownIssuesFound = new List<Known_Issue__c>();
-    				
     				
     				List<Object> predictions = (List<Object>)jsonResult.get('probabilities');
     				
@@ -188,7 +193,7 @@ public with sharing class BotController {
                     buttons.add(btnUseless);
                     return new BotResponse(new BotMessage('', 'This is what I found...', botItemsList, buttons), dataMessageId, null);
                 }else{
-                    return addNewKnownIssue(dataMessageId, currentUrl);
+                    return addNewKnownIssue(dataMessageId, currentUrl, '', '');
                     //return new BotResponse(new BotMessage('', 'Sorry, I have not found anything related to your problem...'));
                 }
 
