@@ -158,7 +158,7 @@
                 
                 <div aura:id="spinnerDiv" class="slds-input__icon slds-input__icon-right slds-hidden">
       				<div role="status" class="slds-spinner slds-spinner_brand slds-spinner_x-small slds-input__spinner">
-        				<span class="slds-assistive-text">Leah thinnking</span>
+        				<span class="slds-assistive-text">Leah thinking</span>
         				<div class="slds-spinner__dot-a"></div>
         				<div class="slds-spinner__dot-b"></div>
       				</div>

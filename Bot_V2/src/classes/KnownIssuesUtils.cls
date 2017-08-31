@@ -33,7 +33,7 @@ public class KnownIssuesUtils {
         return getKnownIssues(recordTypeId, targetName, targetId).size();
     }
 
-    public static Known_Issue__c createKnownIssue(Id dataMessageId, String currentUrl){
+    public static Known_Issue__c createKnownIssue(Id dataMessageId, String currentUrl, ContentVersion contentVersion){
 
         List<Einstein_Data_Message__c> edm = [SELECT Id, Message__c FROM Einstein_Data_Message__c WHERE Id = :dataMessageId];
 
@@ -77,6 +77,10 @@ public class KnownIssuesUtils {
         newKi.Einstein_Keyword__c = EinsteinUtils.getUndefinedKeywordId();
         newKi.Status__c = 'Pending Approval';
         newKi.Priority__c = 'Normal (3)';
+        
+        if(contentVersion != null){
+            newKi.Content_Document__c = contentVersion.Id;
+        }
 
         insert newKi;
 

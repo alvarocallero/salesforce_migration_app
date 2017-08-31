@@ -105,6 +105,18 @@
                         </div>
                       </li>
                       </apex:outputPanel>
+                        
+                      <apex:outputPanel layout="none"
+                                        styleClass="slds-grid"
+                                        rendered="{!Known_Issue__c.Content_Document__c != null}" >
+                      <li class="slds-form-element slds-hint-parent slds-border_bottom">
+                        <span class="slds-form-element__label">Attached Image</span>
+                        <div class="slds-form-element__control">
+							<img class="slds-p-around--small" src="{!'/sfc/servlet.shepherd/version/download/' + Known_Issue__c.Content_Document__c}"
+                                 style="max-wiidth:400px;max-height:400px;"/>
+                        </div>
+                      </li>
+                      </apex:outputPanel>
                     </ul>
                     
                 </div>
