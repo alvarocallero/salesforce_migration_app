@@ -25,12 +25,15 @@ private class ContentMigratorTest {
         if (docSize>0 && fileSize > docSize){ 
             // Create a Json's key/value with documentId/ContentVersionId
             JSONGenerator gen = JSON.createGenerator(true);
+            gen.writeFieldName('jsonIdsMap');
+            gen.writeStartObject();
             gen.writeStartObject();
             for(Integer i = 0; i<docSize; i++){
                 Id fileId = files[i].Id;
                 gen.writeStringField(docs[i].Id, fileId);
                 filesMigratedIds.add(fileId);
             }    
+            gen.writeEndObject();
             gen.writeEndObject();
             gen.close();
             String jsonDocuments = gen.getAsString();
