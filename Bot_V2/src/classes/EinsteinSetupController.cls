@@ -16,7 +16,7 @@ public class EinsteinSetupController {
     public List<Einstein_Data_Message__c> messagesWithError {get; set;}
     public string datasetColorStatus{get;set;}
     public string letterColor {get;set;}
-    public string lettercolorTraing {get;set;}
+    public string lettercolorTrain {get;set;}
     public string trainingColorStatus{get;set;}
     
     
@@ -59,22 +59,22 @@ public class EinsteinSetupController {
                 trainStatus = (String)jsonTrainStatus.get(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS);
                 if(trainStatus == EinsteinUtils.EINSTEIN_TRAIN_STATUS_SUCCEEDED){
                     trainingColorStatus = '#269900';
-                    lettercolorTraing ='#ffffff';
+                    lettercolorTrain ='#ffffff';
                     
                 }else if(trainStatus == EinsteinUtils.EINSTEIN_TRAIN_STATUS_FAILED){   
 					trainingColorStatus = 'Orange';
-					lettercolorTraing ='#ffffff';                    
+					lettercolorTrain ='#ffffff';                    
                 }else if(trainStatus == EinsteinUtils.EINSTEIN_TRAIN_STATUS_QUEUED){
                     trainingColorStatus = '#22b5ac';
-					lettercolorTraing ='Black';  
+					lettercolorTrain ='Black';  
                     
                 }else if(trainStatus == EinsteinUtils.EINSTEIN_TRAIN_STATUS_RUNNING){
                     trainingColorStatus = '#13635e';
-					lettercolorTraing ='#ffffff';          
+					lettercolorTrain ='#ffffff';          
                 }
             }
         } else {
-			lettercolorTraing = 'Black';
+			lettercolorTrain = 'Black';
             trainStatus = 'The dataset was not trained yet.';
             
         }
