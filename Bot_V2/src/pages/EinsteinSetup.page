@@ -68,7 +68,7 @@
         
         
         <!-- PAGE CONTENT -->
-        <apex:outputPanel id="reloadPage" layout="block"
+        <apex:outputPanel layout="block"
                           styleClass="page-content">
             <apex:form >                
                 <apex:actionFunction action="{!disableEinstein}" name="disableEinstein" reRender="einstein-switch"/>
@@ -173,7 +173,7 @@
                             <apex:commandButton action="{!train}"
                                                 value="Train"
                                                 styleClass="slds-button slds-button_brand slds-align--absolute-center train-button"
-                                                reRender="einstein-switch,keywordToUpload" rendered="{!couldTrain}"/>
+                                                reRender="einstein-switch,keywordToUpload,renderKeywordsMissing,keywordTD" rendered="{!couldTrain}"/>
                             
                         </div>
                         </apex:outputPanel>
@@ -181,7 +181,7 @@
                 </apex:pageBlock>    
                 
                 <br/>
-                <apex:pageBlock rendered="{!AND(NOT(ISNULL(keywordsMissingMessages)),keywordsMissingMessages.size>0)}">    
+                <apex:pageBlock id="renderKeywordsMissing" rendered="{!AND(NOT(ISNULL(keywordsMissingMessages)),keywordsMissingMessages.size>0)}">    
                     <div class="slds-section slds-is-open" rendered="{!keywordsMissingMessages.size!=0}">
                         <h3 class="slds-section__title slds-theme_shade">
                             <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Keywords with missing messages</span>
@@ -252,20 +252,20 @@
                                 <apex:commandButton action="{!uploadMessages}"
                                                     value="Create Dataset"
                                                     styleClass="slds-button slds-button_brand slds-align--absolute-center train-button"
-                                                    reRender="einstein-switch,keywordToUpload,reloadPage"
+                                                    reRender="einstein-switch,keywordTD,keywordToUpload,renderKeywordsMissing"
                                                     rendered="{!!datasetUploaded}"/>
                             </apex:outputPanel>
                             <apex:outputPanel rendered="{!datasetUploaded}">
                                 <apex:commandButton action="{!uploadExamples}"
                                                     value="Upload Examples"
                                                     styleClass="slds-button slds-button_brand slds-align--absolute-center train-button"
-                                                    reRender="einstein-switch,keywordToUpload,reloadPage"/>
+                                                    reRender="einstein-switch,keywordToUpload,messegesError"/>
                             </apex:outputPanel>
                         </div>
                     </div>
                 </apex:pageBlock>
                   
-                <apex:pageBlock rendered="{!AND(NOT(ISNULL(messagesWithError)),messagesWithError.size>0)}">           
+                <apex:pageBlock id="messegesError" rendered="{!AND(NOT(ISNULL(messagesWithError)),messagesWithError.size>0)}">           
                     <div class="slds-section slds-is-open"  >
                         <h3 class="slds-section__title slds-theme_shade">
                             <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Messages with error</span>
