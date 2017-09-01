@@ -45,7 +45,6 @@
     <deploymentStatus>Deployed</deploymentStatus>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
-    <enableChangeDataCapture>false</enableChangeDataCapture>
     <enableFeeds>false</enableFeeds>
     <enableHistory>false</enableHistory>
     <enableReports>false</enableReports>
@@ -95,7 +94,6 @@
             </valueSetDefinition>
         </valueSet>
     </fields>
-    
     <label>Einstein Keyword</label>
     <listViews>
         <fullName>All</fullName>
@@ -109,5 +107,5 @@
     <pluralLabel>Einstein Keywords</pluralLabel>
     <searchLayouts/>
     <sharingModel>ReadWrite</sharingModel>
-    <visibility>Public</visibility>
+	<visibility>Public</visibility>
 </CustomObject>
