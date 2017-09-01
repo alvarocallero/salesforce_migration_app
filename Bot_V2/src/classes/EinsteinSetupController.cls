@@ -154,6 +154,11 @@ public class EinsteinSetupController {
 
             } else {
                 toastSuccessMessage = 'The dataset was uploaded.';
+                datasetStatus = EinsteinUtils.EINSTEIN_DS_STATUS_UPLOADING;
+                datasetColorStatus = '#1e968f';
+				lettercolor ='#ffffff';
+                couldTrain = true;
+                keywordsToUpload = null;
             }
         }
         // Value is lost on rerender for some reason
@@ -170,6 +175,11 @@ public class EinsteinSetupController {
         } else{
         	toastSuccessMessage = 'Training in process';
             einsteinEnabled = false;
+            trainStatus = EinsteinUtils.EINSTEIN_TRAIN_STATUS_QUEUED;
+            trainingColorStatus = '#22b5ac';
+			lettercolorTrain ='#ffffff';
+            couldTrain = false;
+            couldRetrain = true;
             EinsteinUtils.setEinsteinEnabled(false);
         }
         return null;
@@ -183,6 +193,7 @@ public class EinsteinSetupController {
         } else{
         	toastSuccessMessage = 'Training in process';
             einsteinEnabled = false;
+            lettercolorTrain ='white';
             EinsteinUtils.setEinsteinEnabled(false);
         }
         return null;
@@ -196,6 +207,9 @@ public class EinsteinSetupController {
                 toastErrorMessage = response;
             } else {
                 toastSuccessMessage = 'The examples were uploaded.';
+                datasetStatus = EinsteinUtils.EINSTEIN_DS_STATUS_UPLOADING;
+
+
             }
         } else {
         	toastErrorMessage = 'There are no keywords to upload at the moment.';
