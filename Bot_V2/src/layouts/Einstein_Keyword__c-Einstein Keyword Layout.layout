@@ -15,10 +15,6 @@
                 <behavior>Readonly</behavior>
                 <field>Einstein_Data_Messages_Count__c</field>
             </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Uploaded_to_Einstein__c</field>
-            </layoutItems>
         </layoutColumns>
         <layoutColumns>
             <layoutItems>
