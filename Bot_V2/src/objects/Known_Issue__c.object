@@ -45,12 +45,25 @@
     <deploymentStatus>Deployed</deploymentStatus>
     <enableActivities>true</enableActivities>
     <enableBulkApi>true</enableBulkApi>
+    <enableChangeDataCapture>false</enableChangeDataCapture>
     <enableFeeds>false</enableFeeds>
     <enableHistory>true</enableHistory>
     <enableReports>true</enableReports>
     <enableSearch>true</enableSearch>
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>Content_Document__c</fullName>
+        <caseSensitive>true</caseSensitive>
+        <externalId>false</externalId>
+        <label>Content Document</label>
+        <length>18</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
     <fields>
         <fullName>Dashboard_Report_Id__c</fullName>
         <externalId>false</externalId>
@@ -164,22 +177,27 @@
                 <value>
                     <fullName>Highest (1)</fullName>
                     <default>false</default>
+                    <label>Highest (1)</label>
                 </value>
                 <value>
                     <fullName>High (2)</fullName>
                     <default>false</default>
+                    <label>High (2)</label>
                 </value>
                 <value>
                     <fullName>Normal (3)</fullName>
                     <default>false</default>
+                    <label>Normal (3)</label>
                 </value>
                 <value>
                     <fullName>Low (4)</fullName>
                     <default>false</default>
+                    <label>Low (4)</label>
                 </value>
                 <value>
                     <fullName>Lowest (5)</fullName>
                     <default>false</default>
+                    <label>Lowest (5)</label>
                 </value>
             </valueSetDefinition>
         </valueSet>
@@ -232,22 +250,27 @@
                 <value>
                     <fullName>Pending Approval</fullName>
                     <default>true</default>
+                    <label>Pending Approval</label>
                 </value>
                 <value>
                     <fullName>New</fullName>
                     <default>false</default>
+                    <label>New</label>
                 </value>
                 <value>
                     <fullName>Fixed</fullName>
                     <default>false</default>
+                    <label>Fixed</label>
                 </value>
                 <value>
                     <fullName>Duplicated</fullName>
                     <default>false</default>
+                    <label>Duplicated</label>
                 </value>
                 <value>
                     <fullName>Invalid</fullName>
                     <default>false</default>
+                    <label>Invalid</label>
                 </value>
             </valueSetDefinition>
         </valueSet>
@@ -263,7 +286,6 @@
         <type>Text</type>
         <unique>false</unique>
     </fields>
-
     <label>Known Issue</label>
     <listViews>
         <fullName>All</fullName>
@@ -755,4 +777,5 @@
         <errorDisplayField>Status__c</errorDisplayField>
         <errorMessage>If the Summary is empty, the Status can not be changed from Pending Approval</errorMessage>
     </validationRules>
+    <visibility>Public</visibility>
 </CustomObject>
