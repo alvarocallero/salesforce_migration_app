@@ -14,9 +14,6 @@ public class EinsteinSetupController {
     public List<Einstein_Keyword__c> keywordsMissingMessages {get; set;}
     public List<Einstein_Keyword__c> keywordsToUpload {get; set;}
     public List<Einstein_Data_Message__c> messagesWithError {get; set;}
-    public string datasetColorStatus{get;set;}
-    public string trainingColorStatus{get;set;}
-    
     
     public EinsteinSetupController() {
         
@@ -32,14 +29,6 @@ public class EinsteinSetupController {
             Map<String, Object> jsonDatasetStatus = (Map<String, Object>)JSON.deserializeUntyped(LanguageController.getDataset(datasetId));
             if (jsonDatasetStatus.containsKey(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETDS_STATUS) && datasetId != null && datasetId != ''){
                 datasetStatus = (String)jsonDatasetStatus.get(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETDS_STATUS);
-                if(datasetStatus == 'SUCCEEDED'){
-                    datasetColorStatus = 'Green';
-                    
-                }else if(datasetStatus == 'UPLOADING'){   
-					datasetColorStatus = '#20B2AA';                    
-                }else if(datasetStatus == 'FAILED'){
-                    datasetColorStatus = 'Orange';
-                }
             }
         } else{
             datasetStatus = 'The dataset was not uploaded yet';
@@ -51,12 +40,6 @@ public class EinsteinSetupController {
             Map<String, Object> jsonTrainStatus = (Map<String, Object>)JSON.deserializeUntyped(LanguageController.getTrainStatus(modelId));
             if (jsonTrainStatus.containsKey(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS) && modelId != null && modelId != ''){
                 trainStatus = (String)jsonTrainStatus.get(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS);
-                if(datasetStatus == 'SUCCEEDED'){
-                    trainingColorStatus = 'Green';
-                    
-                }else if(datasetStatus == 'FAILED'){   
-					trainingColorStatus = 'Orange';                    
-                }
             }
         } else {
             trainStatus = 'The dataset was not trained yet.';
