@@ -159,8 +159,8 @@
                         </div>     
                         
                         <div aria-hidden="false" class="slds-section__content">
-                            <p>Dataset status: <span class="slds-badge" style="background-color:{!datasetColorStatus};color: #ffffff;">{!datasetStatus}</span></p> <br/>
-                            <p>Train status: <span class="slds-badge" style="background-color:{!trainingColorStatus};color: #ffffff;">{!trainStatus}</span></p><br/>
+                            <p>Dataset status: <span class="slds-badge" style="background-color:{!datasetColorStatus};color:{!lettercolor};">{!datasetStatus}</span></p> <br/>
+                            <p>Train status: <span class="slds-badge" style="background-color:{!trainingColorStatus};color:{!lettercolorTrain};">{!trainStatus}</span></p><br/>
                             <apex:commandButton action="{!resetEinstein}" rendered="{!couldResetEinstein}"
                                                 value="Reset dataset"
                                                 styleClass="slds-button slds-button_brand slds-align--absolute-center train-button"
