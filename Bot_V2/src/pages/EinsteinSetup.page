@@ -156,30 +156,32 @@
                                 <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Status</span>
                                 
                             </h3>
-                        </div>     
-                        
+                        </div>
+
+                        <apex:outputPanel id="keywordToUpload">
                         <div aria-hidden="false" class="slds-section__content">
                             <p>Dataset status: <span class="slds-badge" style="background-color:{!datasetColorStatus};color:{!lettercolor};">{!datasetStatus}</span></p> <br/>
                             <p>Train status: <span class="slds-badge" style="background-color:{!trainingColorStatus};color:{!lettercolorTrain};">{!trainStatus}</span></p><br/>
                             <apex:commandButton action="{!resetEinstein}" rendered="{!couldResetEinstein}"
                                                 value="Reset dataset"
                                                 styleClass="slds-button slds-button_brand slds-align--absolute-center train-button"
-                                                reRender="einstein-switch" />
+                                                reRender="einstein-switch,keywordToUpload" />
                             <apex:commandButton action="{!retrain}" rendered="{!couldRetrain}"
                                                 value="Retrain"
                                                 styleClass="slds-button slds-button_brand slds-align--absolute-center train-button"
-                                                reRender="einstein-switch" />
+                                                reRender="einstein-switch,reloadPage" />
                             <apex:commandButton action="{!train}"
                                                 value="Train"
                                                 styleClass="slds-button slds-button_brand slds-align--absolute-center train-button"
-                                                reRender="einstein-switch" rendered="{!couldTrain}"/>
+                                                reRender="einstein-switch,keywordToUpload,renderKeywordsMissing,keywordTD" rendered="{!couldTrain}"/>
                             
                         </div>
+                        </apex:outputPanel>
                     </div>         
                 </apex:pageBlock>    
                 
                 <br/>
-                <apex:pageBlock rendered="{!AND(NOT(ISNULL(keywordsMissingMessages)),keywordsMissingMessages.size>0)}">    
+                <apex:pageBlock id="renderKeywordsMissing" rendered="{!AND(NOT(ISNULL(keywordsMissingMessages)),keywordsMissingMessages.size>0)}">    
                     <div class="slds-section slds-is-open" rendered="{!keywordsMissingMessages.size!=0}">
                         <h3 class="slds-section__title slds-theme_shade">
                             <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Keywords with missing messages</span>
@@ -213,8 +215,8 @@
                             
                         </div>
                     </div>
-                </apex:pageBlock> 
-                <apex:pageBlock rendered="{!AND(NOT(ISNULL(keywordsToUpload)),keywordsToUpload.size>0)}">    
+                </apex:pageBlock>
+                <apex:pageBlock id="keywordTD" rendered="{!AND(NOT(ISNULL(keywordsToUpload)),keywordsToUpload.size>0)}">
                     <div class="slds-section slds-is-open" rendered="{!keywordsToUpload.size!=0}">
                         <h3 class="slds-section__title slds-theme_shade">
                             <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Keywords ready for upload</span>                         
@@ -246,23 +248,24 @@
                                 
                             </apex:dataTable> 
                             <br/>
-                               <apex:outputPanel rendered="{!!datasetUploaded}"> 
+                             <apex:outputPanel rendered="{!!datasetUploaded}"> 
                                 <apex:commandButton action="{!uploadMessages}"
                                                     value="Create Dataset"
                                                     styleClass="slds-button slds-button_brand slds-align--absolute-center train-button"
-                                                    reRender="einstein-switch"
+                                                    reRender="einstein-switch,keywordTD,keywordToUpload,renderKeywordsMissing"
                                                     rendered="{!!datasetUploaded}"/>
                             </apex:outputPanel>
                             <apex:outputPanel rendered="{!datasetUploaded}">
                                 <apex:commandButton action="{!uploadExamples}"
                                                     value="Upload Examples"
                                                     styleClass="slds-button slds-button_brand slds-align--absolute-center train-button"
-                                                    reRender="einstein-switch"/>
+                                                    reRender="einstein-switch,keywordToUpload,messegesError"/>
                             </apex:outputPanel>
                         </div>
                     </div>
-                </apex:pageBlock> 
-                <apex:pageBlock rendered="{!AND(NOT(ISNULL(messagesWithError)),messagesWithError.size>0)}">           
+                </apex:pageBlock>
+                  
+                <apex:pageBlock id="messegesError" rendered="{!AND(NOT(ISNULL(messagesWithError)),messagesWithError.size>0)}">           
                     <div class="slds-section slds-is-open"  >
                         <h3 class="slds-section__title slds-theme_shade">
                             <span class="slds-truncate slds-p-horizontal_small" title="Section Title">Messages with error</span>
