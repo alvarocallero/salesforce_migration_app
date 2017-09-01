@@ -2,36 +2,22 @@
     submit : function(component, utterance, session, callback) {
         var action = component.get("c.submit");
         var currentUrl = decodeURIComponent(window.location.href);
+        var attachmentURL = component.get("v.attachmentURL");
 
         var messages = component.get("v.messages");
-        var fileName = component.get("v.fileName");
-        var attachmentURL = component.get("v.attachmentURL");
-        var attachmentContent = component.get("v.attachmentContent");
-
-        if(!$A.util.isEmpty(attachmentContent)){
-          action = component.get("c.submitWithAttachment");
-          messages.push({author: "Me", messageText: utterance, imageURL: attachmentURL});
-
-          action.setParams({
-                  "utterance": utterance,
-                  "session": session,
-                  "currentUrl": currentUrl,
-                  "content" : attachmentContent,
-                  "fileName" : fileName
-          });
-        }else{
           action.setParams({
               "utterance": utterance,
               "session": session,
               "currentUrl": currentUrl
           });
-          messages.push({author: "Me", messageText: utterance});
-        }
+          messages.push({author: "Me", messageText: utterance, imageURL: attachmentURL});
+        
 
-        component.set("v.fileName", "");
+        /*component.set("v.fileName", "");
         component.set("v.attachmentURL", "");
         component.set("v.attachmentContent", "");
-        component.set("v.files", null);
+        component.set("v.files", null);*/
+      
         component.set("v.messages", messages);
 
         var sentHistory = component.get("v.sentHistory");
@@ -64,9 +50,15 @@
     	var action = component.get("c.addNewKnownIssue");
         var url = decodeURIComponent(window.location.href);
         
+        var fileName = component.get("v.fileName");
+        var attachmentURL = component.get("v.attachmentURL");
+        var attachmentContent = component.get("v.attachmentContent");
+        
         action.setParams({
             "dataMessageId" : dataMessageId,
-            "currentUrl" : url
+            "currentUrl" : url,
+            "content" : attachmentContent,
+            "fileName" : fileName
         });
         
         action.setCallback(this, function(a) {
@@ -83,6 +75,11 @@
                 var errors = a.getError();
             }
       	});
+        
+        component.set("v.fileName", "");
+        component.set("v.attachmentURL", "");
+        component.set("v.attachmentContent", "");
+        component.set("v.files", null);
 
         //action.setCallback(this, callback);
         $A.enqueueAction(action);
