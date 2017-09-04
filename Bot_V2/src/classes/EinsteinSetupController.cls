@@ -17,8 +17,9 @@ public class EinsteinSetupController {
     public string datasetColorStatus{get;set;}
     public string letterColor {get;set;}
     public string lettercolorTrain {get;set;}
-    public string trainingColorStatus{get;set;}
-
+    public string trainingColorStatus {get;set;}
+    public DateTime lastUpdatedModel {get;set;}
+    public DateTime lastUpdatedDataset {get;set;}
 
     public EinsteinSetupController() {
 
@@ -27,12 +28,11 @@ public class EinsteinSetupController {
         } else {
             einsteinEnabled = false;
         }
-
         datasetStatus = 'There was a problem checking the dataset\'s status. Please check it again later.';
         String datasetId = EinsteinUtils.getEinsteinDatasetId();
         if(!String.isBlank(datasetId)){
             Map<String, Object> jsonDatasetStatus = (Map<String, Object>)JSON.deserializeUntyped(LanguageController.getDataset(datasetId));
-            if (jsonDatasetStatus.containsKey(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETDS_STATUS) && datasetId != null && datasetId != ''){
+            if (jsonDatasetStatus.containsKey(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETDS_STATUS)){
                 datasetStatus = (String)jsonDatasetStatus.get(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETDS_STATUS);
                 if(datasetStatus == EinsteinUtils.EINSTEIN_DS_STATUS_SUCCEEDED){
                     datasetColorStatus = '#269900';
@@ -45,6 +45,12 @@ public class EinsteinSetupController {
                     lettercolor ='#ffffff';
                 }
             }
+            if (jsonDatasetStatus.containsKey(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETDS_UPDATEDAT)){
+                String lastUpdated = (String)jsonDatasetStatus.get(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETDS_UPDATEDAT);
+                lastUpdated = lastUpdated.split('\\.')[0];
+				lastUpdated = lastUpdated.replace('T', ' ');
+                lastUpdatedDataset = DateTime.valueOf(lastUpdated);
+            }
         } else{
             letterColor = 'Black';
             datasetStatus = 'The dataset was not uploaded yet';
@@ -54,7 +60,7 @@ public class EinsteinSetupController {
         String modelId = EinsteinUtils.getEinsteinModelId();
         if(!String.isBlank(modelId)){
             Map<String, Object> jsonTrainStatus = (Map<String, Object>)JSON.deserializeUntyped(LanguageController.getTrainStatus(modelId));
-            if (jsonTrainStatus.containsKey(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS) && modelId != null && modelId != ''){
+            if (jsonTrainStatus.containsKey(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS)){
                 trainStatus = (String)jsonTrainStatus.get(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS);
                 if(trainStatus == EinsteinUtils.EINSTEIN_TRAIN_STATUS_SUCCEEDED){
                     trainingColorStatus = '#269900';
@@ -72,12 +78,18 @@ public class EinsteinSetupController {
 					lettercolorTrain ='#ffffff';
                 }
             }
+            if (jsonTrainStatus.containsKey(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETTRAIN_UPDATEDAT)){
+                String lastUpdated = (String)jsonTrainStatus.get(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETTRAIN_UPDATEDAT);
+                lastUpdated = lastUpdated.split('\\.')[0];
+				lastUpdated = lastUpdated.replace('T', ' ');
+                lastUpdatedModel = DateTime.valueOf(lastUpdated);
+            }
         } else {
 			lettercolorTrain = 'Black';
             trainStatus = 'The dataset was not trained yet.';
 
         }
-        datasetUploaded = EinsteinUtils.getEinsteinDatasetId() != null && EinsteinUtils.getEinsteinDatasetId() != '' && datasetStatus == EinsteinUtils.EINSTEIN_DS_STATUS_SUCCEEDED;
+        datasetUploaded = !String.isBlank(datasetId) && datasetStatus == EinsteinUtils.EINSTEIN_DS_STATUS_SUCCEEDED;
         couldTrain =  datasetUploaded && (String.isBlank(modelId));
         couldRetrain = !String.isBlank(modelId) && trainStatus == EinsteinUtils.EINSTEIN_TRAIN_STATUS_SUCCEEDED;
 	    couldResetEinstein = datasetStatus.startsWith(EinsteinUtils.EINSTEIN_DS_STATUS_FAILURE);
@@ -187,14 +199,18 @@ public class EinsteinSetupController {
 
     public PageReference retrain() {
         resetToastMessages();
-        String response = EinsteinUtils.retrainEinstein();
-        if (response != null) {
-                toastErrorMessage = response;
-        } else{
-        	toastSuccessMessage = 'Training in process';
-            einsteinEnabled = false;
-            lettercolorTrain ='white';
-            EinsteinUtils.setEinsteinEnabled(false);
+        if (lastUpdatedModel>=lastUpdatedDataset){
+            toastErrorMessage = 'There aren\'t any new messages to train.';
+        } else {
+            String response = EinsteinUtils.retrainEinstein();
+            if (response != null) {
+                    toastErrorMessage = response;
+            } else{
+                toastSuccessMessage = 'Training in process';
+                einsteinEnabled = false;
+                lettercolorTrain ='white';
+                EinsteinUtils.setEinsteinEnabled(false);
+            }
         }
         return null;
     }
