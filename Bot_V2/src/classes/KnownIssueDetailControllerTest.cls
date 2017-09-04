@@ -1,7 +1,7 @@
 @IsTest
 public class KnownIssueDetailControllerTest {
     
-    static testmethod void testController() {
+    static testMethod void testController() {
         
         String targetId = 'a01f400000AAAAA123';
         String targetName = 'nameABC';
@@ -14,7 +14,7 @@ public class KnownIssueDetailControllerTest {
         issue.Einstein_Keyword__c = keyword.Id;
         insert issue;
         
-        Id messageId = EinsteinUtils.createMessage(null, 'TEST MESSAGE');
+        Id messageId = EinsteinUtils.createMessage(keyword.Id, 'TEST MESSAGE');
         
         PageReference pageRef = Page.KnownIssueDetail;
         Test.setCurrentPage(pageRef);
@@ -33,12 +33,11 @@ public class KnownIssueDetailControllerTest {
         
         Test.stopTest();
         
-        
         System.assert(userSubscribed, 'User should have been subscribed');
         System.assert(userUnsubscribed, 'User should have been unsubscribed');
         
         List<Einstein_Data_Message__c> messages = [ SELECT Id, Einstein_Keyword__c FROM Einstein_Data_Message__c WHERE Id = :messageId ];
-        System.assertEquals(keyword.Id, messages[0].Einstein_Keyword__c, 'Message should be associated to keyword');
+        System.assertEquals(keyword.Id, messages.get(0).Einstein_Keyword__c, 'Message should be associated to keyword');
     }
     
     
@@ -59,6 +58,45 @@ public class KnownIssueDetailControllerTest {
         System.assert(!String.isBlank(onlyIssueURL));
         System.assert(!String.isBlank(fullPageURL));
         System.assert(fullPageURL.length() > onlyIssueURL.length());
+        
+    }
+    
+    static testMethod void testRetrieveRelatedIssues(){
+        Einstein_Keyword__c ekw = new Einstein_Keyword__c();
+        ekw.Name = 'ekwName';
+        ekw.Einstein_Upload_Status__c = 'Uploaded';
+        
+        insert ekw;
+        
+        Id dataMessageId = EinsteinUtils.createMessage(ekw.Id, 'example message');
+        
+        Known_Issue__c ki = null; 
+        
+        ContentVersion contentVersion = BotController.uploadFile('fileName', 'content');
+        
+        ki = KnownIssuesUtils.createKnownIssue(dataMessageId, 'currentUrl', contentVersion);
+        
+        Einstein_Keyword__c ekw2 = new Einstein_Keyword__c();
+        ekw.Name = 'ekwName2';
+        ekw.Einstein_Upload_Status__c = 'Uploaded';
+        
+        insert ekw2;
+        
+        Id dataMessageId2 = EinsteinUtils.createMessage(ekw2.Id, 'example message2');
+        
+        Known_Issue__c ki2 = null; 
+        
+        ContentVersion contentVersion2 = BotController.uploadFile('fileName2', 'content2');
+        
+        ki2 = KnownIssuesUtils.createKnownIssue(dataMessageId2, 'currentUrl2', contentVersion2);
+        
+        ki2.Related_Issue__c = ki.Id;
+        
+        PageReference pageRef = Page.KnownIssueDetail;
+        Test.setCurrentPage(pageRef);
+        ApexPages.currentPage().getParameters().put(KnownIssueDetailController.PARAM_ISSUEID, ki2.Id);
+        
+             
         
     }
     

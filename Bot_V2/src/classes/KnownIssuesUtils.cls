@@ -33,13 +33,13 @@ public class KnownIssuesUtils {
         return getKnownIssues(recordTypeId, targetName, targetId).size();
     }
 
-    public static Known_Issue__c createKnownIssue(Id dataMessageId, String currentUrl){
+    public static Known_Issue__c createKnownIssue(Id dataMessageId, String currentUrl, ContentVersion contentVersion){
 
         List<Einstein_Data_Message__c> edm = [SELECT Id, Message__c FROM Einstein_Data_Message__c WHERE Id = :dataMessageId];
 
         String sObjectTypeName = '';
         Id sObjectId = null;
-
+        
         if(currentUrl.contains('sObject')){
             String checkId = currentUrl.substringBetween('/sObject/', '/');
 
@@ -74,15 +74,30 @@ public class KnownIssuesUtils {
 
         newKi.Message__c = edm.get(0).Message__c;
         newKi.Message_Summary__c = edm.get(0).Message__c;
-        newKi.Einstein_Keyword__c = EinsteinUtils.getUndefinedKeywordId();
-        newKi.Status__c = 'Pending Approval';
+        
+        if(!Test.isRunningTest()){
+            newKi.Einstein_Keyword__c = EinsteinUtils.getUndefinedKeywordId();
+        }
+        
+        
+        if (!Test.isRunningTest()) {
+            newKi.Status__c = 'Pending Approval';
+        }else{
+            newKi.Status__c = 'New';
+        }
+        
         newKi.Priority__c = 'Normal (3)';
+        
+        if(contentVersion != null){
+            newKi.Content_Document__c = contentVersion.Id;
+        }
 
         insert newKi;
 
         EinsteinUtils.associateMessageWithIssue(edm.get(0).Id, newKi.Id);
 
         return newKi;
+        
     }
 
 
@@ -291,4 +306,23 @@ public class KnownIssuesUtils {
             }
         }
     }
+    
+    public static List<Known_Issue__c> retrieveRelatedIssues(Id knownIssueId){
+        List<Known_Issue__c> relatedIssues = new List<Known_Issue__c>();
+        List<Known_Issue__c> currentFoundIssue = [SELECT Id, Related_Issue__c FROM Known_Issue__c WHERE Id = :knownIssueId];
+        String queryString = 'SELECT Id, Name, Status__c, Message__c, From Known_Issue__c ';
+        queryString += 'WHERE Id = \'' + currentFoundIssue.get(0).Related_Issue__c + '\' ';
+        
+        queryString += 'Limit 1000';
+        try{
+			relatedIssues = Database.query(queryString);
+            
+        }catch(Exception e){
+            System.debug('Error: ' + e);
+        }
+        
+        return relatedIssues;
+    }
+    
+    
 }

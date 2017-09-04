@@ -1,185 +1,249 @@
 @isTest
 public class BotTest {
 
-    static testMethod void testBotController() {
-		Bot_Command__c bc = new Bot_Command__c(Sample_Utterance__c='help lightning', apex_class__c='HandlerHelpTopic', pattern__c='help (.*)');
-        insert bc;
-          BotHandler handler = new HandlerAddTwoNumbers();
-        BotResponse responseSession = handler.handle('', null, null);
-        Map<String, String> session = responseSession.session;
-        BotResponse response = BotController.submit('help lightning', session, 'currentUrl');
-
-        System.assert(response.messages[0].items.size() > 0);
-    }
-
     static testMethod void testHello() {
         BotHandler handler = new HandlerHello();
         BotResponse response = handler.handle('', null, null);
         System.assert(response.messages[0].messageText == 'Hi there!');
     }
-
-    static testMethod void testAddTwoNumbers() {
-        BotHandler handler = new HandlerAddTwoNumbers();
+    
+    static testMethod void testGoodbye() {
+        BotHandler handler = new HandlerGoodbye();
         BotResponse response = handler.handle('', null, null);
-        Map<String, String> session = response.session;
-        response = handler.handle('1', null, session);
-        session = response.session;
-        response = handler.handle('2', null, session);
-        System.assert(response.messages[0].messageText == '1 + 2 = 3');
+        System.assert(response.messages[0].messageText == 'Goodbye! See you later!');
     }
-
-    static testMethod void testCostCenter() {
-        BotHandler handler = new HandlerCostCenter();
+    
+    static testMethod void testThanks() {
+        BotHandler handler = new HandlerThanks();
         BotResponse response = handler.handle('', null, null);
-        System.assert(response.messages[0].messageText == 'Your cost center is 21852');
-    }
-
-    static testMethod void testEmployeeId() {
-        BotHandler handler = new HandlerEmployeeId();
-        BotResponse response = handler.handle('', null, null);
-        System.assert(response.messages[0].messageText == 'Your employee id is 9854');
-    }
-
-    static testMethod void testFindAccount() {
-		Account a = new Account(Name='TestAccount');
-		insert a;
-        BotHandler handler = new HandlerFindAccount();
-        BotResponse response = handler.handle('', new String[]{'Test'}, null);
-        System.assert(response.messages[0].records.size() == 1);
-    }
-
-    static testMethod void testFindContact() {
-		Contact c = new Contact(LastName='TestContact');
-        insert c;
-        BotHandler handler = new HandlerFindContact();
-        BotResponse response = handler.handle('', new String[]{'Test'}, null);
-        System.assert(response.messages[0].records.size() == 1);
+        System.assert(response.messages[0].messageText == 'You are welcome! I am happy to help!');
     }
 
 	static testMethod void testHelp() {
-		Bot_Command__c bc = new Bot_Command__c(Sample_Utterance__c='Hello', apex_class__c='HelloHandler', pattern__c='Hello');
-        insert bc;
+		
         BotHandler handler = new HandlerHelp();
         BotResponse response = handler.handle('', null, null);
-        System.assert(response.messages[0].items.size() == 1);
-    }
-
-	static testMethod void testHelpTopic() {
-        BotHandler handler = new HandlerHelpTopic();
-        BotResponse response = handler.handle('', null, null);
-        Map<String, String> session = response.session;
-		handler.handle('User', null, session);
-
-        response = handler.handle('', null, null);
-        session = response.session;
-		response = handler.handle('Admin', null, session);
-
-        response = handler.handle('', null, null);
-        session = response.session;
-		response = handler.handle('Developer', null, session);
-
-        System.assert(response.messages[0].items.size() > 0);
-    }
-
-	static testMethod void testMyOpenCases() {
-		Case c = new Case(Subject='TestCase');
-		insert c;
-        BotHandler handler = new HandlerMyOpenCases();
-        BotResponse response = handler.handle('', null, null);
-        System.assert(response.messages[0].records.size() == 1);
-    }
-
-	static testMethod void testTopOpportunities() {
-		Account a = new Account(Name='TestAccount');
-		insert a;
-		Opportunity o = new Opportunity(Name='TestOpportunity', AccountId=a.id, StageName='Prospecting', CloseDate=System.today().addMonths(1));
-		insert o;
-        BotHandler handler = new HandlerTopOpportunities();
-        BotResponse response = handler.handle('', new String[]{'3'}, null);
-        System.assert(response.messages[0].records.size() == 1);
-    }
-
-	static testMethod void testTravelApproval() {
-        BotHandler handler = new HandlerTravelApproval();
-        BotResponse response = handler.handle('', null, null);
-        Map<String, String> session = response.session;
-		handler.handle('Boston', null, session);
-		handler.handle('Customer Facing', null, session);
-		handler.handle('02/23/2017', null, session);
-		handler.handle('1000', null, session);
-		handler.handle('1000', null, session);
-        System.assert(response.messages[0].messageText.length() > 0);
-    }
-
-	static testMethod void testPipeline() {
-        BotHandler handler = new HandlerPipeline();
-        BotResponse response = handler.handle('', null, null);
-        System.assert(response.messages[0].imageURL != null);
-    }
-
-	static testMethod void testQuarter() {
-        BotHandler handler = new HandlerQuarter();
-        BotResponse response = handler.handle('', null, null);
-        System.assert(response.messages[0].imageURL != null);
-    }
-
-    static testMethod void testNext() {
-		Account a = new Account(Name='TestAccount');
-		insert a;
-		Opportunity o = new Opportunity(Name='TestOpportunity', AccountId=a.id, StageName='Prospecting', CloseDate=System.today().addMonths(1));
-		insert o;
-		Case c = new Case(Subject='TestCase', Priority='High');
-		insert c;
-        BotHandler handler = new HandlerNext();
-        BotResponse response = handler.handle('', null, null);
-        System.assert(response.messages.size() > 1);
-    }
-
-    static testMethod void testSOQL() {
-		Account a = new Account(Name='TestAccount');
-		insert a;
-        BotHandler handler = new HandlerSOQL();
-        BotResponse response = handler.handle('select id from account', null, null);
-        System.assert(response.messages[0].records.size() == 1);
-    }
-
-    static testMethod void testUserInfo(){
-        List<String> userInfo = BotController.userInfo();
-        System.assert(userInfo != null);
-    }
-
-    static testMethod void testUploadFile(){
-        BotResponse response = BotController.submitWithAttachment('Message', null, 'url', 'fileName', 'content');
-        System.assert(response.messages[0].messageText == 'Your feedback was sent to the administrator. Thank you!');
-    }
-
-    static testMethod void testSubmitWithURL(){
-      BotHandler handler = new HandlerTravelApproval();
-      BotResponse responseSession = handler.handle('', null, null);
-      Map<String, String> session = responseSession.session;
-        BotResponse response = BotController.submit('utterance', session, 'currentUrl');
-        System.assert(response.messages[0].messageText == 'Your feedback has been sent to an Administrator. We will contact you as soon as possible.');
-    }
-
-	static testMethod void testSubmitWithURLAndSession(){
-        BotHandler handler = new HandlerTravelApproval();
-        BotResponse responseSession = handler.handle('', null, null);
-        Map<String, String> session = responseSession.session;
-        BotResponse response = BotController.submit('utterance', session, 'currentUrl');
-        System.assert(response.messages[0].messageText == 'Your feedback has been sent to an Administrator. We will contact you as soon as possible.');
-    }
-
-    static testMethod void testSubmitHelp(){
-      BotHandler handler = new HandlerTravelApproval();
-        BotResponse responseSession = handler.handle('', null, null);
-        Map<String, String> session = responseSession.session;
-        BotResponse response = BotController.submit('help', session, 'currentUrl');
-        System.assert(response.messages[0].messageText == 'Please, provide feedback on your problem.');
+        System.assert(!String.isEmpty(response.messages[0].messageText));
     }
 
     static testMethod void testUpload(){
         BotResponse response = BotController.upload('fileName', 'content');
         System.assert(response.messages[0].messageText == 'Your file was uploaded successfully');
     }
-
+    
+     static testMethod void testUserInfo(){
+        List<String> userInfoList = BotController.userInfo();
+        
+        System.assert(userInfoList.size()>0);
+    }
+    
+    static testMethod void testAddNewKnownIssue(){
+        Einstein_Keyword__c ekw = new Einstein_Keyword__c();
+        ekw.Name = 'ekwName';
+        ekw.Einstein_Upload_Status__c = 'Uploaded';
+        
+        insert ekw;
+        
+        Id dataMessageId = EinsteinUtils.createMessage(ekw.Id, 'example message');
+        
+        BotResponse br = null;
+        br = BotController.addNewKnownIssue(dataMessageId, 'currentUrl', 'content', 'fileName');
+        
+        System.assert(br!=null);      
+        
+    }
+    
+    static testMethod void testSubscribeUserToIssue(){
+        Einstein_Keyword__c ekw = new Einstein_Keyword__c();
+        ekw.Name = 'ekwName';
+        ekw.Einstein_Upload_Status__c = 'Uploaded';
+        
+        insert ekw;
+        
+        Id dataMessageId = EinsteinUtils.createMessage(ekw.Id, 'example message');
+        
+        Known_Issue__c ki = null; 
+        
+        ContentVersion contentVersion = BotController.uploadFile('fileName', 'content');
+        
+        ki = KnownIssuesUtils.createKnownIssue(dataMessageId, 'currentUrl', contentVersion);
+        
+        BotResponse br = null; 
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User']; 
+        User u = new User(Alias = 'standt', Email='exampleEmailUser@toolkit.com', 
+            EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
+            LocaleSidKey='en_US', ProfileId = p.Id, 
+            TimeZoneSidKey='America/Los_Angeles', UserName='exampleUserxx@toolkit.com');
+        
+        insert u;
+        br = BotController.subscribeUserToIssue(ki.Id, u.Id);
+        
+        System.assert(br!=null);
+    }
+    
+    static testMethod void testSubmit(){
+        
+        for(Integer i = 0 ; i < 5; i++){
+            Einstein_Keyword__c ekw = new Einstein_Keyword__c();
+        	ekw.Name = 'ekwName' + i;
+        	ekw.Einstein_Upload_Status__c = 'Uploaded';
+        
+       		insert ekw;
+        
+        	Id dataMessageId = EinsteinUtils.createMessage(ekw.Id, 'example message' + i);
+        
+        	Known_Issue__c ki = null; 
+        
+        	ContentVersion contentVersion = BotController.uploadFile('fileName'+i, 'content'+i);
+            
+        	ki = KnownIssuesUtils.createKnownIssue(dataMessageId, 'currentUrl'+i, contentVersion);
+            
+            ki.Einstein_Keyword__c = ekw.Id;
+            
+            upsert ki;
+        }
+        
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User']; 
+        User u = new User(Alias = 'standt', Email='exampleEmailUser@toolkit.com', 
+            EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
+            LocaleSidKey='en_US', ProfileId = p.Id, 
+            TimeZoneSidKey='America/Los_Angeles', UserName='exampleUserxx@toolkit.com');
+        
+        insert u;
+        
+        Map<String, String> session = new Map<String, String>();
+        BotResponse br = null;
+        
+        br = BotController.submit('error example message1', session, 'currentUrl', u.Id, '');
+        
+        System.assert(br!=null);
+       
+        BotResponse abr = null;
+        
+        abr = BotController.submit('train example message1', session, 'currentUrl', u.Id, '');
+        
+        System.assert(abr!=null);
+        
+        EinsteinUtils.setEinsteinEnabled(true);
+        
+        BotResponse brEinEna = null;
+        
+        brEinEna = BotController.submit('error example message1', session, 'currentUrl', u.Id, '');
+      
+        System.assert(brEinEna != null);
+                
+       
+    }
+    
+    static testMethod void testSubmitConversation(){
+        Bot_Command__c bCommand = new Bot_Command__c();
+        bCommand.Active__c = true; 
+        bCommand.Apex_Class__c = 'HandlerHello';
+        bCommand.Name ='hello handler';
+        bCommand.Pattern__c = '^(hey|hi|hello|hello there|hi there|hey there|hey!|hi!|hello!|hello there!|hi there!|hey there!)';
+        bCommand.Sample_Utterance__c = 'hello';
+        
+        insert bCommand;
+        
+        
+         Profile p = [SELECT Id FROM Profile WHERE Name='Standard User']; 
+        	User u = new User(Alias = 'standt', Email='exampleEmailUser@toolkit.com', 
+            EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
+            LocaleSidKey='en_US', ProfileId = p.Id, 
+            TimeZoneSidKey='America/Los_Angeles', UserName='exampleUserxx@toolkit.com');
+        
+        insert u;
+        
+        Map<String, String> session = new Map<String, String>();
+        
+        BotResponse brStandardConversation = null;
+        
+        brStandardConversation = BotController.submit('hello', session, 'currentUrl', u.Id, '');
+        
+        System.assert(brStandardConversation!= null);
+    }
+    
+    static testMethod void testGetUserInfo(){
+        
+         Profile p = [SELECT Id FROM Profile WHERE Name='Standard User']; 
+        	User u = new User(Alias = 'standt', Email='exampleEmailUser@toolkit.com', 
+            EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
+            LocaleSidKey='en_US', ProfileId = p.Id, 
+            TimeZoneSidKey='America/Los_Angeles', UserName='exampleUserxx@toolkit.com');
+        
+        insert u;
+        
+        String sessionId = '';
+        
+        System.runAs(u){
+            sessionId = BotController.getSessionId();
+            System.assert(!String.isEmpty(sessionId));
+        }
+    }
+    
+    static testMethod void testBotItemName(){
+        BotItem bt = new BotItem('BotitemName');
+        System.assert(bt.name == 'BotitemName');
+    }
+    
+    static testMethod void testBotMessage(){
+        
+        List<BotItem> lstBt = new List<BotItem>();
+        BotItem bt = new BotItem('BotItem');
+        lstBt.add(bt);
+        BotMessage bm = new BotMessage('test', 'test2', lstBt);
+        List<BotMessageButton> bmb = new List<BotMessageButton>();
+        bmb.add(new BotMessageButton('label', 'value'));
+        BotMessage bm2 = new BotMessage('test1', 'test2', bmb);
+        BotMessage bm3 = new BotMessage('test1', 'test2', 'test3');
+        BotMessage bmessage = new BotMessage();
+        System.assert(bm3.imageURL == 'test3');
+    }
+    
+    static testMethod void testBotResponse(){
+        BotResponse br = new BotResponse();
+        
+        List<BotItem> lstBt = new List<BotItem>();
+        BotItem bt = new BotItem('BotItem');
+        lstBt.add(bt);
+        BotMessage bm = new BotMessage('test', 'test2', lstBt);
+        List<BotMessage> lstBm = new List<BotMessage>();
+        lstBm.add(bm);
+        
+        BotResponse br2 = new BotResponse(lstBm);
+        Map<String, String> session = new Map<String, String>();
+        BotResponse br3 = new BotResponse(lstBm, session);
+        
+        BotResponse br4 = new BotResponse(bm);
+        
+        
+        
+        Einstein_Keyword__c ekw = new Einstein_Keyword__c();
+        ekw.Name = 'ekwName';
+        ekw.Einstein_Upload_Status__c = 'Uploaded';
+        
+        insert ekw;
+        
+        Id dataMessageId = EinsteinUtils.createMessage(ekw.Id, 'example message');
+        Known_Issue__c ki = null;
+        ContentVersion contentVersion = BotController.uploadFile('fileName', 'content');
+            
+        	ki = KnownIssuesUtils.createKnownIssue(dataMessageId, 'currentUrl', contentVersion);
+            
+            ki.Einstein_Keyword__c = ekw.Id;
+            
+            upsert ki;        
+        BotResponse br5 = new BotResponse(bm,dataMessageId, ki.Id);
+        
+        List<Known_Issue__c> lstKi = new List<Known_Issue__c>();
+        lstKi.add(ki);
+        
+        BotResponse br6 = new BotResponse(bm, lstKi);
+        
+        BotResponse br7 = new BotResponse(bm, session);
+        
+        System.assert(br6.knownIssues.size() > 0);
+        
+    }
+    
 }

@@ -16,8 +16,8 @@
                 <field>Einstein_Data_Messages_Count__c</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Edit</behavior>
-                <field>Uploaded_to_Einstein__c</field>
+                <behavior>Readonly</behavior>
+                <field>Einstein_Upload_Status__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>
@@ -73,7 +73,7 @@
     <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
     <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
     <summaryLayout>
-        <masterLabel>00hf4000001qxmR</masterLabel>
+        <masterLabel>00hf4000000USbw</masterLabel>
         <sizeX>4</sizeX>
         <sizeY>0</sizeY>
         <summaryLayoutStyle>Default</summaryLayoutStyle>

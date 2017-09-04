@@ -196,4 +196,33 @@ public class KnownIssuesUtilsTest {
         return u;
     }
     
+    static testMethod void testsSetUndefinedKeyword(){
+        List<Known_Issue__c> lstKnownIssues = new List<Known_Issue__c>();
+        for(Integer i = 0 ; i < 3; i++){
+            Einstein_Keyword__c ekw = new Einstein_Keyword__c();
+        	ekw.Name = 'ekwName' + i;
+        	ekw.Einstein_Upload_Status__c = 'Uploaded';
+        
+       		insert ekw;
+        
+        	Id dataMessageId = EinsteinUtils.createMessage(ekw.Id, 'example message' + i);
+        
+        	Known_Issue__c ki = null; 
+        
+        	ContentVersion contentVersion = BotController.uploadFile('fileName'+i, 'content'+i);
+            
+        	ki = KnownIssuesUtils.createKnownIssue(dataMessageId, 'currentUrl'+i, contentVersion);
+            
+            ki.Einstein_Keyword__c = null;
+            
+            lstKnownIssues.add(ki);
+        }
+        
+        List<Known_Issue__c> tmpLstKnownIssues = KnownIssuesUtils.setUndefinedKeyword(lstKnownIssues);
+        
+        System.assert(tmpLstKnownIssues.size() > 0);
+        
+        
+    }
+    
 }
