@@ -213,6 +213,7 @@ public class EinsteinSetupController {
                 trainStatus = EinsteinUtils.EINSTEIN_RETRAIN_STATUS_QUEUED;
                 trainingColorStatus = '#22b5ac';
                 lettercolorTrain ='white';
+                couldRetrain = false;
                 EinsteinUtils.setEinsteinEnabled(false);
             }
         }
