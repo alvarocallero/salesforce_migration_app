@@ -31,11 +31,11 @@ public with sharing class BotController {
     static List<HandlerMapping> handlerMappings;
 
     static {
-        List<Bot_Command__c> commands = [SELECT apex_class__c, pattern__c FROM Bot_Command__c WHERE Active__c = True ORDER BY Name];
-        System.debug(commands);
+        List<Bot_Command__c> commands = [SELECT Apex_Class__c, Pattern__c FROM Bot_Command__c WHERE Active__c = True ORDER BY Name];
+        System.debug('COMMANDS--> '+commands);
         List<HandlerMapping> mappings = new List<HandlerMapping>();
         for (Bot_Command__c command : commands) {
-            mappings.add(new HandlerMapping(command.apex_class__c, command.pattern__c));
+            mappings.add(new HandlerMapping(command.Apex_class__c, command.Pattern__c));
         }
         handlerMappings = mappings;
     }
@@ -113,9 +113,15 @@ public with sharing class BotController {
     				params.put('modelId', EinsteinUtils.getEinsteinModelId());
     				params.put('document', utterance);
     				params.put('numResults', '5');
-    				String result = LanguageController.predict(params);
+                    String result = '';
+                    if(!Test.isRunningTest()){
+                        result = LanguageController.predict(params);
+                    }else{
+                        result='{"probabilities": [{"label": "ekwName1","probability": 0.9904295},{"label": "ekwName2","probability": 0.009345241},{"label": "ekwName3","probability": 0.00022528473}]}';
+                    }
+                    
+                    
     				
-    			
     				Map<String, Object> jsonResult = (Map<String, Object>)JSON.deserializeUntyped(result);
     				
     				List<Known_Issue__c> knownIssuesFound = new List<Known_Issue__c>();
@@ -288,47 +294,8 @@ public with sharing class BotController {
         return topFiveMatchingIssues;
     }
 
-    @AuraEnabled
-    public static BotResponse submitWithAttachment(String utterance, Map<String, String> session, String currentUrl, String fileName, String content) {
-
-        try {
-            ContentVersion contentVersion = uploadFile(fileName, content);
-            logUserMessage(utterance, currentUrl, contentVersion);
-            return new BotResponse(new BotMessage('', 'Your feedback was sent to the administrator. Thank you!'));
-            if (session != null) {
-                String nextCommand = session.get('nextCommand');
-                if (nextCommand != null) {
-                    Type t = Type.forName('', nextCommand);
-                    BotHandler h = (BotHandler)t.newInstance();
-                    return h.handle(utterance, null, session);
-                }
-            }
-            return new BotResponse(new BotMessage('', 'Your feedback was sent to the administrator. Thank you!'));
-        } catch (Exception e) {
-            System.debug(e);
-            return new BotResponse(new BotMessage('', 'Oops, something went wrong invoking that command'));
-        }
-
-    }
-
-    private static void logUserMessage(String utterance, String currentUrl, ContentVersion ctv){
-        User currentUser = [Select Id from User where Id=:userinfo.getuserId()];
-
-        UserBotMessage__c ubm = new UserBotMessage__c();
-        ubm.Message__c = utterance;
-        ubm.SentFrom__c = currentUrl;
-        ubm.Submitter__c = currentUser.id;
-
-        if(ctv!=null){
-            ContentDocument doc = [SELECT Id FROM ContentDocument where LatestPublishedVersionId = :ctv.Id];
-            ubm.ContentDocumentId__c = doc.Id;
-        }
-        insert ubm;
-    }
-
-    private static ContentVersion uploadFile(String fileName, String content){
-        System.debug('File content: ' + content);
-        System.debug('File Name: ' + fileName);
+    public static ContentVersion uploadFile(String fileName, String content){
+        
         ContentVersion contentVersion = new ContentVersion();
         contentVersion.versionData = EncodingUtil.base64Decode(content);
         contentVersion.title = fileName;
@@ -338,45 +305,8 @@ public with sharing class BotController {
     }
 
     @AuraEnabled
-    public static BotResponse submit(String utterance, Map<String, String> session, String word) {
-
-        try {
-
-            if (session != null) {
-                String nextCommand = session.get('nextCommand');
-                if (nextCommand != null) {
-                    Type t = Type.forName('', nextCommand);
-                    BotHandler h = (BotHandler)t.newInstance();
-                    return h.handle(utterance, null, session);
-                }
-            }
-
-            for (HandlerMapping mapping : BotController.handlerMappings) {
-                Matcher utteranceMatcher = mapping.utterancePattern.matcher(utterance);
-                if (utteranceMatcher.matches()) {
-                    Type t = Type.forName('', mapping.handlerClassName);
-                    BotHandler h = (BotHandler)t.newInstance();
-                    List<String> params = new List<String>();
-                    for (Integer i=1; i<=utteranceMatcher.groupCount(); i=i+1) {
-                        params.add(utteranceMatcher.group(i).trim());
-                    }
-                    return h.handle(utterance, params, session);
-                }
-            }
-
-            return new BotResponse(new BotMessage('', 'I don\'t know how to answer that'));
-
-        } catch (Exception e) {
-            System.debug(e);
-            return new BotResponse(new BotMessage('', 'Oops, something went wrong invoking that command'));
-        }
-
-    }
-
-    @AuraEnabled
     public static String getSessionId() {
         return UserInfo.getSessionId();
     }
-
 
 }
