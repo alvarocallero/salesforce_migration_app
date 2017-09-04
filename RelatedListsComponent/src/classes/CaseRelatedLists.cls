@@ -67,11 +67,11 @@ public class CaseRelatedLists {
         Integer usersCount = 0;
         
         String membersQuery = 'SELECT MemberId From CaseTeamMember WHERE ParentId = \'' + parentObjectId + '\' LIMIT ' + sobjectLimit + ' OFFSET ' + offset;
-        List<CaseTeamMember> members = Database.query(membersQuery);
+        List<sObject> members = Database.query(membersQuery);
         
         Set<Id> memberIds = new Set<Id>();
-        for(CaseTeamMember member : members){
-            memberIds.add(member.MemberId);
+        for(sObject member : members){
+            memberIds.add((Id)member.get('MemberId'));
         }
         
         Map<String, SObjectField> contactfieldsMap = Schema.getGlobalDescribe().get('Contact').getDescribe().fields.getMap();
@@ -81,7 +81,6 @@ public class CaseRelatedLists {
                 contactsQuery = 'SELECT Id, Name FROM Contact WHERE Id IN :memberIds';
             }
             String contactsCountQuery = 'SELECT count() FROM Contact WHERE Id IN :memberIds';
-            System.debug(contactsQuery);
             contactMembers = Database.query(contactsQuery);
             contactsCount = Database.countQuery(contactsCountQuery);
         }
