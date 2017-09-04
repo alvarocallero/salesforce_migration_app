@@ -213,7 +213,6 @@ public class EinsteinSetupController {
                 trainStatus = EinsteinUtils.EINSTEIN_RETRAIN_STATUS_QUEUED;
                 trainingColorStatus = '#22b5ac';
                 lettercolorTrain ='white';
-                couldRetrain = false;
                 EinsteinUtils.setEinsteinEnabled(false);
             }
         }
@@ -232,7 +231,6 @@ public class EinsteinSetupController {
                 datasetColorStatus = '#1e968f';
 				lettercolor ='#ffffff';
                 keywordsToUpload = null;
-
             }
         } else {
         	toastErrorMessage = 'There are no keywords to upload at the moment.';
