@@ -10,12 +10,14 @@
             if(component.isValid() && newState === "SUCCESS"){
                 
                 var childRelationshipsMap = r.getReturnValue();
-                var opt = new Array();
+                var opt =[];
 				
                 opt.push({text:"", label: "Change Relationship..."});
-                for(var key in childRelationshipsMap) {
-                    opt.push({label: childRelationshipsMap[key],
-                                                     value: key});
+                if(!(childRelationshipsMap === null)){
+                    for(var key in childRelationshipsMap) {
+                        opt.push({label: childRelationshipsMap[key],
+                                  value: key});
+                    }   
                 }
 
                 if(component.find("selectedRelation")){
@@ -35,6 +37,15 @@
     	});
     	navEvt.fire();
     },
+    navigateToRelatedList : function(component, event, helper){
+        var relatedListId = component.get("v.childObjectName");
+        var relatedListEvent = $A.get("e.force:navigateToRelatedList");
+        relatedListEvent.setParams({
+            "relatedListId": relatedListId,
+            "parentRecordId": component.get("v.recordId")
+        });
+        relatedListEvent.fire();
+	},
     changeRelationship : function (component, event, helper){
     	var selectValue = component.find("selectedRelation").get("v.value");
         component.set("v.childObjectName", selectValue);
@@ -72,7 +83,7 @@
     handleMouseOut : function(component, event, helper) {
         var popover = component.find("popover");
         
-        component.set("v.recordIdToPreview", );
+        component.set("v.recordIdToPreview", null);
         $A.util.addClass(popover,'slds-hide');
     }
 })

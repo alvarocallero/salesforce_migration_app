@@ -13,7 +13,7 @@ public class RelatedListController_Test {
         insert opportunities;
         
         Integer limitOfSObjects = 10;
-        RelatedListController.RelatedListWrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunities', limitOfSObjects);
+        RelatedList.Wrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunities', limitOfSObjects);
         List<SObject> result = wrapper.relatedSObjects;
         
         System.assertEquals(numberOfOpportunities, result.size());
@@ -21,7 +21,7 @@ public class RelatedListController_Test {
     
     @isTest
     static void testGetRelatedListInvalidId(){
-        RelatedListController.RelatedListWrapper wrapper = RelatedListController.listOfRelatedObjects(null, 'Opportunities', 10);
+        RelatedList.Wrapper wrapper = RelatedListController.listOfRelatedObjects(null, 'Opportunities', 10);
         List<SObject> result = wrapper.relatedSObjects;
         
         System.assertEquals(0, result.size());
@@ -31,7 +31,7 @@ public class RelatedListController_Test {
     static void testGetRelatedListInvalidRelatedObject(){
         Account acc = new Account(Name = 'Account');
         insert acc;
-        RelatedListController.RelatedListWrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunities', 10);
+        RelatedList.Wrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunities', 10);
         List<SObject> result = wrapper.relatedSObjects;
         
         System.assertEquals(0, result.size());
@@ -42,7 +42,7 @@ public class RelatedListController_Test {
         Account acc = new Account(Name = 'Account');
         insert acc;
         
-        RelatedListController.RelatedListWrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunities', 10);
+        RelatedList.Wrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunities', 10);
         String pluralName = wrapper.relatedPluralName;
 
         System.assertEquals('Opportunities', pluralName);
@@ -53,7 +53,7 @@ public class RelatedListController_Test {
         Account acc = new Account(Name = 'Account');
         insert acc;
         
-        RelatedListController.RelatedListWrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunity', 10);
+        RelatedList.Wrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunity', 10);
         String pluralName = wrapper.relatedPluralName;
 
         System.assertEquals('', pluralName);
@@ -64,7 +64,7 @@ public class RelatedListController_Test {
         Account acc = new Account(Name = 'Account');
         insert acc;
         
-        RelatedListController.RelatedListWrapper wrapper = RelatedListController.listOfRelatedObjects(null, 'Opportunities', 10);
+        RelatedList.Wrapper wrapper = RelatedListController.listOfRelatedObjects(null, 'Opportunities', 10);
         String pluralName = wrapper.relatedPluralName;
 
         System.assertEquals('', pluralName);
@@ -83,7 +83,7 @@ public class RelatedListController_Test {
         insert opportunities;
         
         Integer limitOfSObjects = 10;
-        RelatedListController.RelatedListWrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunities', limitOfSObjects);
+        RelatedList.Wrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunities', limitOfSObjects);
         List<SObject> result = wrapper.relatedSObjects;
         
         System.assertEquals(limitOfSObjects, result.size());
@@ -103,7 +103,7 @@ public class RelatedListController_Test {
         
         Integer limitOfSObjects = 10;
         Integer offset = 0;
-        RelatedListController.RelatedListWrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunities', offset, limitOfSObjects);
+        RelatedList.Wrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunities', offset, limitOfSObjects);
         List<SObject> result = wrapper.relatedSObjects;
         
         System.assertEquals(limitOfSObjects, result.size());
@@ -125,7 +125,7 @@ public class RelatedListController_Test {
         
         Integer limitOfSObjects = 10;
         Integer actualPage = 1;
-        RelatedListController.RelatedListWrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunities', actualPage, limitOfSObjects);
+        RelatedList.Wrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunities', actualPage, limitOfSObjects);
         List<SObject> result = wrapper.relatedSObjects;
         
         System.assertEquals(limitOfSObjects, result.size());
@@ -147,7 +147,7 @@ public class RelatedListController_Test {
         
         Integer limitOfSObjects = 10;
         Integer actualPage = 3;
-        RelatedListController.RelatedListWrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunities', actualPage, limitOfSObjects);
+        RelatedList.Wrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunities', actualPage, limitOfSObjects);
         List<SObject> result = wrapper.relatedSObjects;
         
         System.assertEquals(4, result.size());
@@ -169,7 +169,7 @@ public class RelatedListController_Test {
         
         Integer limitOfSObjects = 10;
         Integer actualPage = 3;
-        RelatedListController.RelatedListWrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunities', actualPage, limitOfSObjects);
+        RelatedList.Wrapper wrapper = RelatedListController.listOfRelatedObjects(acc.id, 'Opportunities', actualPage, limitOfSObjects);
         List<SObject> result = wrapper.relatedSObjects;
         
         System.assertEquals(4, result.size());

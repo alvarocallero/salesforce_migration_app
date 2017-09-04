@@ -7,7 +7,7 @@
         var numberOfSObjects = component.get("v.Quantity");
         var actualPageNumber = component.get("v.ActualPageNumber");
         action.setParams({  "parentObjectId":objectId,
-                            "childObjectName": relationshipName,
+                            "childRelationshipName": relationshipName,
                             "numberOfSObjects": numberOfSObjects,
                           	"actualPage":actualPageNumber
         });
@@ -18,15 +18,15 @@
                 var wrapper = response.getReturnValue();
                 component.set("v.pluralSObjectName", wrapper.relatedPluralName);
                 component.set("v.listOfObjects", wrapper.relatedSObjects);
-								var sObjectItem = component.get("v.listOfObjects")[0];
-								if(!$A.util.isUndefinedOrNull(sObjectItem)){
-									if($A.util.isUndefinedOrNull(sObjectItem.Name)){
-										component.set("v.hasNameField", false);
-                                    }else{
-                                        component.set("v.hasNameField", true);
-                                    }
-
-								}
+                var sObjectItem = component.get("v.listOfObjects")[0];
+                if(!$A.util.isUndefinedOrNull(sObjectItem)){
+                    if($A.util.isUndefinedOrNull(sObjectItem.Name)){
+                        component.set("v.hasNameField", false);
+                    }else{
+                        component.set("v.hasNameField", true);
+                    }
+                    
+                }
                 var sObjectCount = wrapper.numberOfSObjects;
                 component.set("v.totalNumberOfRecords", sObjectCount);
                 var sObjectLimit = component.get("v.Quantity");

@@ -2,36 +2,22 @@
 public class CaseRelatedListController_Test {
     @isTest
     static void testRelatedTeamMember(){
-        InsertFutureObjects.createCaseTeamRole();
-
-        Contact contactMember = new Contact(LastName='Contact');
-        insert contactMember;
+        String typeName = 'CaseTeamRole';
         
-        Id userId = UserInfo.getUserId();
-
-        Case c = new Case(Status='New');
-        insert c;
-
-        CaseTeamRole role = [Select id from CaseTeamRole Limit 1];
-
-        CaseTeamMember teamContactMember = new CaseTeamMember(MemberId=contactMember.id, ParentId=c.id, TeamRoleId=role.id);
-        CaseTeamMember teamUserMember = new CaseTeamMember(MemberId=userId, ParentId=c.id, TeamRoleId=role.id);
-        
-        insert teamContactMember;
- 		insert teamUserMember;
-
-        Integer limitOfSObjects = 10;
-        Integer numberOfMembers = 2;
-        RelatedListController.RelatedListWrapper wrapper = RelatedListController.listOfRelatedObjects(c.id, 'TeamMembers', limitOfSObjects);
-        List<SObject> result = wrapper.relatedSObjects;
-        
-        System.assertEquals(numberOfMembers, result.size());
-
-        Sobject memberOne = result[0];
-        Sobject memberTwo = result[1];
-        System.assert(memberOne.id == contactMember.id || memberOne.id == userId);
-        System.assert(memberTwo.id == contactMember.id || memberTwo.id == userId);
-
+        Schema.SObjectType targetType = Schema.getGlobalDescribe().get(typeName);
+        if(targetType != null){
+            Contact contactMember = new Contact(LastName='Contact');
+            insert contactMember;
+            
+            Case c = new Case(Status='New');
+            insert c;
+            
+            Integer limitOfSObjects = 10;
+            RelatedList.Wrapper wrapper = RelatedListController.listOfRelatedObjects(c.id, 'TeamMembers', limitOfSObjects);
+            List<SObject> result = wrapper.relatedSObjects;
+            
+            System.assertEquals(0, result.size());
+        }
     }
     
     @isTest
@@ -52,7 +38,7 @@ public class CaseRelatedListController_Test {
         insert caseSolutionTwo;
         
         Integer limitOfSObjects = 10;
-        RelatedListController.RelatedListWrapper wrapper = RelatedListController.listOfRelatedObjects(c.id, 'CaseSolutions', limitOfSObjects);
+        RelatedList.Wrapper wrapper = RelatedListController.listOfRelatedObjects(c.id, 'CaseSolutions', limitOfSObjects);
         
         System.assert(wrapper.relatedSobjects.size() == 2);
         System.assert(wrapper.relatedSobjects[0].Id == sol.id || wrapper.relatedSobjects[0].Id == solTwo.id);
@@ -62,6 +48,7 @@ public class CaseRelatedListController_Test {
     
     @isTest
     static void testRelatedContactRoles(){
+        
         Case c = new Case(Status='New');
         insert c;
                 
@@ -76,12 +63,24 @@ public class CaseRelatedListController_Test {
         insert contactRoleTwo;
         
         Integer limitOfSObjects = 10;
-        RelatedListController.RelatedListWrapper wrapper = RelatedListController.listOfRelatedObjects(c.id, 'CaseContactRoles', limitOfSObjects);
+        RelatedList.Wrapper wrapper = RelatedListController.listOfRelatedObjects(c.id, 'CaseContactRoles', limitOfSObjects);
         
         System.assert(wrapper.relatedSobjects.size() == 2);
         System.assert(wrapper.relatedSobjects[0].Id == contactForRoleOne.id || wrapper.relatedSobjects[0].Id == contactForRoleTwo.id);
         System.assert(wrapper.relatedSobjects[1].Id == contactForRoleOne.id || wrapper.relatedSobjects[1].Id == contactForRoleTwo.id);
         
+        
+    }
+    
+    @isTest
+    static void testEmptyRelatedContactRoles(){
+        Case c = new Case(Status='New');
+        insert c;
+                
+        Integer limitOfSObjects = 10;
+        RelatedList.Wrapper wrapper = RelatedListController.listOfRelatedObjects(c.id, 'CaseContactRoles', limitOfSObjects);
+        
+        System.assert(wrapper.relatedSobjects.size() == 0); 
     }
 
 }
