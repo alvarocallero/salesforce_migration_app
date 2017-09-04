@@ -7,7 +7,7 @@ public class EinsteinSetupController {
     public Boolean couldResetEinstein {get; set;}
     public String datasetStatus {get; set;}
     public String trainStatus {get; set;}
-    private static Map<Id, Einstein_Keyword__c> keywordsById;
+    private Map<Id, Einstein_Keyword__c> keywordsById;
 
     public String toastSuccessMessage {get; set;}
     public String toastErrorMessage {get; set;}
@@ -23,13 +23,16 @@ public class EinsteinSetupController {
 
     public EinsteinSetupController() {
 
+        String datasetId = '';
+        String modelId = '';
         if (GeneralUtils.botSettingsExist()) {
 			einsteinEnabled = EinsteinUtils.getEinsteinEnabled();
+            datasetId = EinsteinUtils.getEinsteinDatasetId();
+            modelId = EinsteinUtils.getEinsteinModelId();
         } else {
             einsteinEnabled = false;
         }
         datasetStatus = 'There was a problem checking the dataset\'s status. Please check it again later.';
-        String datasetId = EinsteinUtils.getEinsteinDatasetId();
         if(!String.isBlank(datasetId)){
             Map<String, Object> jsonDatasetStatus = (Map<String, Object>)JSON.deserializeUntyped(LanguageController.getDataset(datasetId));
             if (jsonDatasetStatus.containsKey(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETDS_STATUS)){
@@ -57,7 +60,6 @@ public class EinsteinSetupController {
         }
 
         trainStatus = 'There was a problem checking the train\'s status. Please check it again later.';
-        String modelId = EinsteinUtils.getEinsteinModelId();
         if(!String.isBlank(modelId)){
             Map<String, Object> jsonTrainStatus = (Map<String, Object>)JSON.deserializeUntyped(LanguageController.getTrainStatus(modelId));
             if (jsonTrainStatus.containsKey(EinsteinUtils.EINSTEIN_PARAMS_RESPONSE_GETTRAIN_STATUS)){
@@ -208,6 +210,8 @@ public class EinsteinSetupController {
             } else{
                 toastSuccessMessage = 'Training in process';
                 einsteinEnabled = false;
+                trainStatus = EinsteinUtils.EINSTEIN_RETRAIN_STATUS_QUEUED;
+                trainingColorStatus = '#22b5ac';
                 lettercolorTrain ='white';
                 EinsteinUtils.setEinsteinEnabled(false);
             }
@@ -224,7 +228,9 @@ public class EinsteinSetupController {
             } else {
                 toastSuccessMessage = 'The examples were uploaded.';
                 datasetStatus = EinsteinUtils.EINSTEIN_DS_STATUS_UPLOADING;
-
+                datasetColorStatus = '#1e968f';
+				lettercolor ='#ffffff';
+                keywordsToUpload = null;
 
             }
         } else {

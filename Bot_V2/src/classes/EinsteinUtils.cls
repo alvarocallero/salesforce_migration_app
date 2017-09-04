@@ -21,6 +21,12 @@ public class EinsteinUtils {
     public static final String EINSTEIN_TRAIN_STATUS_RUNNING = 'RUNNING';
     public static final String EINSTEIN_TRAIN_STATUS_FAILED = 'FAILED';
 
+    // EINSTEIN RETRAIN STATUS
+    public static final String EINSTEIN_RETRAIN_STATUS_SUCCEEDED = 'SUCCEEDED';
+    public static final String EINSTEIN_RETRAIN_STATUS_QUEUED = 'QUEUED';
+    public static final String EINSTEIN_RETRAIN_STATUS_RUNNING = 'RUNNING';
+    public static final String EINSTEIN_RETRAIN_STATUS_FAILED = 'FAILED';
+
     // EINSTEIN DATASET STATUS
     public static final String EINSTEIN_DS_STATUS_SUCCEEDED = 'SUCCEEDED';
     // This status begins with FAILURE and is composed with its reason like this: 'FAILURE: <failure_reason>—Data upload has failed.'
