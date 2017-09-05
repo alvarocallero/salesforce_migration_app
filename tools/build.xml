@@ -43,4 +43,9 @@
         <sf:deploy username="${sf.username}" password="${sf.password}" sessionId="${sf.sessionId}" serverurl="${sf.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="../PermissionSet/src" rollbackOnError="true"/>
 
     </target>
+    <target name="deployCaseQuickActions">
+        <!-- Upload the contents of the "mypkg" package -->
+        <sf:deploy username="${sf.username}" password="${sf.password}" sessionId="${sf.sessionId}" serverurl="${sf.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="../CaseQuickActions/src" rollbackOnError="true"/>
+
+    </target>
 </project>

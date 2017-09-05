@@ -2,7 +2,7 @@
 	doInit : function(component, event, helper) {
         var action = component.get("c.attachmentDetails");
         action.setParams({
-            "messageId": component.get("v.recordId")
+            "knownIssueId": component.get("v.recordId")
         });
         
         action.setCallback(this, function(response) {

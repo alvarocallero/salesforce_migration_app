@@ -65,10 +65,6 @@
         <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>RecordTypeId</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>Record_Detail_Id__c</field>
             </layoutItems>
             <layoutItems>
@@ -77,6 +73,16 @@
             </layoutItems>
         </layoutColumns>
         <style>OneColumn</style>
+    </layoutSections>
+    <layoutSections>
+        <customLabel>true</customLabel>
+        <detailHeading>true</detailHeading>
+        <editHeading>true</editHeading>
+        <label>Custom Links</label>
+        <layoutColumns/>
+        <layoutColumns/>
+        <layoutColumns/>
+        <style>CustomLinks</style>
     </layoutSections>
     <layoutSections>
         <customLabel>false</customLabel>
@@ -97,23 +103,15 @@
         </layoutColumns>
         <style>TwoColumnsTopToBottom</style>
     </layoutSections>
-    <layoutSections>
-        <customLabel>true</customLabel>
-        <detailHeading>false</detailHeading>
-        <editHeading>true</editHeading>
-        <label>Custom Links</label>
-        <layoutColumns/>
-        <layoutColumns/>
-        <layoutColumns/>
-        <style>CustomLinks</style>
-    </layoutSections>
     <relatedLists>
         <fields>NAME</fields>
-        <fields>Einstein_Keyword__c</fields>
-        <fields>Message__c</fields>
         <fields>Message_Summary__c</fields>
         <fields>Reason__c</fields>
+        <fields>Einstein_Keyword__c</fields>
+        <fields>Message__c</fields>
         <relatedList>Known_Issue__c.Related_Issue__c</relatedList>
+        <sortField>NAME</sortField>
+        <sortOrder>Asc</sortOrder>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
