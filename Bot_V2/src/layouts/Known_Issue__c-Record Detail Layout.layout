@@ -65,10 +65,6 @@
         <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>RecordTypeId</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>Record_Detail_Id__c</field>
             </layoutItems>
             <layoutItems>
@@ -114,6 +110,8 @@
         <fields>Einstein_Keyword__c</fields>
         <fields>Message__c</fields>
         <relatedList>Known_Issue__c.Related_Issue__c</relatedList>
+        <sortField>NAME</sortField>
+        <sortOrder>Asc</sortOrder>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>

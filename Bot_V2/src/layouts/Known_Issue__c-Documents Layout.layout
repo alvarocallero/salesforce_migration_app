@@ -13,10 +13,6 @@
             </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
-                <field>Related_Issue__c</field>
-            </layoutItems>
-            <layoutItems>
-                <behavior>Edit</behavior>
                 <field>Estimated_Due_Date__c</field>
             </layoutItems>
         </layoutColumns>
@@ -63,10 +59,6 @@
         <editHeading>true</editHeading>
         <label>Specifications</label>
         <layoutColumns>
-            <layoutItems>
-                <behavior>Edit</behavior>
-                <field>RecordTypeId</field>
-            </layoutItems>
             <layoutItems>
                 <behavior>Edit</behavior>
                 <field>Document_Id__c</field>
@@ -136,6 +128,8 @@
         <fields>Einstein_Keyword__c</fields>
         <fields>Message__c</fields>
         <relatedList>Known_Issue__c.Related_Issue__c</relatedList>
+        <sortField>NAME</sortField>
+        <sortOrder>Asc</sortOrder>
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
