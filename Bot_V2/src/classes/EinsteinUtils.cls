@@ -43,7 +43,7 @@ public class EinsteinUtils {
     // EINSTEIN ENDPOINTS - API TOKEN - JWTISS
     public static final String EINSTEIN_ENDPOINT_APITOKEN_JWTISS = 'developer.force.com';
     // EINSTEIN ENDPOINTS - API TOKEN - JWTSUB
-    public static final String EINSTEIN_ENDPOINT_APITOKEN_JWTSUB = 'etorrano@altimetrik.com';
+    public static final String EINSTEIN_ENDPOINT_APITOKEN_JWTSUB = getEinsteinEmail();
 
     // EINSTEIN ENDPOINTS - LANGUAGE_API
     public static final String EINSTEIN_ENDPOINT_LANGUAGE_API = 'https://api.einstein.ai/v2/language';
@@ -124,15 +124,6 @@ public class EinsteinUtils {
         update GeneralUtils.BOT_SETTINGS;
     }
 
-    public static String getEinsteinToken() {
-        return GeneralUtils.getBotSettings().Einstein_Token__c;
-    }
-
-    public static void setEinsteinToken(String token) {
-        GeneralUtils.getBotSettings().Einstein_Token__c = token;
-        update GeneralUtils.BOT_SETTINGS;
-    }
-
    public static String getEinsteinDatasetId() {
         return GeneralUtils.getBotSettings().Einstein_DatasetId__c;
     }
@@ -148,6 +139,15 @@ public class EinsteinUtils {
 
     public static void setEinsteinModelId(String modelId) {
         GeneralUtils.getBotSettings().Einstein_ModelId__c = modelId;
+        update GeneralUtils.BOT_SETTINGS;
+    }
+
+    public static String getEinsteinEmail() {
+        return GeneralUtils.getBotSettings().Einstein_Email__c;
+    }
+
+    public static void setEinsteinEmail(String email) {
+        GeneralUtils.getBotSettings().Einstein_Email__c = email;
         update GeneralUtils.BOT_SETTINGS;
     }
     // MANAGE KEYWORDS AND MESSAGES
