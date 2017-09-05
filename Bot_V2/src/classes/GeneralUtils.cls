@@ -18,9 +18,10 @@ public class GeneralUtils {
         if (BOT_SETTINGS == null) {
             BOT_SETTINGS = getBotSettingsRecord();
             if (BOT_SETTINGS == null) {
-                BOT_SETTINGS = new Bot_Settings__c( Name = BOT_SETTINGS_DEFAULTNAME,
-                                                    Einstein_Enabled__c = false,
-                                                    Einstein_Token__c = '' );
+                BOT_SETTINGS = new Bot_Settings__c( 
+                    Name = BOT_SETTINGS_DEFAULTNAME,
+                    Einstein_Enabled__c = false 
+                );
                 insert BOT_SETTINGS;
             }
         }
