@@ -1,6 +1,46 @@
 @isTest
 public class EinsteinSetupControllerTest {
 
+    @testSetup
+    static void setup()
+    {
+        List<Einstein_Keyword__c> keywords = new List<Einstein_Keyword__c>();
+        for(Integer i=0; i<3; i++) {
+            keywords.add( new Einstein_Keyword__c( 
+                    Name = 'TEST KEYWORD ' + String.valueOf(i+1),                                                  
+                    Einstein_Upload_Status__c = EinsteinUtils.UPLOAD_STATUS_NOT_UPLOADED
+                )
+            );
+        }
+        insert keywords;
+
+        List<Known_Issue__c> issues = new List<Known_Issue__c>();
+        for (Einstein_Keyword__c keyword: keywords) {
+                issues.add( new Known_Issue__c(
+                        Einstein_Keyword__c = keyword.Id,
+                        Message__c = 'TEST MESSAGE',
+                        Message_Summary__c = 'TEST MESSAGE'
+                    ) 
+                );
+
+        }
+        insert issues;
+
+        List<Einstein_Data_Message__c> messages = new List<Einstein_Data_Message__c>();
+        for (Known_Issue__c issue: issues) {
+            for(Integer i=0; i<6; i++) {
+                messages.add( new Einstein_Data_Message__c( 
+                        Einstein_Keyword__c = issue.Einstein_Keyword__c,
+                        Known_Issue__c = issue.Id,
+                        Message__c = 'TEST MESSAGE ' + String.valueOf(i+1),
+                        Einstein_Upload_Status__c = EinsteinUtils.UPLOAD_STATUS_NOT_UPLOADED 
+                    ) 
+                );
+            }
+        }
+        insert messages;
+    }
+
     static testmethod void testControllerErrors() {
 
         List<Einstein_Keyword__c> keywords = new List<Einstein_Keyword__c>();

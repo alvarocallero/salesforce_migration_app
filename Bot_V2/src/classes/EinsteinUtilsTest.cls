@@ -13,23 +13,7 @@ public class EinsteinUtilsTest {
         
         System.assertEquals(false, einsteinDisabled, 'Einstein should start disabled');
         System.assertEquals(true, einsteinEnabled, 'Einstein should have been enabled');
-    }
-    
-    
-    static testmethod void testEinsteinToken() {
-        
-        Test.startTest();
-        
-        String einsteinTokenUndefined = EinsteinUtils.getEinsteinToken();
-        EinsteinUtils.setEinsteinToken('TEST');
-        String einsteinTokenDefined = EinsteinUtils.getEinsteinToken();
-        
-        Test.stopTest();
-        
-        System.assertEquals('', einsteinTokenUndefined, 'Einstein token should start undefined');
-        System.assertEquals('TEST', einsteinTokenDefined, 'Einstein token should be defined');
-    }
-    
+    }    
     
     static testmethod void testCreateMessage() {
         
