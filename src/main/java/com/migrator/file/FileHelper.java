@@ -46,30 +46,30 @@ public class FileHelper {
 	
 	public static SObject[] getFirst200Documents() {
 		logger.info("Entering getFirst200Documents >>>");
+		QueryResult result = null;
 		try {
-			QueryResult result = DocumentServiceImpl.connection.query("SELECT Id, AuthorId, FolderId, Name, Type, BodyLength, IsDeleted FROM Document "
+			result = DocumentServiceImpl.connection.query("SELECT Id, AuthorId, FolderId, Name, Type, BodyLength, IsDeleted FROM Document "
 																	+ "order by id asc limit 200 ");
 			logger.info("Leaving getFirst200Documents <<<");
-			return result.getRecords();
-			
 		} catch (Exception e) {
 			logger.error("Error on method getFirst200Documents: " + e);
-			return null;
+			System.exit(0);
 		}
+		return result.getRecords();
 	}
 	
 	public static SObject[] getnext200Documents(String documentId) {
 		logger.info("Entering getFirst200DocumentsAndReturnTheIdOfTheLast >>>");
+		QueryResult result = null;
 		try {
-			QueryResult result = DocumentServiceImpl.connection.query("SELECT Id, AuthorId, FolderId, Name, Type, BodyLength, IsDeleted FROM Document "
-					+ " where id > "+documentId+"order by id asc limit 200 ");
+			result = DocumentServiceImpl.connection.query("SELECT Id, AuthorId, FolderId, Name, Type, BodyLength, IsDeleted FROM Document "
+					+ " where id > "+"'"+documentId+"'"+" order by id asc limit 200 ");
 			logger.info("Leaving getFirst200DocumentsAndReturnTheIdOfTheLast <<<");
-			return result.getRecords();
-			
 		} catch (Exception e) {
 			logger.error("Error on method getFirst200DocumentsAndReturnTheIdOfTheLast: " + e);
-			return null;
+			System.exit(0);
 		}
+		return result.getRecords();
 	}
 
 }

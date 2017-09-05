@@ -1,8 +1,6 @@
 package com.migrator.webservice;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.TreeMap;
 
 import org.apache.http.HttpStatus;
@@ -25,8 +23,8 @@ public class RestCaller{
 	private static final String CONSUMER_KEY = "3MVG9zlTNB8o8BA3gG6ULH657ove3UkpU4dLffeAJmVGAtT_.nOYEI3E0DhysiMGrV5_KpARCyRL4upUTRoqU";
 	private static final String CONSUMER_SECRET = "4329211162267730076";
 
-	public static String getAccesToken(){
-		logger.info("Entering getAccesToken() >>>");
+	public static String getAccesToken(String orgUserName, String orgPassword, String orgSecurityToken){
+		logger.info("Entering getAccesToken >>>");
 		StringBuilder url = new StringBuilder();
 		url.append("https://login.salesforce.com/services/oauth2/token?grant_type=password")
 		.append("&client_id=")
@@ -34,10 +32,10 @@ public class RestCaller{
 		.append("&client_secret=")
 		.append(CONSUMER_SECRET)
 		.append("&username=")
-		.append("fvecino@trial1enterprise.com")
+		.append(orgUserName)
 		.append("&password=")
-		.append("test1234")
-		.append("eviweRTqoaysZLNQpfB2HPduh");
+		.append(orgPassword)
+		.append(orgSecurityToken);
 		JSONObject jsonObject = null;
 		try{
 			DefaultHttpClient httpClient = new DefaultHttpClient();
@@ -48,7 +46,9 @@ public class RestCaller{
 				logger.error("Error getting access token: " + response.getStatusLine().getReasonPhrase());
 				return null;
 			}
+			
 			String responseString = EntityUtils.toString(response.getEntity());
+			logger.info("The response is: "+responseString);
 			jsonObject = (JSONObject) new JSONTokener(responseString).nextValue();
 			
 		}catch (IOException e) {
@@ -59,13 +59,16 @@ public class RestCaller{
 	}
 	
 	
-	public static String callApiRest(String url, String accessToken, TreeMap<String,String> mapIdContentVAndFileOwner)  {
+	public static void callApiRest(String url, String accessToken, TreeMap<String,String> mapIdContentVAndFileOwner)  {
 		logger.info("Entering callApiRest >>>");
 		String responseReturn=null;
         try{
         	DefaultHttpClient httpclient = new DefaultHttpClient();
-        	
-            JSONObject json = new JSONObject(mapIdContentVAndFileOwner);
+            JSONObject jsonMap = new JSONObject(mapIdContentVAndFileOwner);
+            JSONObject json = new JSONObject();
+            
+            String jSonStr = jsonMap.toString();
+            json.put("jsonIdsMap",jSonStr);
             String requestUrl = url+"/services/apexrest/contentMigrator/ContentMigrator/";
             HttpPost httpost = new HttpPost(requestUrl);
             httpost.addHeader("Authorization", "Bearer " + accessToken);
@@ -91,12 +94,12 @@ public class RestCaller{
 			} catch (ParseException | IOException e) {
 				logger.error("Error getting the response for the rest call: "+e);
 			}
+			logger.info("The REST API returned: "+responseReturn);
 			logger.info("Leaving callApiRest <<<");
-            System.out.println("Response message: "+ responseReturn);
         }catch(Exception e){
         	logger.error("Error at callApiRest: "+e);
+        	System.exit(0);
         }
-        return responseReturn;
     }
 	
 }

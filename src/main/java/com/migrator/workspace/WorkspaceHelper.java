@@ -89,7 +89,7 @@ public class WorkspaceHelper {
 			}
 		} catch (Exception e) {
 			logger.error("Error on method createContentWorkspace: " + e);
-			return null;
+			System.exit(0);
 		}
 		logger.info("Leaving createContentWorkspace <<<");
 		return  mapToReturn;
@@ -110,7 +110,6 @@ public class WorkspaceHelper {
 				contentArrayToCreate[i] = contentWorkspace;
 			}
 			SaveResult[] saveResults = DocumentServiceImpl.connection.create(contentArrayToCreate);
-
 			for (int i=0;i<saveResults.length;i++){
 				if (saveResults[i].getId() != null){
 					mapResult.put(saveResults[i].getId(), contentFolderName.get(i));
@@ -119,6 +118,7 @@ public class WorkspaceHelper {
 
 		} catch (Exception e) {
 			logger.error("Error at createContentWorkspaceBatch: " + e);
+			System.exit(0);
 		}
 		logger.info("Leaving createContentWorkspaceBatch <<<");
 		return mapResult;

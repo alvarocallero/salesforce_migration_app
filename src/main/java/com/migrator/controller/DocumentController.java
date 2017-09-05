@@ -51,13 +51,13 @@ public class DocumentController {
     }
     
     @RequestMapping(value = "/transformDocuments", method = RequestMethod.POST)
-    public String transformDocuments() {
+    public String transformDocuments(HttpServletRequest request) {
     	logger.info("----------  Starting the migration of documents -------------------------");
     	
-    	//Create documents un bulk mode of 200
+//    	Create documents un bulk mode of 200
 //    	DocumentUploader.bulkDocumentUploading();
     	
-    	documentService.transformDocuments();
+    	documentService.transformDocuments(request.getParameter("orgUserName"),request.getParameter("orgPassword"),request.getParameter("orgSecurityToken"));
     	logger.info("----------  Documents Migration ended -----------------------------------");
         return "redirect:/documents/";
     }

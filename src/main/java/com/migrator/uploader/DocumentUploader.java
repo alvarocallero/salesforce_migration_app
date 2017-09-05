@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 
 import com.force.sdk.oauth.context.ForceSecurityContextHolder;
 import com.force.sdk.oauth.context.SecurityContext;
-import com.migrator.service.DocumentServiceImpl;
 import com.sforce.soap.partner.Connector;
 import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.soap.partner.SaveResult;
@@ -34,8 +33,8 @@ public class DocumentUploader {
 
 			String docName = "FileName";
 			String body = new String("This is the body of the documentttt 0_o");
-			for (int j=0;j<25;j++){
-				docName+=j;
+//			for (int j=0;j<25;j++){
+//				docName+=j;
 				SObject[] docArray = new SObject[200];
 				for (int i=0;i<200;i++){
 					SObject newDocument = new SObject();
@@ -44,9 +43,9 @@ public class DocumentUploader {
 					newDocument.setField("Name", docName);
 					newDocument.setField("Type", "txt");
 					newDocument.setField("Body", body.getBytes());
-					newDocument.setField("FolderId", "00lf4000000R1IZAA0");
+					newDocument.setField("FolderId", "00lf4000000R6FPAA0");
 					newDocument.setField("ContentType", "txt");
-					newDocument.setField("Description", "Description");
+					newDocument.setField("Description", "La Descripcion");
 					newDocument.setField("NamespacePrefix", "");
 					docName=docName.substring(0, 8);
 					docArray[i]=newDocument;
@@ -57,7 +56,7 @@ public class DocumentUploader {
 				} else {
 					logger.info("Error creating the link: " + saveResults[0].getErrors()[0].getMessage());
 				}
-			}
+//			}
 
 		} catch (Exception e) {
 			logger.error("Error on method bulkDocumentUploading: " + e);

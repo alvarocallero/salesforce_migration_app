@@ -37,7 +37,7 @@ public class DocumentServiceImpl implements DocumentService {
 	final static Logger logger = Logger.getLogger(DocumentServiceImpl.class);
 	public static final String FILENAME = System.getProperty("user.dir")+"\\src\\main\\resources\\migrationStatus.properties";
 
-	public void transformDocuments() {
+	public void transformDocuments(String orgUserName, String orgPassword, String orgSecurityToken) {
 		logger.info("Entering transformDocuments >>>");
 
 		Properties properties = new Properties();
@@ -69,30 +69,44 @@ public class DocumentServiceImpl implements DocumentService {
 			int cantDocuments;
 			int currentPage;
 			String orgId=sc.getOrgId();;
-
+			String lastDocumentId=null;
+			Boolean firstTime;
 			//if the org already exist, the migration continues
 			if (properties.getProperty("orgId") != null && !properties.getProperty("orgId").equals("") && orgId.equals(properties.getProperty("orgId"))){
+				logger.info("The migration process will continue");
 				cantDocuments=Integer.valueOf(properties.getProperty("cantDocs"));
 				currentPage=Integer.valueOf(properties.getProperty("currentPage"));
+				lastDocumentId=properties.getProperty("lastDocumentId");
+				firstTime=false;
 			}else{
+				logger.info("There´s no previous migration process");
 				cantDocuments=getDocumentsCount();
 				currentPage=1;
+				firstTime=true;
 				MigrationStatusService.updatePropertiesStatus(orgId,currentPage,cantDocuments);
 			}
-			String offset;
-			String accessToken = RestCaller.getAccesToken();
-			Boolean firstTime = true;
+			String accessToken = RestCaller.getAccesToken(orgUserName,orgPassword,orgSecurityToken);
+			
 			SObject[] arrayOfDocuments = null;
-			String idOfLastDocument = null;
-			while(cantDocuments > (200*(currentPage-1))){
+			Boolean migrationFinish = false;
+			logger.info("The amount of documents found is: "+cantDocuments);
+			//avoids reaching the 2000 documents
+			while(getAmountOfMIgratedDocumentsToday() <= 1800 && !migrationFinish){
 				logger.info("Processing page: "+currentPage);
 				TreeMap<String, String> mapOfCWSIdAndName = WorkspaceHelper.getAllContentWorkSpace();
-				if(firstTime){
+				if(firstTime || currentPage == 1){
 					arrayOfDocuments = FileHelper.getFirst200Documents();
-					idOfLastDocument = (String)arrayOfDocuments[arrayOfDocuments.length - 1].getField("Id");
+					lastDocumentId = (String)arrayOfDocuments[arrayOfDocuments.length - 1].getField("Id");
+					MigrationStatusService.updateDocumentLastId(lastDocumentId);
+					firstTime=false;
 				}else{
-					arrayOfDocuments = FileHelper.getnext200Documents(idOfLastDocument);
-					idOfLastDocument = (String)arrayOfDocuments[arrayOfDocuments.length - 1].getField("Id");
+					arrayOfDocuments = FileHelper.getnext200Documents(lastDocumentId);
+					if(arrayOfDocuments.length != 0){
+						lastDocumentId = (String)arrayOfDocuments[arrayOfDocuments.length - 1].getField("Id");
+					}else{
+						migrationFinish=true;
+					}
+					MigrationStatusService.updateDocumentLastId(lastDocumentId);
 				}
 				if(arrayOfDocuments.length == 0){
 					logger.info("No documents to migrate");
@@ -100,19 +114,9 @@ public class DocumentServiceImpl implements DocumentService {
 					TreeMap<String, String> mapOfFolderIdAndName = getAllFoldersFromDocuments(arrayOfDocuments);
 					mapOfCWSIdAndName = WorkspaceHelper.createContentWorkspace(arrayOfDocuments, mapOfCWSIdAndName, mapOfFolderIdAndName); 
 					createContentVersionBatch(arrayOfDocuments,mapOfCWSIdAndName,url,accessToken,mapOfFolderIdAndName);
-					
-					
-					TreeMap<String, String> mapOfContentVerIdAndDocumentId = new TreeMap<String, String>();
-					mapOfContentVerIdAndDocumentId.put("aaaaaaaaa", "111111111");
-					mapOfContentVerIdAndDocumentId.put("BBBBBBBBBBBB", "22222222222");
-					mapOfContentVerIdAndDocumentId.put("ccccccccc", "33333333333");
-					String apiCallResult = RestCaller.callApiRest(url, accessToken,mapOfContentVerIdAndDocumentId);
-					if(!apiCallResult.equals("SUCCESS")){
-						logger.error("The REST API call return an error: "+apiCallResult);
-					}
+					logger.info("Page "+currentPage+" processed");
 					currentPage+=1;
 					MigrationStatusService.updateCurrentPage(currentPage);
-					logger.info("Page "+currentPage+" processed");
 				}
 			}
 
@@ -124,9 +128,8 @@ public class DocumentServiceImpl implements DocumentService {
 
 
 	public static void createContentVersionBatch(SObject[] arrayOfDocuments, TreeMap<String, String> mapOfCWSIdAndName, String url, String accessToken,TreeMap<String, String> mapOfFolderIdAndName){
-
 		logger.info("Entering createContentVersionBatch >>>");
-		String apiCallResult=null;
+		
 		//Map <ContentVersionId,FileOwner> to call updateFileOwnerId, map to update the file owner
 		TreeMap<String,String> mapIdContentVAndFileOwner = new TreeMap<String,String>();
 
@@ -150,6 +153,7 @@ public class DocumentServiceImpl implements DocumentService {
 			contentVersion.setField("VersionData", fileDataByteArray);
 			contentVersion.setField("Title", fileName);
 			contentVersion.setField("PathOnClient", fileName);
+			contentVersion.setField("IsMajorVersion", false);
 			contentVersionArrayToCreate[i]=contentVersion;
 		}
 		try {
@@ -158,7 +162,7 @@ public class DocumentServiceImpl implements DocumentService {
 			for (int i=0;i<saveResults.length;i++){
 				if (saveResults[i].getId() != null){
 					mapIdContentVAndFileOwner.put(saveResults[i].getId(), FileHelper.getFileOwner(arrayOfDocuments[i]));
-					mapOfContentVerIdAndDocumentId.put(saveResults[i].getId(),(String)arrayOfDocuments[i].getField("Id"));
+					mapOfContentVerIdAndDocumentId.put((String)arrayOfDocuments[i].getField("Id"),saveResults[i].getId());
 					lstOfContentVersionId.add(saveResults[i].getId());
 				}
 			}
@@ -178,17 +182,14 @@ public class DocumentServiceImpl implements DocumentService {
 					lstOfFolderIdAndContentDocId.add(cwsIdAndContentDocIdstring);
 				}
 			}
-
 			createContentWorkspaceDoc(lstOfFolderIdAndContentDocId);
 
 			//Call the Apex class to create the content of the files
-			apiCallResult = RestCaller.callApiRest(url, accessToken,mapOfContentVerIdAndDocumentId);
-			if(!apiCallResult.equals("SUCCESS")){
-				logger.error("The REST API call return an error: "+apiCallResult);
-			}
+			RestCaller.callApiRest(url, accessToken,mapOfContentVerIdAndDocumentId);
 
 		} catch (ConnectionException e) {
 			logger.error("Error on method createContentVersionBatch: "+ e);
+			System.exit(0);
 		}
 	}
 
@@ -206,8 +207,15 @@ public class DocumentServiceImpl implements DocumentService {
 				i++;
 			}
 			SaveResult[] saveResults = connection.create(request);
+			for(int j=0;j<saveResults.length;j++){
+				if(!saveResults[j].getSuccess()){
+					logger.info("Error at createContentWorkspaceDoc: " + saveResults[j].getErrors()[j].getMessage());
+					System.exit(0);
+				}
+			}
 		} catch (Exception e) {
 			logger.error("Error on createContentWorkspaceDoc: "+e);
+			System.exit(0);
 		}
 		logger.info("Entering createContentWorkspaceDoc <<<");
 	}
@@ -226,11 +234,16 @@ public class DocumentServiceImpl implements DocumentService {
 				i++;
 			}
 			SaveResult[] saveResults =  DocumentServiceImpl.connection.update(updateContentVersionArray);
-			//TODO ver si estos saveResults tienen errores
-
+			for(int j=0;j<saveResults.length;j++){
+				if(!saveResults[j].getSuccess()){
+					logger.info("Error at updatefileOwnerId: " + saveResults[j].getErrors()[j].getMessage());
+					System.exit(0);
+				}
+			}
 			logger.info("Leaving updatefileOwnerId <<<");
 		} catch (Exception e) {
 			logger.error("Error on method updatefileOwnerId: " + e);
+			System.exit(0);
 		}
 	}
 
@@ -245,6 +258,7 @@ public class DocumentServiceImpl implements DocumentService {
 			}
 		} catch (Exception e) {
 			logger.error("Error on method getDocumentsCount(): " + e);
+			System.exit(0);
 		}
 		return resultQuery;
 	}
@@ -259,6 +273,7 @@ public class DocumentServiceImpl implements DocumentService {
 
 	private static TreeMap <String,String> getAllFoldersFromDocuments(SObject[] arrayOfDocs) {
 		logger.info("Entering getAllFoldersByDocumentId >>>");
+		TreeMap <String,String> resultMap = new TreeMap<String,String>();
 		try {
 			List<String> lstOfFolderIds = new LinkedList<String>();
 			for (SObject doc : arrayOfDocs){
@@ -266,7 +281,7 @@ public class DocumentServiceImpl implements DocumentService {
 			}
 
 			// Map <FolderId,FolderName>
-			TreeMap <String,String> resultMap = new TreeMap<String,String>();
+			
 			String folderIdsStr = "(";
 			for (String id : lstOfFolderIds){
 				folderIdsStr+="'"+id+"',";
@@ -282,9 +297,10 @@ public class DocumentServiceImpl implements DocumentService {
 			return resultMap;
 		} catch (Exception e) {
 			logger.error("Error on method getAllFolders: " + e);
+			System.exit(0);
 		}
 		logger.info("Leaving getAllFoldersByDocumentId <<<");
-		return null;
+		return resultMap;
 	}
 
 	public static List<SObject> sobjectArrayToList(SObject[] sobjectArray){
@@ -306,16 +322,31 @@ public class DocumentServiceImpl implements DocumentService {
 			contentVersionString=contentVersionString.substring(0, contentVersionString.length()-1);
 			contentVersionString+=")";
 
-
 			QueryResult result = connection.query("SELECT contentdocumentid FROM Contentversion where id in "+contentVersionString);
 			for(SObject contentVersion : result.getRecords()){
 				lstOfContentDocumentId.add((String)contentVersion.getField("ContentDocumentId"));
 			}
 			logger.info("Leaving getContDocIdFromVerId <<<");
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error at getContDocIdFromVerId: "+e);
+			System.exit(0);
 		}
 		return lstOfContentDocumentId;
 	}
+	
+		private int getAmountOfMIgratedDocumentsToday(){
+			int resultQuery = -1;
+			try {
+				QueryResult result = connection.query("select count() from ContentVersion where createdDate = TODAY");
+				resultQuery= result.getSize();
+				if(resultQuery == 0){
+					logger.info("There are no migrated documents yet");
+				}
+			} catch (Exception e) {
+				logger.error("Error on method getAmountOfMIgratedDocumentsToday: " + e);
+				System.exit(0);
+			}
+			return resultQuery;
+		}
 }
 

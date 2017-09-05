@@ -24,6 +24,7 @@ public class MigrationStatusService {
 			prop.setProperty("orgId", orgId);
 			prop.setProperty("currentPage", String.valueOf(currentPage));
 			prop.setProperty("cantDocs", String.valueOf(cantDocs));
+			prop.setProperty("lastDocumentId", "");
 			prop.store(output, null);
 		} catch (IOException io) {
 			logger.error("Error at updateStatusProperties: "+io);
@@ -53,9 +54,45 @@ public class MigrationStatusService {
 			output = new FileOutputStream(FILENAME);
 			String orgId = (prop.getProperty("orgId") != null && !prop.getProperty("orgId").equals(""))?prop.getProperty("orgId"):"";
 			String cantDocs = (prop.getProperty("cantDocs") != null && !prop.getProperty("cantDocs").equals(""))?prop.getProperty("cantDocs"):"";
+			String lastDocumentId = (prop.getProperty("lastDocumentId") != null && !prop.getProperty("lastDocumentId").equals(""))?prop.getProperty("lastDocumentId"):"";
 			prop.setProperty("orgId",orgId);
 			prop.setProperty("currentPage",String.valueOf(currentPage));
 			prop.setProperty("cantDocs",cantDocs);
+			prop.setProperty("lastDocumentId", lastDocumentId);
+			prop.store(output, null);
+		} catch (IOException io) {
+			logger.error("Error at updateStatusProperties: "+io);
+		} finally {
+			if (output != null) {
+				try {
+					output.close();
+				} catch (IOException e) {
+					logger.error("Error at updateStatusProperties: "+e);
+				}
+			}
+		}
+	}
+	
+	public static void updateDocumentLastId(String lastDocumentId){
+		Properties prop = new Properties();
+		OutputStream output = null;
+		try {
+			InputStream in = new FileInputStream(FILENAME);
+			prop.load(in);
+			in.close();
+		} catch (IOException e1) {
+			logger.error("Error loading migrationStatus.properties");
+		}
+		
+		try {
+			output = new FileOutputStream(FILENAME);
+			String orgId = (prop.getProperty("orgId") != null && !prop.getProperty("orgId").equals(""))?prop.getProperty("orgId"):"";
+			String cantDocs = (prop.getProperty("cantDocs") != null && !prop.getProperty("cantDocs").equals(""))?prop.getProperty("cantDocs"):"";
+			String currentPage = (prop.getProperty("currentPage") != null && !prop.getProperty("currentPage").equals(""))?prop.getProperty("currentPage"):"";
+			prop.setProperty("orgId",orgId);
+			prop.setProperty("currentPage",String.valueOf(currentPage));
+			prop.setProperty("cantDocs",cantDocs);
+			prop.setProperty("lastDocumentId", lastDocumentId);
 			prop.store(output, null);
 		} catch (IOException io) {
 			logger.error("Error at updateStatusProperties: "+io);
@@ -78,6 +115,7 @@ public class MigrationStatusService {
 			prop.setProperty("orgId", "");
 			prop.setProperty("currentPage", "");
 			prop.setProperty("cantDocs", "");
+			prop.setProperty("lastDocumentId", "");
 			prop.store(output, null);
 		} catch (IOException io) {
 			logger.error("Error at updateStatusProperties: "+io);
