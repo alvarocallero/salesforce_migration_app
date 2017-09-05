@@ -131,6 +131,10 @@
     </relatedLists>
     <relatedLists>
         <fields>NAME</fields>
+        <fields>Message_Summary__c</fields>
+        <fields>Reason__c</fields>
+        <fields>Einstein_Keyword__c</fields>
+        <fields>Message__c</fields>
         <relatedList>Known_Issue__c.Related_Issue__c</relatedList>
     </relatedLists>
     <relatedLists>
