@@ -194,17 +194,22 @@
                                             styleClass="slds-table slds-table_bordered slds-table_cell-buffer" >
                                 
                                 <apex:column >
-                                    <apex:facet name="header">KEYWORD</apex:facet>
+                                    <apex:facet name="header">Keyword</apex:facet>
                                     <apex:outputText value="{!row.Name}"/>
                                 </apex:column>
                                 
                                 <apex:column >
-                                    <apex:facet name="header">MESSAGES</apex:facet>
-                                    <apex:outputText value="{!row.Einstein_Data_Messages_Count__c}"/>
+                                    <apex:facet name="header">Pending messages</apex:facet>
+                                    <apex:outputText value="{!row.Einstein_Data_Messages__r.size}"/>
+                                </apex:column>
+
+                                <apex:column >
+                                    <apex:facet name="header">Uploaded messages</apex:facet>
+                                    <apex:outputText value="{!row.Einstein_Data_Messages_Count__c - row.Einstein_Data_Messages__r.size}"/>
                                 </apex:column>
                                 
                                 <apex:column >
-                                    <apex:facet name="header">MANAGE</apex:facet>
+                                    <apex:facet name="header">Manage</apex:facet>
                                     <input type="button"
                                            onclick="window.open('/one/one.app?#/sObject/{!row.Id}/view', '_blank');"
                                            class="slds-button slds-button_neutral manage-button"
@@ -229,17 +234,22 @@
                                             styleClass="slds-table slds-table_bordered slds-table_cell-buffer" >
                                 
                                 <apex:column >
-                                    <apex:facet name="header">KEYWORD</apex:facet>
+                                    <apex:facet name="header">Keyword</apex:facet>
                                     <apex:outputText value="{!row.Name}"/>
                                 </apex:column>
                                 
                                 <apex:column >
-                                    <apex:facet name="header">MESSAGES</apex:facet>
-                                    <apex:outputText value="{!row.Einstein_Data_Messages_Count__c}"/>
+                                    <apex:facet name="header">Pending messages</apex:facet>
+                                    <apex:outputText value="{!row.Einstein_Data_Messages__r.size}"/>
+                                </apex:column>
+
+                                <apex:column >
+                                    <apex:facet name="header">Uploaded messages</apex:facet>
+                                    <apex:outputText value="{!row.Einstein_Data_Messages_Count__c - row.Einstein_Data_Messages__r.size}"/>
                                 </apex:column>
                                 
                                 <apex:column >
-                                    <apex:facet name="header">MANAGE</apex:facet>
+                                    <apex:facet name="header">Manage</apex:facet>
                                     <input type="button"
                                            onclick="window.open('/one/one.app?#/sObject/{!row.Id}/view', '_blank');"
                                            class="slds-button slds-button_neutral manage-button"
@@ -277,20 +287,18 @@
                                             id="messagesWithErrorTable"
                                             styleClass="slds-table slds-table_bordered slds-table_cell-buffer"  >
                                 
-                                                                
                                 <apex:column >
-                                    <apex:facet name="header">MESSAGE</apex:facet>
-                                    <apex:outputText value="{!row.Message__c}"/>
-                                </apex:column>
-                                
-                                <apex:column >
-                                    <apex:facet name="header">KEYWORD</apex:facet>
+                                    <apex:facet name="header">Keyword</apex:facet>
                                     <apex:outputText value="{!row.Einstein_Keyword__r.Name}"/>
-                                </apex:column>
-
-                                
+                                </apex:column>  
+                                                 
                                 <apex:column >
-                                    <apex:facet name="header">MANAGE</apex:facet>
+                                    <apex:facet name="header">Message</apex:facet>
+                                    <apex:outputText value="{!row.Message__c}"/>
+                                </apex:column> 
+
+                                <apex:column >
+                                    <apex:facet name="header">Manage</apex:facet>
                                     <input type="button"
                                            onclick="window.open('/one/one.app?#/sObject/{!row.Id}/view', '_blank');"
                                            class="slds-button slds-button_neutral manage-button"

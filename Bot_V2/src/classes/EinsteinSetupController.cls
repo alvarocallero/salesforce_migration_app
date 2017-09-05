@@ -109,7 +109,7 @@ public class EinsteinSetupController {
             WHERE Einstein_Upload_Status__c =: EinsteinUtils.UPLOAD_STATUS_ERROR
         ];
 
-				List<Einstein_Keyword__c> keywords = [
+        List<Einstein_Keyword__c> keywords = [
             SELECT Name,
             	Einstein_Data_Messages_Count__c,
             	Einstein_Upload_Status__c,
@@ -138,7 +138,7 @@ public class EinsteinSetupController {
             }
             if (keyword.Einstein_Data_Messages__r.size()>0){
                 if(keyword.Einstein_Data_Messages_Count__c < 5){
-                keywordsMissingMessages.add(keyword);
+                    keywordsMissingMessages.add(keyword);
                 }
                 else {
                     keywordsToUpload.add(keyword);
@@ -221,7 +221,9 @@ public class EinsteinSetupController {
 
     public PageReference uploadExamples() {
         resetToastMessages();
-       	if(!keywordsToUpload.isEmpty()) {
+        if(trainStatus != EinsteinUtils.EINSTEIN_TRAIN_STATUS_SUCCEEDED){
+            toastErrorMessage = 'The model is being trained now, please try again when this process has finished.';
+        } else if(!keywordsToUpload.isEmpty()) {
             String response = EinsteinUtils.uploadExamplesToEinstein(keywordsToUpload);
             if (response != null) {
                 toastErrorMessage = response;
