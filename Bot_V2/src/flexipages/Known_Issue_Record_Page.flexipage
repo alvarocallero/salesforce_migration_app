@@ -12,9 +12,6 @@
         <componentInstances>
             <componentName>force:relatedListContainer</componentName>
         </componentInstances>
-        <componentInstances>
-            <componentName>ImgAttachment</componentName>
-        </componentInstances>
         <mode>Replace</mode>
         <name>relatedTabContent</name>
         <type>Facet</type>
@@ -65,9 +62,6 @@
                 <value>maintabs</value>
             </componentInstanceProperties>
             <componentName>flexipage:tabset</componentName>
-        </componentInstances>
-        <componentInstances>
-            <componentName>ImgAttachment</componentName>
         </componentInstances>
         <mode>Replace</mode>
         <name>main</name>
