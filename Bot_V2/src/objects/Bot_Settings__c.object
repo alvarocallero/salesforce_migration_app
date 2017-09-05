@@ -14,6 +14,16 @@
         <unique>false</unique>
     </fields>
     <fields>
+        <fullName>Einstein_Email__c</fullName>
+        <description>The e-mail registered with the connected app called Einstein.</description>
+        <externalId>false</externalId>
+        <label>Einstein Email</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Email</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
         <fullName>Einstein_Enabled__c</fullName>
         <defaultValue>false</defaultValue>
         <externalId>false</externalId>
@@ -26,16 +36,6 @@
         <description>Einstein Model identifier</description>
         <externalId>false</externalId>
         <label>Einstein ModelId</label>
-        <length>255</length>
-        <required>false</required>
-        <trackTrending>false</trackTrending>
-        <type>Text</type>
-        <unique>false</unique>
-    </fields>
-    <fields>
-        <fullName>Einstein_Token__c</fullName>
-        <externalId>false</externalId>
-        <label>Einstein Token</label>
         <length>255</length>
         <required>false</required>
         <trackTrending>false</trackTrending>
