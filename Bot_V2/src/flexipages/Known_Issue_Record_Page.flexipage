@@ -10,6 +10,9 @@
     </flexiPageRegions>
     <flexiPageRegions>
         <componentInstances>
+            <componentName>ImgAttachment</componentName>
+        </componentInstances>
+        <componentInstances>
             <componentName>force:relatedListContainer</componentName>
         </componentInstances>
         <mode>Replace</mode>
@@ -62,9 +65,6 @@
                 <value>maintabs</value>
             </componentInstanceProperties>
             <componentName>flexipage:tabset</componentName>
-        </componentInstances>
-        <componentInstances>
-            <componentName>ImgAttachment</componentName>
         </componentInstances>
         <mode>Replace</mode>
         <name>main</name>
