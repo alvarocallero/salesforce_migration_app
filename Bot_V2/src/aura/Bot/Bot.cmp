@@ -16,6 +16,7 @@
     <aura:attribute name="CurrentKnownIssueId" type="String"/>
 
     <aura:attribute name="fileName" type="String" default=""/>
+    <aura:attribute name="fileNameDiv" type="String" default=""/>
     <aura:attribute name="attachmentURL" type="String" default=""/>
     <aura:attribute name="attachmentContent" type="String" default="" />
     <aura:attribute name="booleanFlag" type="Boolean" default="true" />
@@ -86,14 +87,14 @@
                         </aura:iteration>
                       </lightning:layoutitem>
 					</aura:if>
-                            
+
                             <aura:if isTrue="{!message.buttons}">
                         	<aura:iteration items="{!message.buttons}" var="button">
                             	<lightning:button label="{#button.label}" name="{#button.value}" onclick="{!c.postbackButtonClickHandler}" class="message-button slds-m-around--small"/>
                         	</aura:iteration>
                         </aura:if>
                     </lightning:layoutitem>
-                        
+
                         <aura:set attribute="else">
                             <lightning:layoutitem class="slds-border--bottom slds-border--left slds-border--right slds-border--top slds-theme--shade slds-m-around--small" padding="around-small" flexibility="grow">
                         	<p><strong>{#message.author}</strong></p>
@@ -155,7 +156,7 @@
                        value="{!v.inputMessageValue}"
                        updateOn="keydown"
                        />
-                
+
                 <div aura:id="spinnerDiv" class="slds-input__icon slds-input__icon-right slds-hidden">
       				<div role="status" class="slds-spinner slds-spinner_brand slds-spinner_x-small slds-input__spinner">
         				<span class="slds-assistive-text">Leah thinking</span>
@@ -180,7 +181,7 @@
 
                         </aura:if>
 
-                <aura:if isTrue="{!v.fileName != ''}">
+                <aura:if isTrue="{!v.fileNameDiv != ''}">
                   <div>
                     <p class="slds-text-body slds-truncate">*Attachment: "<strong>{!v.fileName}</strong>"
                     	<lightning:buttonIcon class="slds-button slds-input__icon slds-text-color--default"

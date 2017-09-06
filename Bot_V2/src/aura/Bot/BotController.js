@@ -73,7 +73,7 @@
             window.setTimeout(
     			$A.getCallback(function() {
         			component.set("v.placeholderText", "Leah is typing...");
-    			}), 2000
+    			}), 1500
 			);
              helper.submit(component, utterance, component.get('v.session'), function(answer) {
                 		if (answer) {
@@ -86,11 +86,9 @@
                     		Array.prototype.push.apply(messages, answer.messages);
                             component.set("v.CurrentKnownIssueId", answer.knownIssueId);
                     		component.set("v.messages", messages);
-                            component.set("v.fileName", "");
-        					component.set("v.attachmentURL", "");
-        					component.set("v.attachmentContent", "");
-        					component.set("v.files", null);
-                		}
+                            component.set("v.fileNameDiv", "");
+
+                        }
              });
         }
 
@@ -117,6 +115,7 @@
 				);
 
                 component.set("v.fileName", "");
+                component.set("v.fileNameDiv", "");
         		component.set("v.attachmentURL", "");
         		component.set("v.attachmentContent", "");
         		component.set("v.files", null);
@@ -134,6 +133,11 @@
                     $A.util.addClass(spinnerDiv, "slds-hidden");
                     Array.prototype.push.apply(messages, answer.messages);
                     component.set("v.messages", messages);
+                    component.set("v.fileName", "");
+                	component.set("v.fileNameDiv", "");
+        			component.set("v.attachmentURL", "");
+        			component.set("v.attachmentContent", "");
+        			component.set("v.files", null);
                 }
             });
                 break;
@@ -147,6 +151,11 @@
                         $A.util.addClass(spinnerDiv, "slds-hidden");
                         messages.push({author: "Leah", messageText: 'Glad you found what you were looking for!'});
         				component.set("v.messages", messages);
+                        component.set("v.fileName", "");
+                		component.set("v.fileNameDiv", "");
+        				component.set("v.attachmentURL", "");
+        				component.set("v.attachmentContent", "");
+        				component.set("v.files", null);
     				}), 1500
 				);
 
@@ -163,6 +172,11 @@
                     $A.util.addClass(spinnerDiv, "slds-hidden");
                     Array.prototype.push.apply(messages, answer.messages);
                     component.set("v.messages", messages);
+                    component.set("v.fileName", "");
+                	component.set("v.fileNameDiv", "");
+        			component.set("v.attachmentURL", "");
+        			component.set("v.attachmentContent", "");
+        			component.set("v.files", null);
                 }
             });
                 break;
@@ -177,6 +191,11 @@
                         $A.util.addClass(spinnerDiv, "slds-hidden");
 						Array.prototype.push.apply(messages, answer.messages);
                     	component.set("v.messages", messages);
+                        component.set("v.fileName", "");
+                		component.set("v.fileNameDiv", "");
+        				component.set("v.attachmentURL", "");
+        				component.set("v.attachmentContent", "");
+        				component.set("v.files", null);
                     }
                 });
                 break;
@@ -209,6 +228,7 @@
       component.set("v.attachmentURL", "");
       component.set("v.attachmentContent", null);
       component.set("v.fileName", "");
+        component.set("v.fileNameDiv", "");
       component.set("v.booleanFlag", true);
     },
 
@@ -226,6 +246,7 @@
                     var dataURL = reader.result;
                     var content = dataURL.match(/,(.*)$/)[1];
                     component.set("v.fileName", file.name);
+                    component.set("v.fileNameDiv", file.name);
                     component.set("v.attachmentURL", dataURL);
                     component.set("v.attachmentContent", content);
                 };
