@@ -15,7 +15,6 @@
     <types>
         <members>AltiBot_UtilityBar</members>
         <members>Known_Issue_Record_Page</members>
-        <members>LightningService_UtilityBar</members>
         <name>FlexiPage</name>
     </types>
     <types>
@@ -23,8 +22,7 @@
         <name>CustomLabels</name>
     </types>
     <types>
-        <members>Bot_Command__c-Bot Command Layout</members>
-        <members>EmailMessage-Email Message Layout</members>
+
         <members>Einstein_Keyword__c-Einstein Keyword Layout</members>
         <members>Einstein_Data_Message__c-Einstein Message Layout</members>
         <members>Known_Issue__c-Dashboard %26 Report Layout</members>
@@ -62,15 +60,6 @@
         <members>*</members>
         <name>ApexTrigger</name>
     </types>
-    <types>
-        <members>Bot_Command__c</members>
-        <members>Bot_Notification__e</members>
-        <members>Bot_Settings__c</members>
-        <members>Einstein_Data_Message__c</members>
-        <members>Einstein_Keyword__c</members>
-        <members>Known_Issue__c</members>
-        <members>Known_Issue_Subscriber__c</members>
-        <name>Workflow</name>
-    </types>
+
     <version>40.0</version>
 </Package>
