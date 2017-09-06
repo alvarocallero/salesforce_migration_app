@@ -6,4 +6,4 @@
 /.idea
 /*.iml
 /bin/
-/log4j-logs/migrator.log
+/log4j-logs
