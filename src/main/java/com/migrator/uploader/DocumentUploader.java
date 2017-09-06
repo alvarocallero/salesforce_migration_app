@@ -33,8 +33,8 @@ public class DocumentUploader {
 
 			String docName = "FileName";
 			String body = new String("This is the body of the documentttt 0_o");
-//			for (int j=0;j<25;j++){
-//				docName+=j;
+			for (int j=0;j<15;j++){
+				docName+=j;
 				SObject[] docArray = new SObject[200];
 				for (int i=0;i<200;i++){
 					SObject newDocument = new SObject();
@@ -43,7 +43,7 @@ public class DocumentUploader {
 					newDocument.setField("Name", docName);
 					newDocument.setField("Type", "txt");
 					newDocument.setField("Body", body.getBytes());
-					newDocument.setField("FolderId", "00lf4000000R6FPAA0");
+					newDocument.setField("FolderId", "00lf4000000R1IZ");
 					newDocument.setField("ContentType", "txt");
 					newDocument.setField("Description", "La Descripcion");
 					newDocument.setField("NamespacePrefix", "");
@@ -56,7 +56,7 @@ public class DocumentUploader {
 				} else {
 					logger.info("Error creating the link: " + saveResults[0].getErrors()[0].getMessage());
 				}
-//			}
+			}
 
 		} catch (Exception e) {
 			logger.error("Error on method bulkDocumentUploading: " + e);

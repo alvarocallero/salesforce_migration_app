@@ -59,8 +59,8 @@ public class RestCaller{
 	}
 	
 	
-	public static void callApiRest(String url, String accessToken, TreeMap<String,String> mapIdContentVAndFileOwner)  {
-		logger.info("Entering callApiRest >>>");
+	public static void callApiRestToCreateContentVersionData(String url, String accessToken, TreeMap<String,String> mapIdContentVAndFileOwner)  {
+		logger.info("Entering callApiRestToCreateContentVersionData >>>");
 		String responseReturn=null;
         try{
         	DefaultHttpClient httpclient = new DefaultHttpClient();
@@ -79,7 +79,7 @@ public class RestCaller{
 			try {
 				response = httpclient.execute(httpost);
 			} catch (IOException e) {
-				logger.error("Error at callApiRest: "+e);
+				logger.error("Error at callApiRestToCreateContentVersionData: "+e);
 			}
             // verify response is HTTP OK
             final int statusCode = response.getStatusLine().getStatusCode();
@@ -95,9 +95,9 @@ public class RestCaller{
 				logger.error("Error getting the response for the rest call: "+e);
 			}
 			logger.info("The REST API returned: "+responseReturn);
-			logger.info("Leaving callApiRest <<<");
+			logger.info("Leaving callApiRestToCreateContentVersionData <<<");
         }catch(Exception e){
-        	logger.error("Error at callApiRest: "+e);
+        	logger.error("Error at callApiRestToCreateContentVersionData: "+e);
         	System.exit(0);
         }
     }

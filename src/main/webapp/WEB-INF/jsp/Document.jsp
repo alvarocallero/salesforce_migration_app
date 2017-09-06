@@ -35,7 +35,7 @@
 	                <p class="begin-section" id="dataFields">
 	                    <form:form action="transformDocuments" class="form-vertical begin-form">
 	                    	<div class="formDiv">
-		                    	Org user name: <br/><input type = "text" name="orgUserName"  id="orgUserName"><br/><br/>
+		                    	Org name: <br/><input type = "text" name="orgUserName"  id="orgUserName"><br/><br/>
 		                    	Org password: <br/><input type = "password" name="orgPassword"  id="orgPassword"><br/><br/>
 		                    	Org security token: <br/><input type = "password" name="orgSecurityToken"  id="orgSecurityToken"><br/><br/><br/>
 		                        <input type="submit" onclick="SetButtonStatus(event)" value="Start migration" name="submitBtn" class="button" id="submitBtn" />
@@ -125,6 +125,7 @@
         }
         .formDiv {
         	color: white;
+        	font-family:'Source Sans Pro';
         }
         input[name=orgUserName],input[name=orgPassword],input[name=orgSecurityToken],input[name=submitBtn]
 		{
@@ -136,6 +137,7 @@
 		    border: none;
 		    border-radius: 4px;
 		    font-size: medium;
+		    font-family:'Source Sans Pro';
 		    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
 		}
 		input[name=submitBtn]
@@ -148,11 +150,11 @@
 		    cursor: pointer;
 		    color: rgb(102, 102, 102);
 		    font-family: Arial;
-		    font-size: 15px;
+		    font-size: 16px;
 		    padding: 6px 24px;
 		    text-decoration: none;
 		    text-shadow: rgb(255, 255, 255) 0px 1px 0px;
-		    font-family:Verdana;
+		    font-family:'Source Sans Pro';
 		    color: black;
 		}
 		.welcomeText {
@@ -167,8 +169,8 @@
 			var orgSecurityToken = document.getElementById('orgSecurityToken').value;
 			if (orgUserName.trim() == '' || orgPassword.trim() == '' || orgSecurityToken.trim() == '') {
 				swal({
-					  title: "Atención",
-					  text: "Se deben rellenar todos los campos para ejecutar la migración",
+					  title: "Warning",
+					  text: "All fields must be filled to execute the migration",
 					  type: "warning",
 					  confirmButtonColor: "#ff5533",
 					  animation: "slide-from-top",

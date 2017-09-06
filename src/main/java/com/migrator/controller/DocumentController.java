@@ -58,7 +58,7 @@ public class DocumentController {
 //    	DocumentUploader.bulkDocumentUploading();
     	
     	documentService.transformDocuments(request.getParameter("orgUserName"),request.getParameter("orgPassword"),request.getParameter("orgSecurityToken"));
-    	logger.info("----------  Documents Migration ended -----------------------------------");
+    	logger.info("----------  Documents Migration ended -----------------------------------\n");
         return "redirect:/documents/";
     }
     

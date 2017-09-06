@@ -63,7 +63,7 @@ public class WorkspaceHelper {
 		TreeMap<String, String> mapToReturn = mapOfCWSIdAndName;
 
 		try {
-			// chequeamos si existe en los ContentWorkspace uno que se llame igual
+			//check if exists in the ContentWorkspaces one that is called the same
 			for (SObject document : docsArray){
 				String folderId = (String)document.getField("FolderId");
 				String folderName = mapOfFolderIdAndName.get(folderId);
@@ -74,7 +74,7 @@ public class WorkspaceHelper {
 						}
 					}
 				}
-				//si no existe lo agregamos a una lista temporal
+				//if not exists it is added to a temporary list
 				if(response==null){
 					contentWorkspaceToCreate.add(folderName);
 				}
@@ -111,11 +111,15 @@ public class WorkspaceHelper {
 			}
 			SaveResult[] saveResults = DocumentServiceImpl.connection.create(contentArrayToCreate);
 			for (int i=0;i<saveResults.length;i++){
-				if (saveResults[i].getId() != null){
+				if(!saveResults[i].getSuccess()){
+					logger.info("Error at creating ContentWorkspaceBatch: " + saveResults[i].getErrors()[i].getMessage());
+					System.exit(0);
+				}
+				else if (saveResults[i].getId() != null){
 					mapResult.put(saveResults[i].getId(), contentFolderName.get(i));
 				}
 			}
-
+			logger.info("Batch of ContentWorkspace created successfully");
 		} catch (Exception e) {
 			logger.error("Error at createContentWorkspaceBatch: " + e);
 			System.exit(0);
@@ -128,14 +132,20 @@ public class WorkspaceHelper {
 		logger.info("Entering createMapOfcwsIdAndCwsId >>>");
 		//Map<FolderId,cwsId>
 		TreeMap<String,String> mapToReturn = new TreeMap<String,String>();
-		for (Map.Entry<String, String> cws : mapOfcwsIdAndName.entrySet()){
-			for (Map.Entry<String, String> folder : mapOfFolderIdAndName.entrySet()){
-				if(folder.getValue().equals(cws.getValue())){
-					mapToReturn.put(folder.getKey(), cws.getKey());
-					break;
+		try {
+			for (Map.Entry<String, String> cws : mapOfcwsIdAndName.entrySet()){
+				for (Map.Entry<String, String> folder : mapOfFolderIdAndName.entrySet()){
+					if(folder.getValue().equals(cws.getValue())){
+						mapToReturn.put(folder.getKey(), cws.getKey());
+						break;
+					}
 				}
 			}
+		} catch (Exception e) {
+			logger.error("Error at createMapOfcwsIdAndCwsId: "+e);
+			System.exit(0);
 		}
+		
 		logger.info("Leaving createMapOfcwsIdAndCwsId <<<");
 		return mapToReturn;
 	}

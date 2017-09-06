@@ -30,20 +30,6 @@ public class FileHelper {
 		return (byte[]) Base64.getDecoder().decode(fileData);
 	}
 
-//	public static SObject[] getDocumentsWithOffset(String offSet) {
-//		logger.info("Entering getDocumentsWithOffset >>>");
-//		try {
-//			QueryResult result = DocumentServiceImpl.connection.query("SELECT Id, AuthorId, FolderId, Name, Type, BodyLength, IsDeleted FROM Document "
-//																	+ "order by id asc limit 200 offset "+offSet+" ");
-//			logger.info("Leaving getDocumentsWithOffset <<<");
-//			return result.getRecords();
-//			
-//		} catch (Exception e) {
-//			logger.error("Error on method getDocumentsWithOffset: " + e);
-//			return null;
-//		}
-//	}
-	
 	public static SObject[] getFirst200Documents() {
 		logger.info("Entering getFirst200Documents >>>");
 		QueryResult result = null;
@@ -59,14 +45,14 @@ public class FileHelper {
 	}
 	
 	public static SObject[] getnext200Documents(String documentId) {
-		logger.info("Entering getFirst200DocumentsAndReturnTheIdOfTheLast >>>");
+		logger.info("Entering getnext200Documents >>>");
 		QueryResult result = null;
 		try {
 			result = DocumentServiceImpl.connection.query("SELECT Id, AuthorId, FolderId, Name, Type, BodyLength, IsDeleted FROM Document "
 					+ " where id > "+"'"+documentId+"'"+" order by id asc limit 200 ");
-			logger.info("Leaving getFirst200DocumentsAndReturnTheIdOfTheLast <<<");
+			logger.info("Leaving getnext200Documents <<<");
 		} catch (Exception e) {
-			logger.error("Error on method getFirst200DocumentsAndReturnTheIdOfTheLast: " + e);
+			logger.error("Error on method getnext200Documents: " + e);
 			System.exit(0);
 		}
 		return result.getRecords();

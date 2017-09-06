@@ -21,7 +21,7 @@
 	        <div class="container">
 	            <div class="row">
 	                <p>
-	                    <a href="/documents/" class="btn btn-default btn-block login-btn-custom"><strong>Login to Salesforce</strong></a>
+                    	<a href="/documents/" id="theBtn" class="btn btn-default login-btn-custom" ><strong>Login to Salesforce</strong></a>
 	                </p>
 	            </div>
 	        </div>
@@ -61,6 +61,10 @@
             font-weight: 400;
             src: local('Source Sans Pro Regular'), local('SourceSansPro-Regular'), url(https://fonts.gstatic.com/s/sourcesanspro/v10/ODelI1aHBYDBqgeIAH2zlNV_2ngZ8dMf8fLgjYEouxg.woff2) format('woff2');
             unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215;
+        }
+        #theBtn {
+        	width:45%;
+        	margin-left: 27%;
         }
     </style>
 </html>

@@ -61,13 +61,13 @@ public class MigrationStatusService {
 			prop.setProperty("lastDocumentId", lastDocumentId);
 			prop.store(output, null);
 		} catch (IOException io) {
-			logger.error("Error at updateStatusProperties: "+io);
+			logger.error("Error at updateCurrentPage: "+io);
 		} finally {
 			if (output != null) {
 				try {
 					output.close();
 				} catch (IOException e) {
-					logger.error("Error at updateStatusProperties: "+e);
+					logger.error("Error at updateCurrentPage: "+e);
 				}
 			}
 		}
@@ -95,13 +95,13 @@ public class MigrationStatusService {
 			prop.setProperty("lastDocumentId", lastDocumentId);
 			prop.store(output, null);
 		} catch (IOException io) {
-			logger.error("Error at updateStatusProperties: "+io);
+			logger.error("Error at updateDocumentLastId: "+io);
 		} finally {
 			if (output != null) {
 				try {
 					output.close();
 				} catch (IOException e) {
-					logger.error("Error at updateStatusProperties: "+e);
+					logger.error("Error at updateDocumentLastId: "+e);
 				}
 			}
 		}
@@ -118,13 +118,13 @@ public class MigrationStatusService {
 			prop.setProperty("lastDocumentId", "");
 			prop.store(output, null);
 		} catch (IOException io) {
-			logger.error("Error at updateStatusProperties: "+io);
+			logger.error("Error at cleanProperties: "+io);
 		} finally {
 			if (output != null) {
 				try {
 					output.close();
 				} catch (IOException e) {
-					logger.error("Error at updateStatusProperties: "+e);
+					logger.error("Error at cleanProperties: "+e);
 				}
 			}
 		}
