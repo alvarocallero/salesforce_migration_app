@@ -9,6 +9,9 @@
     <formFactors>Large</formFactors>
     <label>Adoption App</label>
     <navType>Standard</navType>
+    <tab>EinsteinSetup</tab>
+    <tab>Known_Issue__c</tab>
+    <tab>Known_Issues_Administration</tab>
     <uiType>Lightning</uiType>
     <utilityBar>AltiBot_UtilityBar</utilityBar>
 </CustomApplication>

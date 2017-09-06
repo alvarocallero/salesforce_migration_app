@@ -1,12 +1,12 @@
 ({
-    
+
     onCometdLoaded : function(component, event, helper) {
   		var cometd = new org.cometd.CometD();
   		component.set('v.cometd', cometd);
   		if (component.get('v.sessionId') != null)
     		helper.connectCometd(component);
 		},
-    
+
     doInit : function(component, event, helper){
         var action = component.get("c.userInfo");
         action.setCallback(this, function(response){
@@ -22,11 +22,11 @@
 
             }
         });
-        
+
         $A.enqueueAction(action);
-        
+
         component.set('v.cometdSubscriptions', []);
-  		
+
   		// Disconnect CometD when leaving page
   		window.addEventListener('unload', function(event) {
     		helper.disconnectCometd(component);
@@ -77,20 +77,25 @@
 			);
              helper.submit(component, utterance, component.get('v.session'), function(answer) {
                 		if (answer) {
+
                             $A.util.addClass(spinnerDiv, "slds-hidden");
-                            
+
                             component.set("v.placeholderText", "Provide feedback...");
                     		component.set("v.dataMessageId", answer.dataMessageId);
                     		component.set("v.session", answer.session);
                     		Array.prototype.push.apply(messages, answer.messages);
                             component.set("v.CurrentKnownIssueId", answer.knownIssueId);
                     		component.set("v.messages", messages);
+                            component.set("v.fileName", "");
+        					component.set("v.attachmentURL", "");
+        					component.set("v.attachmentContent", "");
+        					component.set("v.files", null);
                 		}
              });
         }
 
     },
-    
+
     postbackButtonClickHandler : function(component, event, helper) {
         var utterance = event.getSource().get("v.name");
         var btn = event.getSource();
@@ -98,7 +103,7 @@
         var messages = component.get("v.messages");
         var spinnerDiv = component.find("spinnerDiv");
         $A.util.removeClass(spinnerDiv, "slds-hidden");
-        
+
         switch(utterance){
             case 'helpful':
                 component.set("v.placeholderText", "Leah is typing...");
@@ -110,18 +115,18 @@
         				component.set("v.messages", messages);
     				}), 1500
 				);
-                
+
                 component.set("v.fileName", "");
         		component.set("v.attachmentURL", "");
         		component.set("v.attachmentContent", "");
         		component.set("v.files", null);
-        		
+
                 break;
-                
+
             case 'useless':
             var dataMessageId = component.get("v.dataMessageId");
             component.set("v.placeholderText", "Leah is creating a new Issue...");
-                
+
             helper.createNewIssue(component, dataMessageId, function(answer){
                 if(answer){
                     component.set("v.placeholderText", "Provide feedback...");
@@ -132,9 +137,9 @@
                 }
             });
                 break;
-                
+
             case 'trainHelpful':
-                
+
                 component.set("v.placeholderText", "Leah is typing...");
                 window.setTimeout(
     				$A.getCallback(function() {
@@ -144,13 +149,13 @@
         				component.set("v.messages", messages);
     				}), 1500
 				);
-        		
+
                 break;
-                
+
             case 'trainUseless':
                 var dataMessageId = component.get("v.dataMessageId");
             	component.set("v.placeholderText", "Leah is creating a new Issue...");
-                
+
             	helper.createNewIssue(component, dataMessageId, function(answer){
                 if(answer){
                     component.set("v.placeholderText", "Provide feedback...");
@@ -161,11 +166,11 @@
                 }
             });
                 break;
-                
-                
-            default: 
-            component.set("v.placeholderText", "Leah is working on your subscription...");    
-            var currentKnownIssueId = component.get("v.CurrentKnownIssueId"); 
+
+
+            default:
+            component.set("v.placeholderText", "Leah is working on your subscription...");
+            var currentKnownIssueId = component.get("v.CurrentKnownIssueId");
                 helper.subscribeUserToIssue(component, currentKnownIssueId, function(answer){
                     if(answer){
                         component.set("v.placeholderText", "Provide feedback...");
@@ -173,13 +178,13 @@
 						Array.prototype.push.apply(messages, answer.messages);
                     	component.set("v.messages", messages);
                     }
-                });    
+                });
                 break;
         }
-        
-          
+
+
     },
-    
+
     keyDownHandler : function(component, event, helper){
         var keyUpCode = 38;
         var keyDownCode = 40;
@@ -209,6 +214,7 @@
 
     loadFile: function(component, event, helper) {
         var files = event.getSource().get("v.files");
+
         if (files && files.length > 0) {
             var file = files[0][0];
             if(file){
