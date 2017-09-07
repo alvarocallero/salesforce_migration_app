@@ -69,7 +69,7 @@ public class DocumentServiceImpl implements DocumentService {
 			logger.error("Error creating the connection: "+e);
 		}
 
-		int cantDocuments=cantDocuments=getDocumentsCount();
+		int cantDocuments=getDocumentsCount();
 		if (cantDocuments > 0){
 			int currentPage;
 			String orgId=sc.getOrgId();;
