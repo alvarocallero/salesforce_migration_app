@@ -94,7 +94,6 @@ public class DocumentServiceImpl implements DocumentService {
 				SObject[] arrayOfDocuments = null;
 				Boolean migrationFinish = false;
 				logger.info("The amount of documents found is: "+cantDocuments);
-				TreeMap<String, String> mapOfCWSIdAndName = mapOfCWSIdAndName = WorkspaceHelper.getAllContentWorkSpace();
 				//avoids reaching the 2000 documents migration
 				while(getAmountOfMIgratedDocumentsToday() <= 1800 && !migrationFinish){
 					logger.info("Processing page: "+currentPage);
@@ -115,6 +114,7 @@ public class DocumentServiceImpl implements DocumentService {
 					if(arrayOfDocuments.length == 0){
 						logger.info("No more documents to migrate");
 					}else{
+						TreeMap<String, String> mapOfCWSIdAndName = WorkspaceHelper.getAllContentWorkSpace();
 						TreeMap<String, String> mapOfFolderIdAndName = getAllFoldersFromDocuments(arrayOfDocuments);
 						mapOfCWSIdAndName = WorkspaceHelper.createContentWorkspace(arrayOfDocuments, mapOfCWSIdAndName, mapOfFolderIdAndName); 
 						createContentVersionBatch(arrayOfDocuments,mapOfCWSIdAndName,url,accessToken,mapOfFolderIdAndName);
