@@ -73,16 +73,18 @@ public class WorkspaceHelper {
 							response=entry.getKey();
 						}
 					}
+					
 				}
 				//if not exists it is added to a temporary list
 				if(response==null){
-					contentWorkspaceToCreate.add(folderName);
-				}
-				else{
+					if((folderName != null) && (!contentWorkspaceToCreate.contains(folderName))){
+						contentWorkspaceToCreate.add(folderName);
+					}
+				}else{
 					mapToReturn.put(response, folderName);
 				}
-			}
 
+			}
 			TreeMap <String,String>	mapOfCreatedCWS = createContentWorkspaceBatch(contentWorkspaceToCreate);
 			for(Map.Entry<String,String> entry : mapOfCreatedCWS.entrySet()){
 				mapToReturn.put(entry.getKey(), entry.getValue());
@@ -143,9 +145,11 @@ public class WorkspaceHelper {
 		try {
 			for (Map.Entry<String, String> cws : mapOfcwsIdAndName.entrySet()){
 				for (Map.Entry<String, String> folder : mapOfFolderIdAndName.entrySet()){
-					if(folder.getValue().equals(cws.getValue())){
-						mapToReturn.put(folder.getKey(), cws.getKey());
-						break;
+					if (!folder.getValue().equals("null") && !folder.getValue().equals(null)) {
+						if(folder.getValue().equals(cws.getValue())){
+							mapToReturn.put(folder.getKey(), cws.getKey());
+							break;
+						}	
 					}
 				}
 			}
