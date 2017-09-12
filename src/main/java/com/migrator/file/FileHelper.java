@@ -35,7 +35,7 @@ public class FileHelper {
 		QueryResult result = null;
 		try {
 			result = DocumentServiceImpl.connection.query("SELECT Id, AuthorId, FolderId, Name, Type, BodyLength, IsDeleted FROM Document "
-																	+ "order by id asc limit 200 ");
+																	+ "order by id asc limit 20 ");
 			logger.info("Leaving getFirst200Documents <<<");
 		} catch (Exception e) {
 			logger.error("Error on method getFirst200Documents: " + e);
@@ -49,7 +49,7 @@ public class FileHelper {
 		QueryResult result = null;
 		try {
 			result = DocumentServiceImpl.connection.query("SELECT Id, AuthorId, FolderId, Name, Type, BodyLength, IsDeleted FROM Document "
-					+ " where id > "+"'"+documentId+"'"+" order by id asc limit 200 ");
+					+ " where id > "+"'"+documentId+"'"+" order by id asc limit 20 ");
 			logger.info("Leaving getnext200Documents <<<");
 		} catch (Exception e) {
 			logger.error("Error on method getnext200Documents: " + e);
