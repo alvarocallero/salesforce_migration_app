@@ -102,24 +102,32 @@ public class WorkspaceHelper {
 		TreeMap <String,String> mapResult = new TreeMap<String,String>();
 		try {
 			// creation of the ContentVersion SObject
+			int cantFoldersToCreate = 0;
 			SObject[] contentArrayToCreate = new SObject[contentFolderName.size()]; 
 			for (int i=0;i<contentFolderName.size();i++){
-				SObject contentWorkspace = new SObject();
-				contentWorkspace.setType("ContentWorkspace");
-				contentWorkspace.setField("Name", contentFolderName.get(i));
-				contentArrayToCreate[i] = contentWorkspace;
-			}
-			SaveResult[] saveResults = DocumentServiceImpl.connection.create(contentArrayToCreate);
-			for (int i=0;i<saveResults.length;i++){
-				if(!saveResults[i].getSuccess()){
-					logger.info("Error at creating ContentWorkspaceBatch: " + saveResults[i].getErrors()[i].getMessage());
-					System.exit(0);
-				}
-				else if (saveResults[i].getId() != null){
-					mapResult.put(saveResults[i].getId(), contentFolderName.get(i));
+				if(!String.valueOf(contentFolderName.get(i)).equals("null")) {
+					SObject contentWorkspace = new SObject();
+					contentWorkspace.setType("ContentWorkspace");
+					contentWorkspace.setField("Name", contentFolderName.get(i));
+					contentArrayToCreate[i] = contentWorkspace;
+					cantFoldersToCreate++;
 				}
 			}
-			logger.info("Batch of ContentWorkspace created successfully");
+			
+			if(cantFoldersToCreate == contentFolderName.size()) {
+				SaveResult[] saveResults = DocumentServiceImpl.connection.create(contentArrayToCreate);
+				for (int i=0;i<saveResults.length;i++){
+					if(!saveResults[i].getSuccess()){
+						logger.info("Error at creating ContentWorkspaceBatch: " + saveResults[i].getErrors()[i].getMessage());
+						System.exit(0);
+					}
+					else if (saveResults[i].getId() != null){
+						mapResult.put(saveResults[i].getId(), contentFolderName.get(i));
+					}
+				}
+				logger.info("Batch of ContentWorkspace created successfully");
+			}
+			
 		} catch (Exception e) {
 			logger.error("Error at createContentWorkspaceBatch: " + e);
 			System.exit(0);
