@@ -1,6 +1,8 @@
 package com.migrator.service;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
@@ -31,25 +33,36 @@ public class DocumentServiceImpl implements DocumentService {
 
 	public static PartnerConnection connection;
 	final static Logger logger = Logger.getLogger(DocumentServiceImpl.class);
-	public static final String FILENAME = System.getProperty("user.dir")+"\\src\\main\\resources\\migrationStatus.properties";
+//	public static final String FILENAME = System.getProperty("user.dir")+"\\src\\main\\resources\\migrationStatus.properties";
 
 	public void transformDocuments(String orgUserName, String orgPassword, String orgSecurityToken) {
 		logger.info("Entering transformDocuments >>>");
-
-		Properties properties = new Properties();
-		try {
-			InputStream in = new FileInputStream(FILENAME);
-			properties.load(in);
-			in.close();
-		} catch (IOException e1) {
-			logger.error("Error loading migrationStatus.properties: "+e1);
-		}
 
 		ConnectorConfig config = new ConnectorConfig();
 		SecurityContext sc = ForceSecurityContextHolder.get();
 		String url = sc.getEndPointHost();
 		config.setSessionId(sc.getSessionId());
-
+		File file = null;
+		Properties properties = new Properties();
+		String fileName = System.getProperty("user.dir")+"\\src\\main\\resources\\migrationStatus-";
+		fileName+=sc.getOrgId()+".properties";
+		try {
+			InputStream in = new FileInputStream(fileName);
+			properties.load(in);
+			in.close();
+		} catch (FileNotFoundException e1) {
+			logger.error("the properties file does not exist, is going to be created");
+			try {
+				file = new File(fileName);
+				file.getParentFile().mkdirs();
+				file.createNewFile();
+			} catch (IOException e) {
+				logger.error("Error creating the status properties file");
+			}
+		} catch (IOException e) {
+			logger.error("Error loading the properties file");
+		}
+		
 		//Set the API version to 40.0
 		config.setServiceEndpoint(url+"/services/Soap/u/40.0");
 		
@@ -72,7 +85,7 @@ public class DocumentServiceImpl implements DocumentService {
 		int cantDocuments=getDocumentsCount();
 		if (cantDocuments > 0){
 			int currentPage;
-			String orgId=sc.getOrgId();;
+			String orgId=sc.getOrgId();
 			String lastDocumentId=null;
 			Boolean firstTime;
 			try {
@@ -87,7 +100,7 @@ public class DocumentServiceImpl implements DocumentService {
 					logger.info("There´s no previous migration process");
 					currentPage=1;
 					firstTime=true;
-					MigrationStatusService.updatePropertiesStatus(orgId,currentPage,cantDocuments);
+					MigrationStatusService.updatePropertiesStatus(orgId,currentPage,cantDocuments,fileName);
 				}
 				String accessToken = RestCaller.getAccesToken(orgUserName,orgPassword,orgSecurityToken);
 				
@@ -100,13 +113,13 @@ public class DocumentServiceImpl implements DocumentService {
 					if(firstTime || currentPage == 1){
 						arrayOfDocuments = FileHelper.getFirst200Documents();
 						lastDocumentId = (String)arrayOfDocuments[arrayOfDocuments.length - 1].getField("Id");
-						MigrationStatusService.updateDocumentLastId(lastDocumentId);
+						MigrationStatusService.updateDocumentLastId(lastDocumentId,fileName);
 						firstTime=false;
 					}else{
 						arrayOfDocuments = FileHelper.getnext200Documents(lastDocumentId);
 						if(arrayOfDocuments.length != 0){
 							lastDocumentId = (String)arrayOfDocuments[arrayOfDocuments.length - 1].getField("Id");
-							MigrationStatusService.updateDocumentLastId(lastDocumentId);
+							MigrationStatusService.updateDocumentLastId(lastDocumentId,fileName);
 						}else{
 							migrationFinish=true;
 						}
@@ -120,10 +133,12 @@ public class DocumentServiceImpl implements DocumentService {
 						createContentVersionBatch(arrayOfDocuments,mapOfCWSIdAndName,url,accessToken,mapOfFolderIdAndName);
 						logger.info("Page "+currentPage+" processed");
 						currentPage+=1;
-						MigrationStatusService.updateCurrentPage(currentPage);
+						MigrationStatusService.updateCurrentPage(currentPage,fileName);
 					}
 				}
-				MigrationStatusService.cleanProperties();
+				if(!migrationFinish){
+					logger.info("Maximum limit of possible documents to be migrated reached");
+				}
 			} catch (Exception e) {
 				logger.error("Error on the migration: "+e);
 			}
@@ -157,7 +172,7 @@ public class DocumentServiceImpl implements DocumentService {
 			contentVersion.setField("VersionData", fileDataByteArray);
 			contentVersion.setField("Title", fileName);
 			contentVersion.setField("PathOnClient", fileName);
-			contentVersion.setField("IsMajorVersion", false);
+			//contentVersion.setField("IsMajorVersion", false);
 			contentVersionArrayToCreate[i]=contentVersion;
 		}
 		try {

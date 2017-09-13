@@ -11,16 +11,16 @@ import org.apache.log4j.Logger;
 
 public class MigrationStatusService {
 	
-	public static final String FILENAME = System.getProperty("user.dir")+"\\src\\main\\resources\\migrationStatus.properties";
+//	public static final String FILENAME = System.getProperty("user.dir")+"\\src\\main\\resources\\migrationStatus.properties";
 	
 	final static Logger logger = Logger.getLogger(MigrationStatusService.class);
 
 
-	public static void updatePropertiesStatus(String orgId, int currentPage, int cantDocs){
+	public static void updatePropertiesStatus(String orgId, int currentPage, int cantDocs, String fileName){
 		Properties prop = new Properties();
 		OutputStream output = null;
 		try {
-			output = new FileOutputStream(FILENAME);
+			output = new FileOutputStream(fileName);
 			prop.setProperty("orgId", orgId);
 			prop.setProperty("currentPage", String.valueOf(currentPage));
 			prop.setProperty("cantDocs", String.valueOf(cantDocs));
@@ -39,11 +39,11 @@ public class MigrationStatusService {
 		}
 	}
 	
-	public static void updateCurrentPage(int currentPage){
+	public static void updateCurrentPage(int currentPage, String fileName){
 		Properties prop = new Properties();
 		OutputStream output = null;
 		try {
-			InputStream in = new FileInputStream(FILENAME);
+			InputStream in = new FileInputStream(fileName);
 			prop.load(in);
 			in.close();
 		} catch (IOException e1) {
@@ -51,7 +51,7 @@ public class MigrationStatusService {
 		}
 		
 		try {
-			output = new FileOutputStream(FILENAME);
+			output = new FileOutputStream(fileName);
 			String orgId = (prop.getProperty("orgId") != null && !prop.getProperty("orgId").equals(""))?prop.getProperty("orgId"):"";
 			String cantDocs = (prop.getProperty("cantDocs") != null && !prop.getProperty("cantDocs").equals(""))?prop.getProperty("cantDocs"):"";
 			String lastDocumentId = (prop.getProperty("lastDocumentId") != null && !prop.getProperty("lastDocumentId").equals(""))?prop.getProperty("lastDocumentId"):"";
@@ -73,11 +73,11 @@ public class MigrationStatusService {
 		}
 	}
 	
-	public static void updateDocumentLastId(String lastDocumentId){
+	public static void updateDocumentLastId(String lastDocumentId, String fileName){
 		Properties prop = new Properties();
 		OutputStream output = null;
 		try {
-			InputStream in = new FileInputStream(FILENAME);
+			InputStream in = new FileInputStream(fileName);
 			prop.load(in);
 			in.close();
 		} catch (IOException e1) {
@@ -85,7 +85,7 @@ public class MigrationStatusService {
 		}
 		
 		try {
-			output = new FileOutputStream(FILENAME);
+			output = new FileOutputStream(fileName);
 			String orgId = (prop.getProperty("orgId") != null && !prop.getProperty("orgId").equals(""))?prop.getProperty("orgId"):"";
 			String cantDocs = (prop.getProperty("cantDocs") != null && !prop.getProperty("cantDocs").equals(""))?prop.getProperty("cantDocs"):"";
 			String currentPage = (prop.getProperty("currentPage") != null && !prop.getProperty("currentPage").equals(""))?prop.getProperty("currentPage"):"";
@@ -107,26 +107,4 @@ public class MigrationStatusService {
 		}
 	}
 	
-	public static void cleanProperties(){
-		Properties prop = new Properties();
-		OutputStream output = null;
-		try {
-			output = new FileOutputStream(FILENAME);
-			prop.setProperty("orgId", "");
-			prop.setProperty("currentPage", "");
-			prop.setProperty("cantDocs", "");
-			prop.setProperty("lastDocumentId", "");
-			prop.store(output, null);
-		} catch (IOException io) {
-			logger.error("Error at cleanProperties: "+io);
-		} finally {
-			if (output != null) {
-				try {
-					output.close();
-				} catch (IOException e) {
-					logger.error("Error at cleanProperties: "+e);
-				}
-			}
-		}
-	}
 }

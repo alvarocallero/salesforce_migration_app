@@ -82,6 +82,7 @@ public class WorkspaceHelper {
 					}
 				}else{
 					mapToReturn.put(response, folderName);
+					response=null; 
 				}
 
 			}
