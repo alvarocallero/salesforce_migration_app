@@ -167,9 +167,7 @@ public class DocumentServiceImpl implements DocumentService {
 			SObject contentVersion = new SObject();
 			contentVersion.setType("ContentVersion");
 			String fileName = FileHelper.getFileFullName(arrayOfDocuments[i]);
-			byte[] fileDataByteArray = FileHelper.fileDataAsByteArray("asdsaetretrertreterterttretretretretretterttretretretretretterttretretretretretterttretretretretretretertetretertretetdsaa");
-
-			contentVersion.setField("VersionData", fileDataByteArray);
+			contentVersion.setField("VersionData", " ".getBytes());
 			contentVersion.setField("Title", fileName);
 			contentVersion.setField("PathOnClient", fileName);
 			//contentVersion.setField("IsMajorVersion", false);
