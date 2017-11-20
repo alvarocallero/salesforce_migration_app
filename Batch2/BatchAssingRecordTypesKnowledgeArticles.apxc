@@ -1,0 +1,97 @@
+global class BatchAssingRecordTypesKnowledgeArticles implements Database.Batchable<sObject>{
+    
+    //Map<RecordTypeName,RecordTypeId>
+    global Map <String,Id> rcdTypeNameAndIdMap;
+    global String articleStatus;
+    global Map<String, Schema.SObjectField> kavFieldsMap;
+    
+    global BatchAssingRecordTypesKnowledgeArticles(String status){
+        articleStatus=status;
+        kavFieldsMap=Schema.getGlobalDescribe().get('Knowledge__kav').getDescribe().fields.getMap();
+        rcdTypeNameAndIdMap = new Map<String,Id>();
+        for (RecordType rec : [select name, id from RecordType where SObjectType='Knowledge__kav']){
+            rcdTypeNameAndIdMap.put(rec.name,rec.id);
+        }
+        
+    }
+    
+    global Database.QueryLocator start(Database.BatchableContext BC){
+        String soql='SELECT ';
+            //Obtain all the fields of the Knowledge__kav object
+
+        for(String key : kavFieldsMap.keySet()){
+            soql+=key+',';
+        }
+        soql=soql.substring(0,soql.length()-1);
+        soql+=' from Knowledge__kav';
+        if(articleStatus.equals('draft')){
+            soql+=' where PublishStatus = \'draft\'';    
+        }else if (articleStatus.equals('archived')){
+            soql+=' where PublishStatus = \'archived\'';
+        }
+        return Database.getQueryLocator(soql);
+    }
+    
+    global void execute(Database.BatchableContext BC, List<Knowledge__kav> scope){
+        if(articleStatus.equals('draft')){
+            for(Knowledge__kav k : scope){
+                k.recordTypeId = rcdTypeNameAndIdMap.get(k.Original_Article_Type__c);
+            } 
+            update scope;
+        }else if (articleStatus.equals('archived')){
+            //LOGICA DE LOS ARTICULOS ARCHIVADOS
+            
+        }else{
+            //Published articles
+            
+            //Lst of Articles to create
+            List<Knowledge__kav> lstCloned = new List<Knowledge__kav>(); 
+            
+            //List of Knowledge__ka to delete after create new articles
+            List<Id> idsLstToDelete = new List<Id>(); 
+            for(Knowledge__kav k : lstCloned){
+                idsLstToDelete.add(k.KnowledgeArticleId);
+            } 
+            List<Knowledge__ka> articlesToDelete = [Select id from Knowledge__ka where id in :idsLstToDelete];
+            
+            for(Knowledge__kav k : scope){
+                //add standard fields
+                Knowledge__kav newKnowledge = new Knowledge__kav();
+                newKnowledge.IsVisibleInPrm = k.IsVisibleInPrm;
+                newKnowledge.Language = k.Language;
+                newKnowledge.recordTypeId = rcdTypeNameAndIdMap.get(k.Original_Article_Type__c);
+                newKnowledge.Summary = k.Summary;
+                newKnowledge.Title = k.Title;
+                newKnowledge.URLName = k.URLName+'-Knowledge';
+                
+                //add custom fields
+                for(String key : kavFieldsMap.keySet()){
+                    if (key.contains('__c')){
+                        newKnowledge.put(key,k.get(key));
+                    }
+                }
+                lstCloned.add(newKnowledge);
+            }
+            insert lstCloned;
+            
+            //Create a lst of Ids of Atticles to publish
+            List<Id> idsLst = new List<Id>(); 
+            for(Knowledge__kav k : lstCloned){
+                idsLst.add(k.Id);
+            } 
+            
+            List<Knowledge__kav> insertedArticles = [SELECT KnowledgeArticleId FROM Knowledge__kav WHERE ID in :idsLst];
+            
+            //Publish the articles/
+            for(Knowledge__kav k : insertedArticles){
+                KbManagement.PublishingService.publishArticle(k.KnowledgeArticleId, true);
+            }
+            
+            //Delete the original Articles
+            delete articlesToDelete;
+        }
+    }
+    
+    global void finish(Database.BatchableContext BC){
+    }
+}
